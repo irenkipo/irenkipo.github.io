@@ -13,7 +13,7 @@
   <link rel="canonical" href="https://irenkipo.github.io/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Tenor+Sans&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Tenor+Sans&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -25,71 +25,48 @@
       <span class="brand-series">серия «Всё хорошо»</span>
     </a>
     <nav class="nav" aria-label="Основная навигация">
-      <a href="#series">Серия</a>
+      <a href="#author">Автор</a>
       <a href="#book">Книга 1</a>
       <a href="#read">Читать</a>
       <a href="#downloads">Скачать</a>
-      <a href="#author">Автор</a>
+      <a href="#series">Вся серия</a>
+      <a href="#book-two">Книга 2</a>
       <a href="#news">Новости</a>
-      <a href="#contacts">Контакты</a>
+      <a href="#contacts">Ссылки</a>
     </nav>
   </header>
 
   <main id="main">
+    <!-- 1. БАННЕР СЕРИИ -->
     <section class="series-hero" id="top">
       <div class="hero-banner">
         <img src="assets/images/series-cover.jpg" alt="Серия романов «Всё хорошо» Ирэн Кипо" width="2033" height="774">
       </div>
-
-      <div class="hero-summary">
-        <div class="hero-title-block">
-          <p class="eyebrow">Ирэн Кипо · серия романов</p>
-          <h1>«Всё хорошо»</h1>
-          <p class="hero-lead">Семейная сага в четырёх книгах.</p>
-        </div>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#book">Начать с Книги 1</a>
-          <a class="button button-secondary" href="#read">Читать бесплатно</a>
-        </div>
+      <div class="banner-caption">
+        <p class="eyebrow">Ирэн Кипо · серия романов</p>
+        <h1>«Всё хорошо»</h1>
+        <p class="hero-lead">Семейная сага в четырёх книгах.</p>
       </div>
+    </section>
 
-      <div class="series-track" aria-label="Книги серии Всё хорошо">
-        <a class="track-item active" href="#book">
-          <span>01</span>
-          <strong>В зоне видимости</strong>
-          <small>Опубликована</small>
-        </a>
-        <a class="track-item" href="#subscribe">
-          <span>02</span>
-          <strong>Правила игры</strong>
-          <small>В работе</small>
-        </a>
-        <div class="track-item">
-          <span>03</span>
-          <strong>Другая Вера</strong>
-          <small>Продолжение серии</small>
-        </div>
-        <div class="track-item">
-          <span>04</span>
-          <strong>Ничего личного</strong>
-          <small>Финальная книга</small>
+    <!-- 2. АВАТАР / АВТОР -->
+    <section class="section author-section" id="author">
+      <div class="section-label">01 / АВТОР</div>
+      <div class="author-layout">
+        <figure class="author-avatar">
+          <img src="assets/images/avatar.jpg" alt="Ирэн Кипо" width="1254" height="1254" loading="lazy">
+        </figure>
+        <div class="author-copy">
+          <p class="eyebrow">Автор серии «Всё хорошо»</p>
+          <h2>Ирэн Кипо</h2>
+          <div class="prose">
+            <p>Здесь будут появляться новые книги серии, материалы о работе над романами и информация о продолжении.</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="series">
-      <div class="section-label">01 / ВСЯ СЕРИЯ</div>
-      <div class="series-intro-grid">
-        <div>
-          <p class="eyebrow">«Всё хорошо»</p>
-          <h2>Четыре книги одной семейной истории</h2>
-        </div>
-        <div class="prose">
-          <p>Серия развивается от книги к книге как единая семейная сага. На сайте собраны книги, чтение, новости и материалы по всей серии.</p>
-        </div>
-      </div>
-    </section>
-
+    <!-- 3. КНИГА 1 -->
     <section class="section book-section" id="book">
       <div class="section-label">02 / КНИГА 1</div>
       <div class="book-layout">
@@ -112,21 +89,32 @@
       </div>
     </section>
 
+    <!-- 4. ЧИТАТЬ -->
     <section class="section reading-section" id="read">
-      <div class="section-label">03 / ЧИТАТЬ ОНЛАЙН</div>
+      <div class="section-label">03 / ЧИТАТЬ</div>
       <div class="two-columns">
         <div>
-          <p class="eyebrow">Книга 1</p>
+          <p class="eyebrow">«В зоне видимости»</p>
           <h2>Читать на сайте</h2>
         </div>
         <div class="prose">
-          <p>Здесь будет полная публикационная версия «В зоне видимости»: оглавление, главы и переходы между ними.</p>
-          <p>Пока книга доступна на ЛитРес.</p>
-          <a class="text-link" href="https://www.litres.ru/74382683/" target="_blank" rel="noopener noreferrer">Открыть книгу на ЛитРес →</a>
+          <div class="parts-list">
+            <div class="part-card">
+              <strong>Часть 1</strong>
+              <span>Главы 1–6</span>
+            </div>
+            <div class="part-card">
+              <strong>Часть 2</strong>
+              <span>Главы 7–11</span>
+            </div>
+          </div>
+          <p>Тексты глав будут подключены из утверждённой публикационной версии книги.</p>
+          <a class="text-link" href="https://www.litres.ru/74382683/" target="_blank" rel="noopener noreferrer">Пока читать на ЛитРес →</a>
         </div>
       </div>
     </section>
 
+    <!-- 5. СКАЧАТЬ -->
     <section class="section" id="downloads">
       <div class="section-label">04 / СКАЧАТЬ</div>
       <div class="two-columns">
@@ -137,30 +125,66 @@
       </div>
     </section>
 
-    <section class="subscribe-section" id="subscribe">
-      <p class="eyebrow">Следующая книга серии</p>
-      <h2>«Правила игры»</h2>
-      <p>Здесь будет подключена подписка на уведомление о выходе Книги 2.</p>
-    </section>
-
-    <section class="section author-section" id="author">
-      <div class="section-label">05 / АВТОР</div>
-      <div class="author-layout">
-        <figure class="author-avatar">
-          <img src="assets/images/avatar.jpg" alt="Ирэн Кипо" width="1254" height="1254" loading="lazy">
-        </figure>
-        <div class="author-copy">
-          <p class="eyebrow">Автор серии «Всё хорошо»</p>
-          <h2>Ирэн Кипо</h2>
-          <div class="prose">
-            <p>Здесь будут появляться новые книги серии, материалы о работе над романами и информация о продолжении.</p>
-          </div>
+    <!-- 6. ВСЕ КНИГИ СЕРИИ -->
+    <section class="section series-section" id="series">
+      <div class="section-label">05 / ВСЕ КНИГИ СЕРИИ</div>
+      <div class="series-heading">
+        <div>
+          <p class="eyebrow">Серия «Всё хорошо»</p>
+          <h2>Четыре книги одной истории</h2>
         </div>
+        <p class="series-note">Обложки Книг 2–4 будут поставлены сюда только после утверждения.</p>
+      </div>
+      <div class="series-books">
+        <article class="series-book-card current">
+          <div class="series-book-cover">
+            <img src="assets/images/book1-cover.jpg" alt="Обложка книги «В зоне видимости»" loading="lazy">
+          </div>
+          <span class="book-number">01</span>
+          <h3>«В зоне видимости»</h3>
+          <p>Опубликована</p>
+        </article>
+        <article class="series-book-card">
+          <div class="series-book-cover cover-pending"><span>02</span></div>
+          <span class="book-number">02</span>
+          <h3>«Правила игры»</h3>
+          <p>В работе</p>
+        </article>
+        <article class="series-book-card">
+          <div class="series-book-cover cover-pending"><span>03</span></div>
+          <span class="book-number">03</span>
+          <h3>«Другая Вера»</h3>
+          <p>Продолжение серии</p>
+        </article>
+        <article class="series-book-card">
+          <div class="series-book-cover cover-pending"><span>04</span></div>
+          <span class="book-number">04</span>
+          <h3>«Ничего личного»</h3>
+          <p>Финальная книга</p>
+        </article>
       </div>
     </section>
 
+    <!-- 7. КНИГА 2 + ФОРМА -->
+    <section class="subscribe-section" id="book-two">
+      <div class="subscribe-copy">
+        <p class="eyebrow">Книга 2 серии «Всё хорошо»</p>
+        <h2>«Правила игры»</h2>
+        <p>Книга в работе. Здесь можно будет подписаться на уведомление о выходе.</p>
+      </div>
+      <form class="notify-form" id="subscribe" onsubmit="return false;" aria-label="Подписка на выход книги Правила игры">
+        <label for="notify-email">E-mail</label>
+        <div class="form-row">
+          <input id="notify-email" name="email" type="email" placeholder="Ваш e-mail" autocomplete="email">
+          <button type="submit" disabled>Подписаться</button>
+        </div>
+        <small>Подключение отправки формы — следующий технический шаг.</small>
+      </form>
+    </section>
+
+    <!-- 8. НОВОСТИ -->
     <section class="section" id="news">
-      <div class="section-label">06 / НОВОСТИ СЕРИИ</div>
+      <div class="section-label">06 / НОВОСТИ</div>
       <div class="two-columns">
         <h2>Новости «Всё хорошо»</h2>
         <div class="prose">
@@ -170,6 +194,7 @@
     </section>
   </main>
 
+  <!-- 9. ССЫЛКИ -->
   <footer class="footer" id="contacts">
     <div>
       <strong>Ирэн Кипо</strong>
