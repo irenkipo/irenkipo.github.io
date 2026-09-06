@@ -55,12 +55,9 @@
           <a class="button button-secondary" href="https://www.litres.ru/74382683/" target="_blank" rel="noopener noreferrer">Читать Книгу 1</a>
         </div>
       </div>
-      <div class="series-signal" aria-hidden="true">
-        <span>01</span>
-        <span>02</span>
-        <span>03</span>
-        <span>04</span>
-      </div>
+      <a class="series-visual" href="https://www.litres.ru/74382683/" target="_blank" rel="noopener noreferrer" aria-label="Открыть Книгу 1 на ЛитРес">
+        <img src="assets/images/series-cover.jpg" alt="Утверждённый визуал серии «Всё хорошо» Ирэн Кипо" width="2033" height="774">
+      </a>
     </section>
 
     <section class="section series-section" id="series">
@@ -72,24 +69,38 @@
         </div>
         <div class="book-grid">
           <article class="book-card current">
-            <span class="book-number">КНИГА 01</span>
-            <h3>«В зоне видимости»</h3>
-            <p>Опубликована</p>
+            <div class="book-card-visual">
+              <img src="assets/images/book1-cover.jpg" alt="Обложка Книги 1 «В зоне видимости»" width="2400" height="3405" loading="lazy">
+            </div>
+            <div class="book-card-meta">
+              <span class="book-number">КНИГА 01</span>
+              <h3>«В зоне видимости»</h3>
+              <p>Опубликована</p>
+            </div>
           </article>
           <article class="book-card">
-            <span class="book-number">КНИГА 02</span>
-            <h3>«Правила игры»</h3>
-            <p>В работе</p>
+            <div class="book-card-placeholder" aria-hidden="true"><span>02</span></div>
+            <div class="book-card-meta">
+              <span class="book-number">КНИГА 02</span>
+              <h3>«Правила игры»</h3>
+              <p>В работе</p>
+            </div>
           </article>
           <article class="book-card">
-            <span class="book-number">КНИГА 03</span>
-            <h3>«Другая Вера»</h3>
-            <p>Продолжение серии</p>
+            <div class="book-card-placeholder" aria-hidden="true"><span>03</span></div>
+            <div class="book-card-meta">
+              <span class="book-number">КНИГА 03</span>
+              <h3>«Другая Вера»</h3>
+              <p>Продолжение серии</p>
+            </div>
           </article>
           <article class="book-card">
-            <span class="book-number">КНИГА 04</span>
-            <h3>«Ничего личного»</h3>
-            <p>Продолжение серии</p>
+            <div class="book-card-placeholder" aria-hidden="true"><span>04</span></div>
+            <div class="book-card-meta">
+              <span class="book-number">КНИГА 04</span>
+              <h3>«Ничего личного»</h3>
+              <p>Продолжение серии</p>
+            </div>
           </article>
         </div>
       </div>
@@ -98,26 +109,36 @@
     <section class="section book-section" id="book">
       <div class="section-label">02 / КНИГА 1</div>
       <div class="section-content book-layout">
-        <div class="book-heading">
-          <p class="eyebrow">Первая опубликованная книга серии</p>
-          <h2>«В зоне видимости»</h2>
-        </div>
-        <div class="prose approved-description">
-          <p>За жизнью Веры и Арсения Ланских следят миллионы. Семейный блог „Всё хорошо“ вырос вместе с их семьёй: любовь, трое детей, работа, успех — и привычка делиться частью своей жизни с другими.</p>
-          <p>Когда новая технология обещает освободить их от постоянной съёмки, решение выглядит простым: теперь можно меньше думать о контенте и больше быть вместе.</p>
-          <p>Если всё хорошо — почему бы не сделать ещё лучше?</p>
-          <a class="text-link" href="https://www.litres.ru/74382683/" target="_blank" rel="noopener noreferrer">Открыть книгу на ЛитРес →</a>
+        <figure class="book-cover">
+          <img src="assets/images/book1-cover.jpg" alt="Обложка Книги 1 «В зоне видимости»" width="2400" height="3405" loading="lazy">
+        </figure>
+        <div class="book-copy">
+          <div class="book-heading">
+            <p class="eyebrow">Первая опубликованная книга серии</p>
+            <h2>«В зоне видимости»</h2>
+          </div>
+          <div class="prose approved-description">
+            <p>За жизнью Веры и Арсения Ланских следят миллионы. Семейный блог „Всё хорошо“ вырос вместе с их семьёй: любовь, трое детей, работа, успех — и привычка делиться частью своей жизни с другими.</p>
+            <p>Когда новая технология обещает освободить их от постоянной съёмки, решение выглядит простым: теперь можно меньше думать о контенте и больше быть вместе.</p>
+            <p>Если всё хорошо — почему бы не сделать ещё лучше?</p>
+            <a class="text-link" href="https://www.litres.ru/74382683/" target="_blank" rel="noopener noreferrer">Открыть книгу на ЛитРес →</a>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="section author-section" id="author">
       <div class="section-label">03 / АВТОР</div>
-      <div class="section-content two-columns">
-        <h2>Ирэн Кипо</h2>
-        <div class="prose">
-          <p>Автор серии «Всё хорошо».</p>
-          <p>На этой странице будут появляться новые книги серии, материалы о работе над романами и информация о продолжении.</p>
+      <div class="section-content author-layout">
+        <figure class="author-avatar">
+          <img src="assets/images/avatar.jpg" alt="Аватар автора Ирэн Кипо" width="1254" height="1254" loading="lazy">
+        </figure>
+        <div class="author-copy">
+          <h2>Ирэн Кипо</h2>
+          <div class="prose">
+            <p>Автор серии «Всё хорошо».</p>
+            <p>На этой странице будут появляться новые книги серии, материалы о работе над романами и информация о продолжении.</p>
+          </div>
         </div>
       </div>
     </section>
