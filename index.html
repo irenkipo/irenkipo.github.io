@@ -1,202 +1,157 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ирэн Кипо — серия «Всё хорошо»</title>
-  <meta name="description" content="Официальный сайт серии романов «Всё хорошо» Ирэн Кипо. Первая книга — «В зоне видимости».">
-  <meta name="theme-color" content="#f8f4ec">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Ирэн Кипо — серия «Всё хорошо»">
-  <meta property="og:description" content="Семейная сага в четырёх книгах. Первая книга — «В зоне видимости».">
-  <meta property="og:url" content="https://irenkipo.github.io/">
-  <link rel="canonical" href="https://irenkipo.github.io/">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Tenor+Sans&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ирэн Кипо — серия романов «Всё хорошо»</title>
+<meta name="description" content="Официальный сайт Ирэн Кипо. Серия романов «Всё хорошо» — семейная сага в четырёх книгах.">
+<meta name="theme-color" content="#f5f0e7">
+<style>
+:root{--paper:#f5f0e7;--ink:#2f2e2a;--teal:#0c6570;--teal2:#1b7780;--gold:#a98143;--line:#7da0a0;--muted:#6c675e}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#e9e2d7;color:var(--ink);font-family:Georgia,'Times New Roman',serif}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+.page{width:min(1180px,100%);margin:auto;background:var(--paper);box-shadow:0 10px 50px rgba(45,38,30,.08);overflow:hidden}
+.wrap{padding:0 42px}
+.topbar{height:78px;display:flex;align-items:center;border-bottom:1px solid var(--line);gap:18px}
+.monogram{width:56px;height:56px;border:1px solid var(--teal);display:grid;place-items:center;font-size:26px;letter-spacing:-.12em;position:relative;background:#f8f4ec}
+.monogram:after{content:'❧';position:absolute;right:-13px;top:-3px;font-size:30px;color:#7f8977;transform:rotate(-22deg)}
+.brand{font-size:22px;letter-spacing:.32em;white-space:nowrap}
+nav{margin-left:auto;display:flex;gap:30px;font-size:14px}
+nav a:hover{color:var(--teal)}
+.hero{display:grid;grid-template-columns:42% 58%;min-height:530px;border-bottom:1px solid var(--line);position:relative}
+.hero-copy{padding:62px 0 40px 45px;display:flex;flex-direction:column;justify-content:center;z-index:2}
+.kicker{font-size:24px;letter-spacing:.30em;margin-bottom:20px}
+.hero h1{font-size:68px;line-height:.95;letter-spacing:.04em;font-weight:400;color:var(--teal);margin:0 0 18px}
+.series-label{font-size:21px;color:var(--gold);letter-spacing:.30em;margin-bottom:16px}
+.saga{font-size:18px;letter-spacing:.16em}
+.hero-art{position:relative;min-height:500px}
+.hero-art img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.section-rule{height:24px;position:relative;margin:0 35px}
+.section-rule:before{content:'';position:absolute;left:0;right:0;top:11px;border-top:1px solid var(--line)}
+.section-rule:after{content:'';position:absolute;left:50%;top:7px;width:8px;height:8px;background:var(--teal);transform:rotate(45deg)}
+.book1{display:grid;grid-template-columns:42% 58%;gap:30px;padding:30px 48px 34px;align-items:center}
+.book-visual{display:flex;justify-content:center;align-items:center}
+.book-visual img{max-height:500px;max-width:100%;filter:drop-shadow(0 24px 18px rgba(48,40,31,.16))}
+.eyebrow{font-size:22px;letter-spacing:.26em;margin-bottom:18px}
+.book1 h2,.book2 h2{font-size:40px;letter-spacing:.06em;font-weight:400;margin:0 0 24px;color:#242624}
+.desc{font-size:17px;line-height:1.7;max-width:670px}
+.desc p{margin:0 0 14px}
+.desc p:last-child{color:var(--teal);font-weight:600}
+.actions{display:flex;gap:24px;margin-top:26px;flex-wrap:wrap}
+.btn{min-width:190px;padding:15px 28px;border:1px solid var(--teal);background:transparent;color:var(--teal);font-size:18px;cursor:pointer}
+.btn.primary{background:var(--teal);color:#fff}
+.series{padding:12px 34px 30px;text-align:center}
+.series h2{font-weight:400;color:var(--teal);font-size:32px;letter-spacing:.24em;margin:0 0 8px}
+.series-sub{font-size:15px;letter-spacing:.13em;margin-bottom:26px;color:var(--muted)}
+.covers{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;align-items:end}
+.covers img{width:100%;display:block;box-shadow:0 8px 18px rgba(38,31,24,.10)}
+.book2{display:grid;grid-template-columns:58% 42%;gap:18px;padding:28px 48px 40px;align-items:center}
+.book2-copy{padding-left:40px}
+.book2-copy p{font-size:17px;line-height:1.65;max-width:520px}
+.subscribe{display:flex;gap:10px;max-width:520px;margin-top:20px}
+.subscribe input{flex:1;padding:13px 14px;border:1px solid #aaa39a;background:#fbf8f1}
+.subscribe button{padding:13px 24px;border:1px solid var(--teal);background:var(--teal);color:white;cursor:pointer}
+.form-note{font-size:13px;color:var(--muted);margin-top:9px;min-height:20px}
+.author{padding:26px 50px 20px;display:grid;grid-template-columns:100px 1fr;gap:26px;align-items:center;border-top:1px solid var(--line)}
+.author img{width:92px;height:78px;object-fit:cover}
+.author h3{font-size:28px;font-weight:400;letter-spacing:.16em;margin:0 0 6px}
+.author p{margin:0;font-size:16px}
+.social{display:flex;gap:28px;flex-wrap:wrap;padding:18px 50px;border-top:1px solid rgba(12,101,112,.35);font-size:16px}
+.social a:hover{color:var(--teal)}
+footer{display:flex;justify-content:space-between;gap:30px;padding:16px 50px 28px;border-top:1px solid rgba(12,101,112,.35);font-size:12px;color:var(--muted)}
+.modal{position:fixed;inset:0;background:rgba(25,22,18,.48);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal.open{display:flex}
+.modal-card{background:var(--paper);border:1px solid var(--line);width:min(560px,100%);padding:30px;box-shadow:0 20px 70px rgba(0,0,0,.2)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal h3{font-size:28px;font-weight:400;margin:0;color:var(--teal)}
+.close{border:0;background:none;font-size:28px;cursor:pointer}
+.modal-links{display:grid;gap:12px}
+.modal-links a,.modal-links button{padding:12px 14px;border:1px solid var(--line);background:#faf7f0;text-align:left;cursor:pointer}
+.small{font-size:13px;color:var(--muted);line-height:1.5}
+@media(max-width:820px){
+ .wrap{padding:0 20px}.topbar{height:auto;padding:12px 0;flex-wrap:wrap}nav{width:100%;margin-left:0;gap:14px;flex-wrap:wrap}
+ .hero{grid-template-columns:1fr}.hero-copy{padding:40px 26px 20px}.hero h1{font-size:48px}.hero-art{min-height:360px}
+ .book1,.book2{grid-template-columns:1fr;padding:24px 26px}.book2-copy{padding-left:0}.covers{grid-template-columns:repeat(2,1fr)}
+ .author{grid-template-columns:80px 1fr;padding:24px 26px}.social,footer{padding-left:26px;padding-right:26px}.book-visual img{max-height:430px}
+}
+</style>
 </head>
 <body>
-  <a class="skip-link" href="#main">К содержанию</a>
-
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="Ирэн Кипо — серия Всё хорошо">
-      <span class="brand-name">Ирэн Кипо</span>
-      <span class="brand-series">серия «Всё хорошо»</span>
-    </a>
-    <nav class="nav" aria-label="Основная навигация">
-      <a href="#author">Автор</a>
-      <a href="#book">Книга 1</a>
-      <a href="#read">Читать</a>
-      <a href="#downloads">Скачать</a>
-      <a href="#series">Вся серия</a>
-      <a href="#book-two">Книга 2</a>
-      <a href="#news">Новости</a>
-      <a href="#contacts">Ссылки</a>
-    </nav>
+<div class="page" id="top">
+ <div class="wrap">
+  <header class="topbar">
+   <div class="monogram">ИК</div><div class="brand">Ирэн Кипо</div>
+   <nav><a href="#series">Серия</a><a href="#book1">Книга 1</a><a href="#read">Читать</a><a href="#author">Автор</a><a href="#book2">Новости</a><a href="#contacts">Контакты</a></nav>
   </header>
-
-  <main id="main">
-    <section class="series-hero" id="top">
-      <div class="hero-banner">
-        <img src="assets/images/series-cover.jpg" alt="Серия романов «Всё хорошо» Ирэн Кипо" width="2033" height="774">
-      </div>
-      <div class="banner-caption">
-        <p class="eyebrow">Ирэн Кипо · серия романов</p>
-        <h1>«Всё хорошо»</h1>
-        <p class="hero-lead">Семейная сага в четырёх книгах.</p>
-      </div>
-    </section>
-
-    <section class="section author-section" id="author">
-      <div class="section-label">01 / АВТОР</div>
-      <div class="author-layout">
-        <figure class="author-avatar">
-          <img src="assets/images/avatar.jpg" alt="Ирэн Кипо" width="1254" height="1254" loading="lazy">
-        </figure>
-        <div class="author-copy">
-          <p class="eyebrow">Автор серии «Всё хорошо»</p>
-          <h2>Ирэн Кипо</h2>
-          <div class="prose">
-            <p>Здесь будут появляться новые книги серии, материалы о работе над романами и информация о продолжении.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section book-section" id="book">
-      <div class="section-label">02 / КНИГА 1</div>
-      <div class="book-layout">
-        <figure class="book-cover">
-          <img src="assets/images/book1-cover.jpg" alt="Обложка книги «В зоне видимости» Ирэн Кипо" width="2400" height="3405">
-        </figure>
-        <div class="book-copy">
-          <p class="eyebrow">Первая книга серии «Всё хорошо»</p>
-          <h2>«В зоне видимости»</h2>
-          <div class="prose approved-description">
-            <p>За жизнью Веры и Арсения Ланских следят миллионы. Семейный блог «Всё хорошо» вырос вместе с их семьёй: любовь, трое детей, работа, успех — и привычка делиться частью своей жизни с другими.</p>
-            <p>Когда новая технология обещает освободить их от постоянной съёмки, решение выглядит простым: теперь можно меньше думать о контенте и больше быть вместе.</p>
-            <p><strong>Если всё хорошо — почему бы не сделать ещё лучше?</strong></p>
-          </div>
-          <div class="hero-actions">
-            <a class="button button-primary" href="#read">Читать бесплатно</a>
-            <a class="button button-secondary" href="#downloads">Скачать</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section reading-section" id="read">
-      <div class="section-label">03 / ЧИТАТЬ</div>
-      <div class="two-columns">
-        <div>
-          <p class="eyebrow">«В зоне видимости»</p>
-          <h2>Читать на сайте</h2>
-        </div>
-        <div class="prose">
-          <div class="parts-list">
-            <div class="part-card">
-              <strong>Часть 1</strong>
-              <span>Главы 1–6</span>
-            </div>
-            <div class="part-card">
-              <strong>Часть 2</strong>
-              <span>Главы 7–11</span>
-            </div>
-          </div>
-          <p>Тексты глав будут подключены из утверждённой публикационной версии книги.</p>
-          <a class="button button-secondary download-link" href="#downloads">Скачать</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="downloads">
-      <div class="section-label">04 / СКАЧАТЬ</div>
-      <div class="two-columns">
-        <h2>EPUB и PDF</h2>
-        <div class="prose">
-          <p>Файлы для скачивания будут размещены здесь после подготовки публикационных версий.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section series-section" id="series">
-      <div class="section-label">05 / ВСЕ КНИГИ СЕРИИ</div>
-      <div class="series-heading">
-        <div>
-          <p class="eyebrow">Серия «Всё хорошо»</p>
-          <h2>Четыре книги одной истории</h2>
-        </div>
-        <p class="series-note">Обложки Книг 2–4 будут поставлены сюда только после утверждения.</p>
-      </div>
-      <div class="series-books">
-        <article class="series-book-card current">
-          <div class="series-book-cover">
-            <img src="assets/images/book1-cover.jpg" alt="Обложка книги «В зоне видимости»" loading="lazy">
-          </div>
-          <span class="book-number">01</span>
-          <h3>«В зоне видимости»</h3>
-          <p>Опубликована</p>
-        </article>
-        <article class="series-book-card">
-          <div class="series-book-cover cover-pending"><span>02</span></div>
-          <span class="book-number">02</span>
-          <h3>«Правила игры»</h3>
-          <p>В работе</p>
-        </article>
-        <article class="series-book-card">
-          <div class="series-book-cover cover-pending"><span>03</span></div>
-          <span class="book-number">03</span>
-          <h3>«Другая Вера»</h3>
-          <p>Продолжение серии</p>
-        </article>
-        <article class="series-book-card">
-          <div class="series-book-cover cover-pending"><span>04</span></div>
-          <span class="book-number">04</span>
-          <h3>«Ничего личного»</h3>
-          <p>Финальная книга</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="subscribe-section" id="book-two">
-      <div class="subscribe-copy">
-        <p class="eyebrow">Книга 2 серии «Всё хорошо»</p>
-        <h2>«Правила игры»</h2>
-        <p>Книга в работе. Здесь можно будет подписаться на уведомление о выходе.</p>
-      </div>
-      <form class="notify-form" id="subscribe" onsubmit="return false;" aria-label="Подписка на выход книги Правила игры">
-        <label for="notify-email">E-mail</label>
-        <div class="form-row">
-          <input id="notify-email" name="email" type="email" placeholder="Ваш e-mail" autocomplete="email">
-          <button type="submit" disabled>Подписаться</button>
-        </div>
-        <small>Подключение отправки формы — следующий технический шаг.</small>
-      </form>
-    </section>
-
-    <section class="section" id="news">
-      <div class="section-label">06 / НОВОСТИ</div>
-      <div class="two-columns">
-        <h2>Новости «Всё хорошо»</h2>
-        <div class="prose">
-          <p>Новости о «Правилах игры», новых материалах, публикациях и развитии всей серии будут собираться здесь.</p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer" id="contacts">
-    <div>
-      <strong>Ирэн Кипо</strong>
-      <p>Серия романов «Всё хорошо»</p>
-      <p>© 2026. Все права защищены.</p>
-    </div>
-    <div class="social-links">
-      <a href="https://www.instagram.com/irenkipo/" target="_blank" rel="noopener noreferrer">Instagram</a>
-      <a href="https://www.facebook.com/1236694432869766" target="_blank" rel="noopener noreferrer">Facebook</a>
-      <a href="#downloads">Скачать</a>
-    </div>
-  </footer>
-</body>
-</html>
+ </div>
+ <section class="hero">
+  <div class="hero-copy">
+   <div class="kicker">ИРЭН КИПО</div>
+   <h1>ВСЁ ХОРОШО</h1>
+   <div class="series-label">серия романов</div>
+   <div class="saga">семейная сага в 4 книгах</div>
+  </div>
+  <div class="hero-art"><img alt="Серия романов Всё хорошо" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR...TRUNCATED_FOR_DISPLAY..."></div>
+ </section>
+ <div class="section-rule"></div>
+ <section class="book1" id="book1">
+  <div class="book-visual"><img alt="Обложка книги В зоне видимости" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/...TRUNCATED_FOR_DISPLAY..."></div>
+  <div>
+   <div class="eyebrow">Книга 1</div><h2>В ЗОНЕ ВИДИМОСТИ</h2>
+   <div class="desc"><p>За жизнью Веры и Арсения Ланских следят миллионы. Семейный блог «Всё хорошо» вырос вместе с их семьёй: любовь, трое детей, работа, успех — и привычка делиться частью своей жизни с другими.</p><p>Когда новая технология обещает освободить их от постоянной съёмки, решение выглядит простым: теперь можно меньше думать о контенте и больше быть вместе.</p><p>Если всё хорошо — почему бы не сделать ещё лучше?</p></div>
+   <div class="actions" id="read"><button class="btn primary" data-modal="readModal">Читать</button><button class="btn" data-modal="downloadModal">Скачать</button></div>
+  </div>
+ </section>
+ <div class="section-rule"></div>
+ <section class="series" id="series">
+  <h2>ВСЯ СЕРИЯ</h2><div class="series-sub">4 книги. Одна история.</div>
+  <div class="covers">
+   <img alt="В зоне видимости" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/...TRUNCATED_FOR_DISPLAY...">
+   <img alt="Правила игры" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/...TRUNCATED_FOR_DISPLAY...">
+   <img alt="Другая Вера" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/...TRUNCATED_FOR_DISPLAY...">
+   <img alt="Ничего личного" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/...TRUNCATED_FOR_DISPLAY...">
+  </div>
+ </section>
+ <div class="section-rule"></div>
+ <section class="book2" id="book2">
+  <div class="book2-copy">
+   <div class="eyebrow">Книга 2</div><h2>«ПРАВИЛА ИГРЫ»</h2>
+   <p>Подпишитесь, чтобы узнать о выходе Книги 2 и получать новости серии «Всё хорошо».</p>
+   <form class="subscribe" id="subscribeForm"><input type="email" id="email" required placeholder="Ваш e-mail" aria-label="Ваш e-mail"><button type="submit">Подписаться</button></form>
+   <div class="form-note" id="formNote"></div>
+  </div>
+  <div class="book-visual"><img alt="Обложка книги Правила игры" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/...TRUNCATED_FOR_DISPLAY..."></div>
+ </section>
+ <section class="author" id="author">
+  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/...TRUNCATED_FOR_DISPLAY..." alt="Монограмма Ирэн Кипо">
+  <div><h3>Ирэн Кипо</h3><p>Автор серии романов «Всё хорошо».</p></div>
+ </section>
+ <div class="social" id="contacts">
+  <a target="_blank" rel="noopener" href="https://www.instagram.com/irenkipo/">Instagram</a>
+  <a target="_blank" rel="noopener" href="https://www.facebook.com/1236694432869766">Facebook</a>
+  <a target="_blank" rel="noopener" href="https://www.threads.com/@irenkipo">Threads</a>
+  <a target="_blank" rel="noopener" href="https://www.litres.ru/74382683/">ЛитРес</a>
+ </div>
+ <footer><span>© 2026 Ирэн Кипо. Все права защищены.</span><span>Политика конфиденциальности · Условия использования</span></footer>
+</div>
+<div class="modal" id="readModal" role="dialog" aria-modal="true" aria-label="Читать книгу">
+ <div class="modal-card"><div class="modal-head"><h3>Читать «В зоне видимости»</h3><button class="close" data-close>×</button></div>
+ <div class="modal-links"><button type="button" onclick="alert('Оглавление и главы будут подключены к публикационной версии сайта.')">Оглавление → главы</button><a target="_blank" rel="noopener" href="https://www.litres.ru/74382683/">Открыть на ЛитРес</a></div>
+ </div>
+</div>
+<div class="modal" id="downloadModal" role="dialog" aria-modal="true" aria-label="Скачать книгу">
+ <div class="modal-card"><div class="modal-head"><h3>Скачать</h3><button class="close" data-close>×</button></div>
+ <div class="modal-links"><button type="button" onclick="alert('EPUB будет подключён после загрузки публикационного файла.')">EPUB</button><button type="button" onclick="alert('PDF будет подключён после загрузки публикационного файла.')">PDF</button><a target="_blank" rel="noopener" href="https://www.litres.ru/74382683/">ЛитРес</a></div>
+ </div>
+</div>
+<script>
+document.querySelectorAll('[data-modal]').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.modal).classList.add('open')));
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('.modal').classList.remove('open')));
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'))});
+document.getElementById('subscribeForm').addEventListener('submit',e=>{e.preventDefault();document.getElementById('formNote').textContent='Спасибо. Адрес сохранён в этой форме; подключение рассылки будет добавлено отдельно.';});
+</script>
+</body></html>
