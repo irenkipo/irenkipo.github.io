@@ -1,0 +1,1 @@
+binary assets are stored as normal files in this folder
