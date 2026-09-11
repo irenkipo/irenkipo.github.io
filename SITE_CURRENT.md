@@ -21,13 +21,13 @@ Updated: 2026-09-11
 - If repository files changed but `SITE_CURRENT.md` was not updated, the change is INCOMPLETE and must not be treated as the active approved state.
 - Any new SITE chat must LOAD `SITE_CURRENT.md` before making decisions or edits.
 
-## Automated guard
-- Workflow: `.github/workflows/site-current-guard.yml`
-- Guard commit: `5ef1cf85bdf31e033a59aded9aebdd00ef5adf40`
-- The workflow checks pushes to `main`, `site-final-work`, `work-system/site-current-v1` and pull requests to `main`.
-- When site-content files change, the same change set must also update `SITE_CURRENT.md`; otherwise the check fails.
-- Infrastructure-only changes do not require a CURRENT update.
-- This is a consistency check, not permission to deploy; production remains blocked until explicit user approval.
+## Automated guards
+- `main` contains `.github/workflows/site-current-guard.yml`.
+- `main` contains `.github/workflows/production-gate.yml`.
+- `SITE CURRENT guard` requires `SITE_CURRENT.md` to change together with site-content changes.
+- `Production approval gate` requires a fresh APPROVED review from GitHub account `irenkipo` for the current PR HEAD commit; a newer commit makes the previous approval stale.
+- Repository-level branch protection for `main` is NOT YET VERIFIED/ENFORCED because the connected GitHub integration has no administration permission for branch-protection settings.
+- Until branch protection is enabled manually in GitHub settings, direct pushes to `main` remain a residual risk even though the workflows run.
 
 ## Locked user decisions
 These must not be changed unless the user explicitly unlocks that exact item.
@@ -51,11 +51,12 @@ These must not be changed unless the user explicitly unlocks that exact item.
 4. Real image assets do exist in the branch (`book1-cover.jpg`, `series-cover.jpg`, author mark and other source material), so the recovery task is asset restoration/mapping, not a new redesign.
 5. The signup form is present but intentionally disabled and not connected; this remains an OPEN functional task.
 6. The baseline contains structural QA tooling for desktop/tablet/mobile, broken images, anchors, modal behavior and all 11 reader pages.
-7. Production is still blocked. No merge/deploy is allowed until visual recovery is verified and the user explicitly approves it.
+7. Production remains blocked until visual recovery is verified and the user explicitly approves it.
 
 ## Next exact step
-- Build one recovery patch that changes ONLY asset wiring/presentation needed to restore the approved visual language.
-- Do not rewrite text, rename books, redesign layout, change palette, or touch production.
+- Enable branch protection/rules for `main`: require a pull request before merging and require the two status checks above.
+- Then build one recovery patch that changes ONLY asset wiring/presentation needed to restore the approved visual language.
+- Do not rewrite text, rename books, redesign layout, change palette, or touch production directly.
 - Before showing the patch as a candidate, verify the diff contains no unrelated changes and run structural QA.
 
 ## Mandatory change rule
