@@ -1,30 +1,32 @@
 # SITE CURRENT
 
-Status: RECOVERY / NOT PRODUCTION
+Status: PUBLISHED / ACTIVE MAINTENANCE
 Updated: 2026-09-11
 
-## Physical baseline
+## Physical production
 - Repository: `irenkipo/irenkipo.github.io`
-- Recovery branch: `work-system/site-current-v1`
-- Baseline source: `site-final-work`
-- Baseline commit: `49bb32e4ad7c87e5ef1987888e9e1d13f66d2f64`
 - Production branch: `main`
-- Production commit at recovery start: `174ea2cb0b77bb4857f83af116c372763766e144`
-- Nothing in this recovery branch is published automatically.
+- Current observed production branch commit: `b48d5f0c6b782c605304b2ed90d6d0809dc57e06`
+- The site is published.
+
+## Remaining open work
+1. Subscription form — connect and verify end-to-end signup flow.
+2. Audiobook — create/integrate the approved audiobook workflow and then connect the finished audio to the site.
+
+Everything else in the site build is treated as published/locked unless the user explicitly requests a change.
 
 ## Cross-chat synchronization rule
 - Chat history is never the source of truth for SITE.
 - The shared state between any SITE-related chats is GitHub + this `SITE_CURRENT.md`.
-- Every approved change made in any SITE chat must be committed to the repository and reflected in `SITE_CURRENT.md` before that task is considered complete.
-- Any new SITE chat must LOAD `SITE_CURRENT.md` before making decisions or edits.
+- Every approved SITE change must be committed and reflected here before the task is considered complete.
+- Any new SITE chat must LOAD `SITE_CURRENT.md` first.
 
-## Minimal protection model
-- Keep one exact approved production commit as the rollback point.
-- Future edits are made in a working branch/candidate, not by rebuilding the whole site.
+## Minimal maintenance model
+- Keep the exact published production commit as rollback point.
+- Future edits use a working branch/candidate.
 - Local request = local patch only.
-- Verify the requested change and unrelated regressions before publishing.
-- After user approval, update production and record the new exact commit here.
-- GitHub workflows may remain as passive safeguards, but additional branch-protection administration is NOT required for the current small author-site workflow.
+- Verify requested change and unrelated regressions before publishing.
+- After approval, publish and record the new production commit here.
 
 ## Locked user decisions
 These must not be changed unless the user explicitly unlocks that exact item.
@@ -37,38 +39,16 @@ These must not be changed unless the user explicitly unlocks that exact item.
 - Frame means a window/frame, not an architectural arch.
 - Do not introduce visible faces into the approved family visual concept.
 
-## Verified visual reference
-- Library reference: `landing page.jpg` is recorded in the promotion asset registry as `APPROVED / reference` and `NO` changes without approval.
-- Use it as a visual-language reference, not as a source for accidental placeholder copy.
-
-## Audit findings — 2026-09-11
-1. `site-final-work/index.html` does NOT render the approved hero artwork. The hero is an empty `.asset-frame` placeholder.
-2. The page does NOT render final book-cover artwork in the series grid or Book 1 section. It uses `.cover-slot` placeholder blocks.
-3. The HTML comments expect `hero-canonical.jpg` and `book1/2/3/4-canonical.jpg`, but those canonical filenames are absent from `assets/images`.
-4. Real image assets do exist in the branch (`book1-cover.jpg`, `series-cover.jpg`, author mark and other source material), so the recovery task is asset restoration/mapping, not a new redesign.
-5. The signup form is present but intentionally disabled and not connected; this remains an OPEN functional task.
-6. The baseline contains structural QA tooling for desktop/tablet/mobile, broken images, anchors, modal behavior and all 11 reader pages.
-7. Production remains blocked until visual recovery is verified and the user explicitly approves it.
-
-## Next exact step
-- Finish the site, not the infrastructure.
-- Build one recovery patch that changes ONLY asset wiring/presentation needed to restore the approved visual language.
-- Do not rewrite text, rename books, redesign layout, change palette, or touch production directly.
-- Verify the diff and structural QA, then show the candidate to the user.
-- After approval, publish and record the final production commit as the stable rollback point.
-
 ## Mandatory change rule
-Every requested change uses this sequence:
 1. LOAD this CURRENT.
 2. PATCH only the explicitly requested scope.
-3. VERIFY diff against the baseline.
+3. VERIFY diff against the published baseline.
 4. Run structural QA when affected.
 5. If anything outside scope changed, reject the result and do not publish it.
-6. After user approval, commit the approved result and update this CURRENT to the new exact commit.
+6. After user approval, commit the result and update this CURRENT to the new exact production commit.
 
 ## Safety rules
 - Never rebuild the whole site for a local correction.
 - Never treat chat memory as the site source of truth.
 - Never use `irenkipo-publisher` as the website repository.
-- Never deploy or merge merely because a generated result looks plausible.
-- Never mix older recovery/design branches back into ACTIVE work unless a specific missing approved asset must be recovered from them.
+- Never deploy merely because a generated result looks plausible.
