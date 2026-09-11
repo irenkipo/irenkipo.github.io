@@ -21,6 +21,14 @@ Updated: 2026-09-11
 - If repository files changed but `SITE_CURRENT.md` was not updated, the change is INCOMPLETE and must not be treated as the active approved state.
 - Any new SITE chat must LOAD `SITE_CURRENT.md` before making decisions or edits.
 
+## Automated guard
+- Workflow: `.github/workflows/site-current-guard.yml`
+- Guard commit: `5ef1cf85bdf31e033a59aded9aebdd00ef5adf40`
+- The workflow checks pushes to `main`, `site-final-work`, `work-system/site-current-v1` and pull requests to `main`.
+- When site-content files change, the same change set must also update `SITE_CURRENT.md`; otherwise the check fails.
+- Infrastructure-only changes do not require a CURRENT update.
+- This is a consistency check, not permission to deploy; production remains blocked until explicit user approval.
+
 ## Locked user decisions
 These must not be changed unless the user explicitly unlocks that exact item.
 - Series/book names: do not rename.
