@@ -10,24 +10,21 @@ Updated: 2026-09-11
 - Baseline commit: `49bb32e4ad7c87e5ef1987888e9e1d13f66d2f64`
 - Production branch: `main`
 - Production commit at recovery start: `174ea2cb0b77bb4857f83af116c372763766e144`
-- Repository audit verified that `site-final-work` is exactly one commit ahead of this production commit and was saved as `WORK: preserve completed final-site implementation`.
-- The production parent already contains the direct v2 image assets; the recovery baseline adds the completed site implementation, reader/download build and QA tooling on top.
 - Nothing in this recovery branch is published automatically.
 
 ## Cross-chat synchronization rule
 - Chat history is never the source of truth for SITE.
 - The shared state between any SITE-related chats is GitHub + this `SITE_CURRENT.md`.
 - Every approved change made in any SITE chat must be committed to the repository and reflected in `SITE_CURRENT.md` before that task is considered complete.
-- If repository files changed but `SITE_CURRENT.md` was not updated, the change is INCOMPLETE and must not be treated as the active approved state.
 - Any new SITE chat must LOAD `SITE_CURRENT.md` before making decisions or edits.
 
-## Automated guards
-- `main` contains `.github/workflows/site-current-guard.yml`.
-- `main` contains `.github/workflows/production-gate.yml`.
-- `SITE CURRENT guard` requires `SITE_CURRENT.md` to change together with site-content changes.
-- `Production approval gate` requires a fresh APPROVED review from GitHub account `irenkipo` for the current PR HEAD commit; a newer commit makes the previous approval stale.
-- Repository-level branch protection for `main` is NOT YET VERIFIED/ENFORCED because the connected GitHub integration has no administration permission for branch-protection settings.
-- Until branch protection is enabled manually in GitHub settings, direct pushes to `main` remain a residual risk even though the workflows run.
+## Minimal protection model
+- Keep one exact approved production commit as the rollback point.
+- Future edits are made in a working branch/candidate, not by rebuilding the whole site.
+- Local request = local patch only.
+- Verify the requested change and unrelated regressions before publishing.
+- After user approval, update production and record the new exact commit here.
+- GitHub workflows may remain as passive safeguards, but additional branch-protection administration is NOT required for the current small author-site workflow.
 
 ## Locked user decisions
 These must not be changed unless the user explicitly unlocks that exact item.
@@ -54,10 +51,11 @@ These must not be changed unless the user explicitly unlocks that exact item.
 7. Production remains blocked until visual recovery is verified and the user explicitly approves it.
 
 ## Next exact step
-- Enable branch protection/rules for `main`: require a pull request before merging and require the two status checks above.
-- Then build one recovery patch that changes ONLY asset wiring/presentation needed to restore the approved visual language.
+- Finish the site, not the infrastructure.
+- Build one recovery patch that changes ONLY asset wiring/presentation needed to restore the approved visual language.
 - Do not rewrite text, rename books, redesign layout, change palette, or touch production directly.
-- Before showing the patch as a candidate, verify the diff contains no unrelated changes and run structural QA.
+- Verify the diff and structural QA, then show the candidate to the user.
+- After approval, publish and record the final production commit as the stable rollback point.
 
 ## Mandatory change rule
 Every requested change uses this sequence:
@@ -72,5 +70,5 @@ Every requested change uses this sequence:
 - Never rebuild the whole site for a local correction.
 - Never treat chat memory as the site source of truth.
 - Never use `irenkipo-publisher` as the website repository.
-- Never deploy or merge to `main` merely because a generated result looks plausible.
+- Never deploy or merge merely because a generated result looks plausible.
 - Never mix older recovery/design branches back into ACTIVE work unless a specific missing approved asset must be recovered from them.
