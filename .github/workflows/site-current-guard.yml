@@ -1,0 +1,65 @@
+name: SITE CURRENT guard
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  current-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require SITE_CURRENT for site changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+            HEAD="${{ github.sha }}"
+            if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+              echo "Initial branch push; no prior commit to compare."
+              exit 0
+            fi
+          fi
+
+          CHANGED="$(git diff --name-only "$BASE" "$HEAD")"
+          echo "Changed files:"
+          printf '%s\n' "$CHANGED"
+
+          SITE_CHANGED=false
+          while IFS= read -r file; do
+            case "$file" in
+              index.html|styles.css|assets/*|read/*|downloads/*|tools/build-book.ps1|tools/package-epub.py|tools/qa-site.cjs)
+                SITE_CHANGED=true
+                ;;
+            esac
+          done <<< "$CHANGED"
+
+          if [ "$SITE_CHANGED" = false ]; then
+            echo "No site-content change detected."
+            exit 0
+          fi
+
+          if printf '%s\n' "$CHANGED" | grep -Fxq 'SITE_CURRENT.md'; then
+            echo "SITE_CURRENT.md updated together with site changes."
+            exit 0
+          fi
+
+          echo "ERROR: Site files changed without SITE_CURRENT.md."
+          echo "This change is incomplete. Update SITE_CURRENT.md in the same change set."
+          exit 1
