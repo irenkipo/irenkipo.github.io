@@ -1,0 +1,12 @@
+tools/.build/
+tools/.qa/
+reports/
+archive/site-before-production-v1/
+.env
+.env.*
+*.pem
+*.key
+*credentials*
+*token*
+incoming/audio/*
+!incoming/audio/README.txt

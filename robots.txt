@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://irenkipo.github.io/sitemap.xml
