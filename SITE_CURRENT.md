@@ -14,6 +14,13 @@ Updated: 2026-09-11
 - The production parent already contains the direct v2 image assets; the recovery baseline adds the completed site implementation, reader/download build and QA tooling on top.
 - Nothing in this recovery branch is published automatically.
 
+## Cross-chat synchronization rule
+- Chat history is never the source of truth for SITE.
+- The shared state between any SITE-related chats is GitHub + this `SITE_CURRENT.md`.
+- Every approved change made in any SITE chat must be committed to the repository and reflected in `SITE_CURRENT.md` before that task is considered complete.
+- If repository files changed but `SITE_CURRENT.md` was not updated, the change is INCOMPLETE and must not be treated as the active approved state.
+- Any new SITE chat must LOAD `SITE_CURRENT.md` before making decisions or edits.
+
 ## Locked user decisions
 These must not be changed unless the user explicitly unlocks that exact item.
 - Series/book names: do not rename.
@@ -50,7 +57,7 @@ Every requested change uses this sequence:
 3. VERIFY diff against the baseline.
 4. Run structural QA when affected.
 5. If anything outside scope changed, reject the result and do not publish it.
-6. After user approval, update this CURRENT to the new exact commit.
+6. After user approval, commit the approved result and update this CURRENT to the new exact commit.
 
 ## Safety rules
 - Never rebuild the whole site for a local correction.
