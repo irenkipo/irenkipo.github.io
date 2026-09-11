@@ -23,11 +23,22 @@ These must not be changed unless the user explicitly unlocks that exact item.
 - Frame means a window/frame, not an architectural arch.
 - Do not introduce visible faces into the approved family visual concept.
 
-## Open / unresolved
-- Verify the recovery baseline against the last user-approved homepage visuals.
-- Restore only missing/incorrect approved assets; do not redesign the page.
-- Then complete remaining site work (text placement, form/functionality, responsive/mobile verification) from the verified baseline.
-- Production deployment remains blocked until explicit user approval.
+## Verified visual reference
+- Library reference: `landing page.jpg` is recorded in the promotion asset registry as `APPROVED / reference` and `NO` changes without approval.
+- Use it as a visual-language reference, not as a source for accidental placeholder copy.
+
+## Audit findings — 2026-09-10
+1. `site-final-work/index.html` does NOT render the approved hero artwork. The hero is an empty `.asset-frame` placeholder.
+2. The page does NOT render final book-cover artwork in the series grid or Book 1 section. It uses `.cover-slot` placeholder blocks.
+3. The HTML comments expect `hero-canonical.jpg` and `book1/2/3/4-canonical.jpg`, but those canonical filenames are absent from `assets/images`.
+4. Real image assets do exist in the branch (`book1-cover.jpg`, `series-cover.jpg`, author mark and other source material), so the recovery task is asset restoration/mapping, not a new redesign.
+5. The signup form is present but intentionally disabled and not connected; this remains an OPEN functional task.
+6. Production is still blocked. No merge/deploy is allowed until visual recovery is verified and the user explicitly approves it.
+
+## Next exact step
+- Build one recovery patch that changes ONLY asset wiring/presentation needed to restore the approved visual language.
+- Do not rewrite text, rename books, redesign layout, change palette, or touch production.
+- Before showing the patch as a candidate, verify the diff contains no unrelated changes.
 
 ## Mandatory change rule
 Every requested change uses this sequence:
