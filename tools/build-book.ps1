@@ -88,7 +88,7 @@ $cards=foreach($n in $chapters.Keys){
   $c=$chapters[$n]
   "<a class=`"chapter-card`" href=`"chapter-{0:D2}/`"><span>$(Enc $c.Part)</span><strong>$(Enc $c.Heading)</strong></a>"-f([int]$n)
 }
-$body="<a class=`"skip-link`" href=`"#contents`">К содержанию</a><header class=`"reader-header`"><a href=`"../`">Ирэн Кипо</a><a href=`"../`">На главную</a></header><main class=`"reader-main`" id=`"contents`"><p class=`"eyebrow`">Серия «Всё хорошо» · Книга 1</p><h1>В зоне видимости</h1><nav class=`"chapter-grid`" aria-label=`"Оглавление`">$($cards-join'')</nav><p class=`"reader-external`"><a href=`"https://www.litres.ru/74382683/`" target=`"_blank`" rel=`"noopener`">ЛитРес</a></p></main>"
+$body="<a class=`"skip-link`" href=`"#contents`">К содержанию</a><header class=`"reader-header`"><a href=`"../`">Ирэн Кипо</a><a href=`"../`">На главную</a></header><main class=`"reader-main`" id=`"contents`"><p class=`"eyebrow`">Серия «Всё хорошо» · Книга 1</p><h1>В зоне видимости</h1><nav class=`"chapter-grid`" aria-label=`"Оглавление`">$($cards-join'')</nav><p class=`"reader-external`" aria-hidden=`"true`">&nbsp;</p></main>"
 Utf8 (Join-Path $Read 'index.html') (Shell 'Читать «В зоне видимости» — Ирэн Кипо' $body '../assets/reader.css')
 
 $epub=New-Object Collections.Generic.List[object]
@@ -101,8 +101,8 @@ foreach($n in $chapters.Keys){
     if($p.Style-eq'SceneBreak'-or$p.Text-eq'***'){'<p class="scene-break">***</p>'}
     else{"<p>$($p.Html)</p>"}
   }
-  $prev=if($n-gt1){"../chapter-{0:D2}/"-f($n-1)}else{'../'}
-  $next=if($n-lt11){"../chapter-{0:D2}/"-f($n+1)}else{'../'}
+  $prev=if($n-gt1){"../chapter-{0:D2}/"-f([int]$n-1)}else{'../'}
+  $next=if($n-lt11){"../chapter-{0:D2}/"-f([int]$n+1)}else{'../'}
   $cb="<a class=`"skip-link`" href=`"#chapter`">К тексту</a><header class=`"reader-header`"><a href=`"../../`">Ирэн Кипо</a><a href=`"../`">Оглавление</a></header><main class=`"book-page`" id=`"chapter`"><div class=`"chapter-tools`" role=`"group`" aria-label=`"Управление чтением вслух`"><button type=`"button`" data-speech=`"play`">Слушать</button><button type=`"button`" data-speech=`"pause`">Пауза</button><button type=`"button`" data-speech=`"stop`">Стоп</button><span data-speech-status aria-live=`"polite`"></span></div><article class=`"chapter-text`" data-chapter=`"$n`"><p class=`"part-label`">$(Enc $c.Part)</p><h1>$(Enc $c.Heading)</h1>$($paras-join'')</article><nav class=`"chapter-nav`" aria-label=`"Навигация по книге`"><a href=`"$prev`">← Назад</a><a href=`"../`">Оглавление</a><a href=`"$next`">Далее →</a></nav></main>"
   Utf8 (Join-Path $dir 'index.html') (Shell "$($c.Heading) — «В зоне видимости»" $cb '../../assets/reader.css' '../../assets/reader.js')
   $xp=foreach($p in $c.Paragraphs){

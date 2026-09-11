@@ -1,0 +1,9 @@
+{
+  "endpoint": "",
+  "method": "POST",
+  "emailField": "email",
+  "source": "website",
+  "successMessage": "Спасибо! Подписка оформлена.",
+  "errorMessage": "Не удалось оформить подписку. Попробуйте ещё раз.",
+  "notConfiguredMessage": "Подписка пока не подключена. Пожалуйста, попробуйте позже."
+}
