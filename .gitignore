@@ -1,7 +1,8 @@
+dist/
+reports/
 tools/.build/
 tools/.qa/
-reports/
-archive/site-before-production-v1/
+tools/qa/node_modules/
 .env
 .env.*
 *.pem

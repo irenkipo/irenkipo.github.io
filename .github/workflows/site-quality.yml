@@ -1,0 +1,40 @@
+name: Site quality
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Site QA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tools/qa/package-lock.json
+      - name: Build deploy artifact
+        run: python3 tools/build/build-site.py
+      - name: Install locked QA dependencies
+        run: npm ci --prefix tools/qa
+      - name: Validate HTML
+        run: npm exec --prefix tools/qa html-validate -- "dist/**/*.html"
+      - name: Install Chromium for Playwright
+        run: npm exec --prefix tools/qa playwright-core install --with-deps chromium
+      - name: Validate site
+        env:
+          PLAYWRIGHT_BROWSER: chromium
+        run: node tools/qa/qa-site.cjs
+      - name: Scan current tree and Git history
+        run: node tools/qa/security-scan.cjs

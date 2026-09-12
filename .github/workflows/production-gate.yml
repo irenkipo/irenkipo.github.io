@@ -2,8 +2,7 @@ name: Production approval gate
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
   pull_request_review:
     types: [submitted, dismissed]
@@ -14,11 +13,12 @@ permissions:
 
 jobs:
   require-owner-approval:
+    name: Owner approval gate
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - name: Require fresh approval from repository owner
-        uses: actions/github-script@v7
+      - name: Require owner approval for the current PR head
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const pr = context.payload.pull_request;
@@ -35,8 +35,7 @@ jobs:
             });
             const latestByUser = new Map();
             for (const review of reviews) {
-              if (!review.user || !review.commit_id) continue;
-              latestByUser.set(review.user.login, review);
+              if (review.user && review.commit_id) latestByUser.set(review.user.login, review);
             }
             const review = latestByUser.get(owner);
             if (!review) {
