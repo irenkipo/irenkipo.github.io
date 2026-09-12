@@ -1,0 +1,51 @@
+name: Create release pull request
+
+on:
+  push:
+    branches: [site-technical-hardening]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  create-pr:
+    name: Create release PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create pull request if absent
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = `${owner}:site-technical-hardening`;
+            const { data: existing } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head,
+              base: 'main'
+            });
+            if (existing.length) {
+              core.info(`Release PR already exists: ${existing[0].html_url}`);
+              return;
+            }
+            const { data: pr } = await github.rest.pulls.create({
+              owner,
+              repo,
+              head: 'site-technical-hardening',
+              base: 'main',
+              title: 'Final technical hardening: SEO, security, and clean Pages deployment',
+              body: [
+                'Candidate for owner review and approval.',
+                '',
+                '- locked visual geometry verified at 1440 / 820 / 390',
+                '- deterministic source to dist build',
+                '- SEO, accessibility, CSP, secret scan, and Pages artifact workflow',
+                '- rollback tag: `SITE-PRE-SEO-SECURITY-V1`',
+                '',
+                'Do not merge until all required checks pass and the owner approves the current PR HEAD.'
+              ].join('\n')
+            });
+            core.info(`Created ${pr.html_url}`);

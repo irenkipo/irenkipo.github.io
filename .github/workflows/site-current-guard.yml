@@ -2,7 +2,7 @@ name: SITE CURRENT guard
 
 on:
   push:
-    branches: [main]
+    branches: [main, site-technical-hardening]
   pull_request:
     branches: [main]
 
