@@ -1,0 +1,15 @@
+{
+  "provider": "brevo",
+  "mode": "official-html-embed",
+  "enabled": false,
+  "formId": "",
+  "formAction": "",
+  "listName": "Читатели сайта — Всё хорошо",
+  "doubleOptIn": true,
+  "successMessage": "Проверьте почту — мы отправили письмо для подтверждения подписки.",
+  "invalidEmailMessage": "Введите корректный e-mail.",
+  "duplicateMessage": "Этот e-mail уже подписан.",
+  "serviceErrorMessage": "Сервис подписки временно недоступен. Попробуйте позже.",
+  "networkErrorMessage": "Нет соединения. Проверьте интернет и попробуйте снова.",
+  "notConfiguredMessage": "Подписка пока не подключена. Пожалуйста, попробуйте позже."
+}

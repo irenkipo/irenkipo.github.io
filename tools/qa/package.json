@@ -1,0 +1,13 @@
+{
+  "name": "irenkipo-site-qa",
+  "private": true,
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "dependencies": {
+    "html-validate": "11.15.0",
+    "pixelmatch": "5.3.0",
+    "playwright-core": "1.63.0",
+    "pngjs": "7.0.0"
+  }
+}
