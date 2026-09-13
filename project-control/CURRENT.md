@@ -1,6 +1,6 @@
 # SITE CURRENT
 
-- Status: candidate — approved Google Form subscription CTA
+- Status: candidate — approved Google Form subscription CTA and privacy wording
 - Candidate branch: `subscription-google-form`
 - Production baseline: `5007cfc5e5b3e756400390a36127ed9105d28533`
 - Rollback tag: `SITE-PRE-SEO-SECURITY-V1`
