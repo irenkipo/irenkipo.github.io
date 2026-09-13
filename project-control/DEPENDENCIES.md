@@ -10,8 +10,8 @@
 
 ## Build and QA only
 
-- `tools/build/build-site.py` creates `dist/` from the explicit source allowlist;
-- `tools/qa/` validates HTML, SEO, accessibility behavior, links, assets, checksums, and viewport layout;
+- `tools/build/build-site.py` creates `dist/` from the explicit source allowlist, validates chapters 01–11, and optionally copies official `google*.html` / `BingSiteAuth.xml` verification files from `src/site/` to the deploy root;
+- `tools/qa/` validates HTML, SEO, accessibility behavior, links, assets, checksums, viewport layout, and public production search health;
 - `.github/workflows/` builds, validates, and deploys the generated artifact.
 - Optional book conversion tools write only to ignored `tools/.build/` staging and never overwrite canonical `src/`.
 

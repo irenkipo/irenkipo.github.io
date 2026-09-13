@@ -3,6 +3,8 @@ reports/
 tools/.build/
 tools/.qa/
 tools/qa/node_modules/
+__pycache__/
+*.pyc
 .env
 .env.*
 *.pem

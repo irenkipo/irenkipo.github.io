@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, subscription-google-form]
+    branches: [main, site-search-seo]
 
 permissions:
   contents: read
@@ -29,7 +29,7 @@ jobs:
       - name: Install locked QA dependencies
         run: npm ci --prefix tools/qa
       - name: Validate HTML
-        run: npm exec --prefix tools/qa html-validate -- "dist/**/*.html"
+        run: npm exec --prefix tools/qa html-validate -- "dist/index.html" "dist/404.html" "dist/privacy.html" "dist/terms.html" "dist/read/**/*.html"
       - name: Install Chromium for Playwright
         run: npm exec --prefix tools/qa playwright-core install --with-deps chromium
       - name: Validate site
