@@ -6,7 +6,7 @@
 - `src/legal/` → privacy and terms at unchanged public URLs;
 - `src/read/` → contents plus 11 chapter URLs;
 - `src/assets/` → approved visuals, CSS, JavaScript, EPUB, PDF, and author mark;
-- `src/config/subscription.json` → `dist/assets/config/subscription.json`.
+- the homepage subscription CTA links directly to the approved public Google Form; no subscription runtime config is shipped.
 
 ## Build and QA only
 

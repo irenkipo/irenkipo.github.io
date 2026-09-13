@@ -61,19 +61,11 @@ main{margin:0 auto;box-shadow:0 8px 45px rgba(44,39,31,.08)}
   .social-section,.litres-section{padding:32px 28px}
   .footer{padding:24px 28px}
 }
-/* Subscription form: same footprint as the approved placeholder. */
-.subscription-form{max-width:560px;margin:1.5rem auto 0;text-align:left}
-.subscription-honeypot{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
-.subscription-row{display:flex;gap:10px}
-.subscription-row input{flex:1;min-width:0;height:48px;padding:0 15px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
-.subscription-row button{min-width:150px;height:48px;padding:0 20px;border:1px solid var(--teal-dark);border-radius:999px;background:var(--teal-dark);color:#fff;font-weight:700;cursor:pointer}
-.subscription-row button:disabled{cursor:wait;opacity:.65}
-.subscription-row input:focus-visible,.subscription-row button:focus-visible{outline:3px solid rgba(12,104,114,.28);outline-offset:2px}
-.subscription-row input[aria-invalid="true"]{border-color:#9b3d35}
-.subscription-status{min-height:1.4em;margin:8px 4px 0;color:var(--muted);font-size:.75rem;line-height:1.4}
-.subscription-status[data-state="error"]{color:#8a302b}
-.subscription-status[data-state="success"]{color:var(--teal-dark)}
-@media(max-width:560px){.subscription-row{display:grid}.subscription-row button{width:100%}}
+/* Subscription CTA: keep the approved section footprint while linking directly to Google Forms. */
+.subscription-form{max-width:560px;min-height:72.796875px;margin:1.5rem auto 0;display:flex;justify-content:center;align-items:flex-start}
+.subscription-cta{min-width:150px;height:48px;padding:0 20px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--teal-dark);border-radius:999px;background:var(--teal-dark);color:#fff;text-decoration:none;font-weight:700}
+.subscription-cta:focus-visible{outline:3px solid rgba(12,104,114,.28);outline-offset:2px}
+@media(max-width:560px){.subscription-form{min-height:130.796875px;align-items:center}.subscription-cta{width:100%;max-width:334px}}
 @media(min-width:901px){.next-book{min-height:360.828125px}}
 .audio-placeholder{min-height:220px;margin-top:1rem;padding:1.5rem;display:grid;place-content:center;text-align:center;border:1px solid var(--line);border-radius:14px;background:rgba(215,225,228,.22)}
 .audio-placeholder-badge{width:max-content;margin:0 auto .75rem;padding:.3rem .75rem;border:1px solid var(--teal-dark);border-radius:999px;color:var(--teal-dark);font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}

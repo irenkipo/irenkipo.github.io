@@ -2,7 +2,7 @@ name: SITE CURRENT guard
 
 on:
   push:
-    branches: [main, site-technical-hardening]
+    branches: [main, subscription-google-form]
   pull_request:
     branches: [main]
 
