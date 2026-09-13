@@ -131,8 +131,6 @@ async function visualCompare(browser, viewport, name) {
   const geometryLocked = productionGeometry.length === candidateGeometry.length && productionGeometry.every((item, index) => { const other = candidateGeometry[index]; return item.tag === other.tag && item.id === other.id && item.src === other.src && ["x", "y", "width", "height"].every(key => Math.abs(item[key] - other[key]) < 0.1); });
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     document.querySelectorAll('img[src*="ik-logo.jpg"]').forEach(image => { image.style.visibility = "hidden"; });
-    const subscription = document.querySelector(".subscription-form");
-    if (subscription) subscription.style.visibility = "hidden";
   })));
   const productionFile = path.join(reportDir, `locked-production-${name}.png`);
   const candidateFile = path.join(reportDir, `locked-candidate-${name}.png`);
