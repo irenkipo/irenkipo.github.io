@@ -1,14 +1,14 @@
 # SITE CURRENT
 
-- Status: candidate — search-engine technical completion
-- Candidate branch: `site-search-seo`
-- Production baseline: `c686f642b4a61e0096c9ebd8ba8dd224a7c8b366`
+- Status: candidate — Google Search Console ownership verification file
+- Candidate branch: `google-search-verification`
+- Production baseline: `ec51b995a20acc0a41f541828ec1563453289d2a`
 - Rollback tag: `SITE-PRE-SEO-SECURITY-V1`
 - Public URL: <https://irenkipo.github.io/>
-- Visual state: LOCKED; no visible page changes are allowed in this SEO delta.
+- Visual state: LOCKED; no visible page changes are allowed in this verification delta.
 - Build: `python tools/build/build-site.py`
 - QA: `node tools/qa/qa-site.cjs`, `node tools/qa/seo-health.cjs`, and `node tools/qa/security-scan.cjs`
 - Deployment source: generated `dist/` artifact only.
-- Release: PR is created by a narrowly scoped GitHub Actions workflow; owner approval remains mandatory for the current PR HEAD.
+- Release: PR + owner approval required before merge.
 - Subscription: one public Google Form CTA; no local input, backend, provider config, or client-side submission logic.
-- Search engines: technical preparation complete; external Google/Bing verification and sitemap submission remain PENDING in `SEO_SEARCH_CURRENT.md`.
+- Search engines: technical preparation is complete; this candidate adds the exact Google Search Console HTML verification file. Google/Bing connection and sitemap submission remain PENDING until external verification succeeds.
