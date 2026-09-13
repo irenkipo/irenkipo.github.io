@@ -25,7 +25,6 @@ def build() -> None:
     copy_file(SRC / "legal" / "privacy.html", DIST / "privacy.html")
     copy_file(SRC / "legal" / "terms.html", DIST / "terms.html")
     shutil.copytree(SRC / "assets", DIST / "assets")
-    copy_file(SRC / "config" / "subscription.json", DIST / "assets" / "config" / "subscription.json")
     shutil.copytree(SRC / "read", DIST / "read")
     (DIST / ".nojekyll").write_text("", encoding="utf-8")
 

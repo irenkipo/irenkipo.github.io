@@ -1,6 +1,6 @@
 # LOCKED production state
 
-The production baseline is commit `b48d5f0c6b782c605304b2ed90d6d0809dc57e06`.
+The production baseline is commit `5007cfc5e5b3e756400390a36127ed9105d28533`.
 
 Locked without explicit approval:
 
@@ -13,8 +13,7 @@ Locked without explicit approval:
 
 Allowed in this change:
 
-- non-visual SEO, security, accessibility, and deployment metadata;
-- the button label `Аудиокнига скоро`;
-- a 1200×630 social image produced only by resizing and padding the approved banner.
+- replace only the obsolete local subscription form with the approved public Google Form CTA;
+- preserve the subscription section's locked heading, copy, styling, dimensions, spacing, colors, and responsive footprint.
 
 Checksums in `ASSETS_MANIFEST.md` are authoritative for locked runtime assets.

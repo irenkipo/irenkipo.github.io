@@ -4,14 +4,13 @@ const { spawnSync } = require("node:child_process");
 
 const root = path.resolve(__dirname, "../..");
 const excluded = new Set([".git", "dist", "node_modules", "reports"]);
-const brevoKeyName = ["BREVO", "API", "KEY"].join("_");
 const openAiKeyName = ["OPENAI", "API", "KEY"].join("_");
 const patterns = [
   ["private-key", /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/],
   ["github-token", /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{30,}\b/],
   ["openai-key", /\bsk-[A-Za-z0-9_-]{20,}\b/],
   ["bearer-token", /\bBearer\s+[A-Za-z0-9._~-]{16,}/i],
-  ["named-secret", new RegExp(`(?:${brevoKeyName}|${openAiKeyName})\\s*[:=]\\s*["']?[^\\s"']{8,}`, "i")],
+  ["named-secret", new RegExp(`(?:${openAiKeyName})\\s*[:=]\\s*["']?[^\\s"']{8,}`, "i")],
   ["assigned-secret", /(?:api[_-]?key|client[_-]?secret|access[_-]?token|password|credentials?)\s*[:=]\s*["'][A-Za-z0-9._~+\/=:-]{12,}["']/i]
 ];
 function walk(dir, output = []) {
