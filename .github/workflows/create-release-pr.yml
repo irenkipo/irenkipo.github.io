@@ -1,8 +1,8 @@
-name: Create Google verification pull request
+name: Create search SEO pull request
 
 on:
   push:
-    branches: [google-search-verification]
+    branches: [site-search-seo]
 
 permissions:
   contents: read
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   create-pr:
-    name: Create Google verification PR
+    name: Create search SEO PR
     runs-on: ubuntu-latest
     steps:
       - name: Create pull request if absent
@@ -19,7 +19,7 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const branch = 'google-search-verification';
+            const branch = 'site-search-seo';
             const { data: existing } = await github.rest.pulls.list({
               owner,
               repo,
@@ -28,7 +28,7 @@ jobs:
               base: 'main'
             });
             if (existing.length) {
-              core.info(`Google verification PR already exists: ${existing[0].html_url}`);
+              core.info(`Search SEO PR already exists: ${existing[0].html_url}`);
               return;
             }
             const { data: pr } = await github.rest.pulls.create({
@@ -36,13 +36,14 @@ jobs:
               repo,
               head: branch,
               base: 'main',
-              title: 'Add Google Search Console verification file',
+              title: 'Complete technical search engine preparation',
               body: [
-                'Minimal verification-only candidate for owner review.',
+                'Technical Search/SEO candidate for owner review.',
                 '',
-                '- adds the exact Google Search Console HTML verification file provided by the owner',
-                '- updates SITE CURRENT for this verification delta',
-                '- preserves the locked site with no visible content or design changes',
+                '- preserves the locked site with zero visible changes',
+                '- adds the working semantic core and Google/Bing owner setup guide',
+                '- adds weekly and path-triggered public production SEO health checks',
+                '- keeps Google Search Console and Bing states honestly pending',
                 '',
                 'Do not merge until all required checks pass and the owner approves the current PR HEAD.'
               ].join('\n')
