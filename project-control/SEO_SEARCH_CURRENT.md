@@ -3,22 +3,32 @@
 ## Current production state
 
 - Production URL: <https://irenkipo.github.io/>
-- Production SHA: `c686f642b4a61e0096c9ebd8ba8dd224a7c8b366`
+- Production SHA: `50e7f33dd4ad07b8fefbb1e2ad05f97173f2dc5a`
 - Sitemap URL: <https://irenkipo.github.io/sitemap.xml>
 - Robots URL: <https://irenkipo.github.io/robots.txt>
 - Primary search goal: bring a Russian-speaking reader to the author's site to read «В зоне видимости» free of charge.
 - Secondary channel: LitRes.
 - Visible SEO copy changes: prohibited for this delta.
 
-GOOGLE SEARCH CONSOLE: NOT CONNECTED
+GOOGLE SEARCH CONSOLE: VERIFIED
 
-GOOGLE SITEMAP: NOT SUBMITTED
+GOOGLE SITEMAP: SUBMITTED
 
-BING: NOT CONNECTED
+GOOGLE MAIN PAGE: INDEXING REQUESTED
 
-BING SITEMAP: NOT SUBMITTED
+GOOGLE /read/: INDEXING REQUESTED
 
-These states are intentionally PENDING until the owner completes verification in the external accounts.
+BING: CONNECTED VIA GOOGLE SEARCH CONSOLE IMPORT
+
+BING SITEMAP: SUCCESS
+
+BING URLS DISCOVERED: 15
+
+BING SITEMAP ERRORS: 0
+
+BING SITEMAP WARNINGS: 0
+
+Google and Bing external setup is complete. Search engines may continue processing crawl and indexing data after submission; no manual submission of the 11 chapter URLs is required while the sitemap remains healthy.
 
 ## Production audit
 
@@ -34,28 +44,24 @@ These states are intentionally PENDING until the owner completes verification in
 - `robots.txt` allows public crawling and declares the canonical sitemap; it does not block `/`, `/read/`, or required assets.
 - Internal browser QA covers missing anchors, internal 4xx, images, console errors, keyboard behavior, and layouts at 1440, 820, and 390 px.
 - The site is static and uses no analytics, trackers, web-font downloads, or new client-side libraries.
+- Google Search Console ownership is verified via the deployed HTML verification file.
+- Google has accepted the sitemap submission; the homepage and `/read/` have been live-tested and submitted for indexing.
+- Bing Webmaster Tools is connected through Google Search Console import; the sitemap status is `Success`, with 15 URLs discovered, 0 errors, and 0 warnings.
 
 ### MISSING
 
-Found during pre-flight and completed in branch `site-search-seo`:
+None for technical search-engine setup.
 
-- working semantic core and keyword/page map;
-- concise Google Search Console and Bing setup instructions;
-- automatic production SEO health check.
-
-Still external and intentionally pending:
-
-- Google Search Console property verification and sitemap submission;
-- Bing import/verification and sitemap acceptance.
+Search engines may still need time to crawl and index the submitted URLs. That is an external processing state, not a missing site configuration.
 
 ### NEEDS IMPROVEMENT
 
-Resolved in this branch:
+Resolved:
 
 - classified the legacy root `sitemap.xml` and `robots.txt` as inactive; GitHub Pages deploys only the deterministic versions generated inside `dist`;
 - build validates exactly the real chapter directories 01–11 and rejects chapter drift;
-- build is ready to copy an official Google HTML verification file or Bing verification XML from `src/site/` to the root of `dist` without fabricating a token;
-- CI branch triggers and PR automation are aligned with `site-search-seo`.
+- build copies the official Google HTML verification file from `src/site/` to the root of `dist`;
+- Google Search Console and Bing Webmaster Tools are both connected to the production property and sitemap.
 
 ### DO NOT CHANGE
 
@@ -91,4 +97,4 @@ Resolved in this branch:
 
 ## Operating rule
 
-Technical search preparation is complete when this branch passes build, Site QA, SITE CURRENT guard, SEO health, and security scan. After merge, this file should only record real Search Console/Bing connection, sitemap, or indexing states reported by those services; new audience-development planning belongs in the existing PROMO workflow.
+Technical search preparation and external search-engine setup are complete. This file should now only record real Google Search Console/Bing crawl, sitemap, or indexing states reported by those services; new audience-development planning belongs in the existing PROMO workflow.
