@@ -3,7 +3,7 @@ name: Production approval gate
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
   pull_request_review:
     types: [submitted, dismissed]
 
@@ -14,10 +14,9 @@ permissions:
 jobs:
   require-owner-approval:
     name: Owner approval gate
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - name: Require owner approval for the current PR head
+      - name: Require explicit owner approval for the current PR head
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
@@ -26,7 +25,14 @@ jobs:
               core.setFailed('No pull request context.');
               return;
             }
+            if (pr.draft) {
+              core.info('Draft PR: production approval gate is not active yet.');
+              return;
+            }
+
             const owner = 'irenkipo';
+            const expectedMarker = `APPROVE PRODUCTION ${pr.head.sha}`;
+
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -38,16 +44,20 @@ jobs:
               if (review.user && review.commit_id) latestByUser.set(review.user.login, review);
             }
             const review = latestByUser.get(owner);
-            if (!review) {
-              core.setFailed(`Missing approval from ${owner}.`);
+            if (review && review.state === 'APPROVED' && review.commit_id === pr.head.sha) {
+              core.info(`Fresh GitHub review approval from ${owner} found for ${pr.head.sha}.`);
               return;
             }
-            if (review.state !== 'APPROVED') {
-              core.setFailed(`Latest review from ${owner} is ${review.state}, not APPROVED.`);
+
+            const bodyLines = String(pr.body || '')
+              .split(/\r?\n/)
+              .map(line => line.trim());
+            if (pr.user && pr.user.login === owner && bodyLines.includes(expectedMarker)) {
+              core.info(`Fresh explicit owner marker found for ${pr.head.sha}.`);
               return;
             }
-            if (review.commit_id !== pr.head.sha) {
-              core.setFailed('Owner approval is stale because the PR head changed after approval.');
-              return;
-            }
-            core.info(`Fresh approval from ${owner} found for ${pr.head.sha}.`);
+
+            core.setFailed(
+              `Missing fresh owner approval for ${pr.head.sha}. ` +
+              `Use an APPROVED review, or for a self-authored PR add this exact line to the PR body: ${expectedMarker}`
+            );
