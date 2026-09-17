@@ -12,4 +12,4 @@
 - Release: PR + owner approval required before merge.
 - Subscription: one public Google Form CTA; no local input, backend, provider config, or client-side submission logic.
 - Search engines: technical preparation and external setup are complete. Google Search Console ownership is verified; sitemap is submitted; homepage and `/read/` indexing were requested. Bing Webmaster Tools is connected via Google Search Console import; sitemap status is `Success`, with 15 URLs discovered, 0 errors, and 0 warnings. Remaining crawl/index timing is external search-engine processing, not a missing site task.
-- TikTok Developers: verification-only root file `tiktokl8QvfszBTbx6BbHw4UIczI4ZhomoCQnM.txt` is the current state-only delta for URL-prefix ownership verification; no visible site content or publishing behavior changes.
+- TikTok Developers: verification file `src/site/tiktokl8QvfszBTbx6BbHw4UIczI4ZhomoCQnM.txt` is copied by the build into the deploy artifact root so URL-prefix ownership verification can resolve publicly. No visible site content or publishing behavior changes.

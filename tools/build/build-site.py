@@ -26,7 +26,8 @@ def copy_verification_files() -> None:
     for source in site_source.iterdir():
         is_google_file = bool(re.fullmatch(r"google[A-Za-z0-9_-]+\.html", source.name))
         is_bing_file = source.name == "BingSiteAuth.xml"
-        if source.is_file() and (is_google_file or is_bing_file):
+        is_tiktok_file = bool(re.fullmatch(r"tiktok[A-Za-z0-9_-]+\.txt", source.name))
+        if source.is_file() and (is_google_file or is_bing_file or is_tiktok_file):
             copy_file(source, DIST / source.name)
 
 
