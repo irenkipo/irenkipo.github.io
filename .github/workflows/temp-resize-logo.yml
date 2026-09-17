@@ -1,0 +1,34 @@
+name: Temporary resize logo
+
+on:
+  push:
+    branches: [temp-logo-1024]
+    paths:
+      - '.github/workflows/temp-resize-logo.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  resize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pillow
+        run: python -m pip install --quiet pillow
+      - name: Resize approved logo to 1024x1024
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          src = Image.open('src/assets/brand/ik-logo.jpg').convert('RGB')
+          out = src.resize((1024, 1024), Image.Resampling.LANCZOS)
+          out.save('ik-logo-1024.jpg', format='JPEG', quality=95, optimize=True)
+          print('source=', src.size, 'output=', out.size)
+          PY
+      - name: Upload resized logo
+        uses: actions/upload-artifact@v4
+        with:
+          name: ik-logo-1024
+          path: ik-logo-1024.jpg
+          if-no-files-found: error
+          retention-days: 1
