@@ -15,3 +15,5 @@
 - TikTok Developers: verification file `src/site/tiktokl8QvfszBTbx6BbHw4UIczI4ZhomoCQnM.txt` is copied by the build into the deploy artifact root so URL-prefix ownership verification can resolve publicly. No visible site content or publishing behavior changes.
 
 - Promo profile delta: add complete author social cross-links (Instagram, Facebook, Threads, YouTube, Telegram, TikTok) to the site and Person.sameAs metadata; add derived non-redrawn profile assets for YouTube/avatar use. No book text, series art, cover art, description, typography, palette, or section order changes.
+
+- Pages recovery delta: mirror the verified canonical `dist/` artifact to repository root because the active GitHub Pages branch deployment is currently serving repository-root content instead of the custom workflow artifact. This is a deployment-path recovery only; canonical visible site content remains the locked approved site.
