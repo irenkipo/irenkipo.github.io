@@ -1,0 +1,96 @@
+name: Build YouTube profile assets
+
+on:
+  push:
+    branches:
+      - promo-profile-crosslinks-2026-09-18
+    paths:
+      - .github/workflows/build-youtube-profile-assets.yml
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: promo-profile-crosslinks-2026-09-18
+
+      - name: Build derived profile assets from locked originals
+        shell: bash
+        run: |
+          python -m pip install --quiet pillow
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+
+          root = Path(".")
+          out = root / "src/assets/profile"
+          out.mkdir(parents=True, exist_ok=True)
+
+          banner_src = root / "src/assets/approved/series-banner.png"
+          logo_src = root / "src/assets/brand/ik-logo.jpg"
+
+          # YouTube recommended canvas: 2560x1440. Preserve the locked artwork:
+          # no redraw, no crop, only proportional resize + centered padding.
+          img = Image.open(banner_src).convert("RGB")
+          target_w = 2560
+          scaled_h = round(img.height * target_w / img.width)
+          img = img.resize((target_w, scaled_h), Image.Resampling.LANCZOS)
+          canvas = Image.new("RGB", (2560, 1440), "#E9DED5")
+          y = (1440 - scaled_h) // 2
+          canvas.paste(img, (0, y))
+          canvas.save(out / "youtube-banner-2560x1440.jpg", quality=95, optimize=True)
+
+          logo = Image.open(logo_src).convert("RGB")
+          side = min(logo.size)
+          left = (logo.width - side) // 2
+          top = (logo.height - side) // 2
+          logo = logo.crop((left, top, left + side, top + side))
+          logo = logo.resize((1024, 1024), Image.Resampling.LANCZOS)
+          logo.save(out / "avatar-1024.jpg", quality=95, optimize=True)
+          PY
+
+      - name: Record exact derivation
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+
+          p = Path("src/assets/profile")
+          lines = [
+              "# Derived profile assets",
+              "",
+              "Generated only from locked site assets. No redraw or content change.",
+              "",
+              "| File | SHA-256 | Derivation |",
+              "|---|---|---|",
+          ]
+          derivations = {
+              "youtube-banner-2560x1440.jpg":
+                  "series-banner.png proportional resize to 2560 px width; centered on 2560x1440 #E9DED5 canvas; no crop/redraw",
+              "avatar-1024.jpg":
+                  "ik-logo.jpg centered square crop and resize to 1024x1024; no redraw",
+          }
+          for name, derivation in derivations.items():
+              data=(p/name).read_bytes()
+              sha=hashlib.sha256(data).hexdigest().upper()
+              lines.append(f"| `src/assets/profile/{name}` | `{sha}` | {derivation} |")
+          (p/"README.md").write_text("\n".join(lines)+"\n", encoding="utf-8")
+          PY
+
+      - name: Commit generated profile assets
+        shell: bash
+        run: |
+          git config user.name "PROMO profile asset builder"
+          git config user.email "promo-automation@users.noreply.github.com"
+          git add src/assets/profile/
+          if git diff --cached --quiet; then
+            echo "PROFILE_ASSETS=UNCHANGED"
+            exit 0
+          fi
+          git commit -m "Build derived YouTube profile assets"
+          git push origin HEAD:promo-profile-crosslinks-2026-09-18
