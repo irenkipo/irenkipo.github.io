@@ -1,0 +1,58 @@
+name: Build Pages root hotfix
+
+on:
+  push:
+    branches:
+      - hotfix-pages-root-2026-09-18
+    paths:
+      - '.github/workflows/build-pages-root-hotfix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hotfix-pages-root-2026-09-18
+          fetch-depth: 0
+      - name: Build canonical site
+        run: python3 tools/build/build-site.py
+      - name: Mirror canonical deploy artifact to branch root
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a dist/index.html ./index.html
+          cp -a dist/404.html ./404.html
+          cp -a dist/privacy.html ./privacy.html
+          cp -a dist/terms.html ./terms.html
+          cp -a dist/robots.txt ./robots.txt
+          cp -a dist/sitemap.xml ./sitemap.xml
+          cp -a dist/.nojekyll ./.nojekyll
+          rm -rf ./assets ./read
+          cp -a dist/assets ./assets
+          cp -a dist/read ./read
+          for f in dist/google*.html dist/BingSiteAuth.xml dist/tiktok*.txt; do
+            [ -e "$f" ] || continue
+            cp -a "$f" "./$(basename "$f")"
+          done
+      - name: Commit hotfix payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Site recovery builder"
+          git config user.email "site-recovery@users.noreply.github.com"
+          git add index.html 404.html privacy.html terms.html robots.txt sitemap.xml .nojekyll assets read
+          for f in google*.html BingSiteAuth.xml tiktok*.txt; do
+            [ -e "$f" ] || continue
+            git add "$f"
+          done
+          if git diff --cached --quiet; then
+            echo "HOTFIX_PAYLOAD=UNCHANGED"
+            exit 0
+          fi
+          git commit -m "Restore canonical site at Pages branch root"
+          git push origin HEAD:hotfix-pages-root-2026-09-18
