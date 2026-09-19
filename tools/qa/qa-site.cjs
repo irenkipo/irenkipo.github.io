@@ -60,7 +60,6 @@ async function pageMeta(page) {
 }
 async function runViewport(browser, name, viewport) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
-  await context.addInitScript(() => { localStorage.setItem("irenkipo.analyticsConsent.v1", "denied"); });
   const page = await context.newPage();
   const consoleErrors = [], pageErrors = [], badResponses = [];
   page.on("console", message => { if (message.type() === "error") consoleErrors.push(message.text()); });
@@ -115,7 +114,6 @@ async function runViewport(browser, name, viewport) {
 }
 async function visualCompare(browser, viewport, name) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
-  await context.addInitScript(() => { localStorage.setItem("irenkipo.analyticsConsent.v1", "denied"); });
   const production = await context.newPage();
   const candidate = await context.newPage();
   await Promise.all([
@@ -149,40 +147,19 @@ async function visualCompare(browser, viewport, name) {
   await context.close();
   const visibleGeometryLocked = a.width === b.width && a.height === b.height && differentPixels === 0; return { name, production: { width: a.width, height: a.height }, candidate: { width: b.width, height: b.height }, geometryLocked: visibleGeometryLocked, differentPixels };
 }
-async function testAnalyticsConsent(browser) {
-  const openCase = async () => {
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
-    const page = await context.newPage();
-    await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
-    await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
-    return { context, page };
-  };
-
-  const deniedCase = await openCase();
-  const initial = await deniedCase.page.evaluate(() => ({
-    consent: localStorage.getItem("irenkipo.analyticsConsent.v1"),
-    bannerVisible: Boolean(document.querySelector("[data-analytics-banner]")?.getClientRects().length),
-    tagCount: document.querySelectorAll("script[data-ga4]").length
+async function testAnalyticsRuntime(browser) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
+  await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(50);
+  const state = await page.evaluate(() => ({
+    tagCount: document.querySelectorAll('script[data-ga4="G-5F54GZZN18"]').length,
+    bannerCount: document.querySelectorAll("[data-analytics-banner]").length,
+    consentEntries: (window.dataLayer || []).filter(item => item && item[0] === "consent").map(item => [item[1], item[2]])
   }));
-  await deniedCase.page.locator('[data-analytics-consent="denied"]').click();
-  const denied = await deniedCase.page.evaluate(() => ({
-    consent: localStorage.getItem("irenkipo.analyticsConsent.v1"),
-    bannerPresent: Boolean(document.querySelector("[data-analytics-banner]")),
-    tagCount: document.querySelectorAll("script[data-ga4]").length
-  }));
-  await deniedCase.context.close();
-
-  const grantedCase = await openCase();
-  await grantedCase.page.locator('[data-analytics-consent="granted"]').click();
-  await grantedCase.page.waitForTimeout(50);
-  const granted = await grantedCase.page.evaluate(() => ({
-    consent: localStorage.getItem("irenkipo.analyticsConsent.v1"),
-    bannerPresent: Boolean(document.querySelector("[data-analytics-banner]")),
-    tagCount: document.querySelectorAll('script[data-ga4="G-5F54GZZN18"]').length
-  }));
-  await grantedCase.context.close();
-
-  return { initial, denied, granted };
+  await context.close();
+  return state;
 }
 
 (async () => {
@@ -193,7 +170,7 @@ async function testAnalyticsConsent(browser) {
     const viewports = { desktop: { width: 1440, height: 1000 }, tablet: { width: 820, height: 1180 }, mobile: { width: 390, height: 844 } };
     const results = [];
     for (const [name, viewport] of Object.entries(viewports)) results.push(await runViewport(browser, name, viewport));
-    const analyticsConsent = await testAnalyticsConsent(browser);
+    const analyticsRuntime = await testAnalyticsRuntime(browser);
 
     const downloadChecks = {};
     for (const file of ["assets/books/book1.epub", "assets/books/book1.pdf"]) {
@@ -231,13 +208,13 @@ async function testAnalyticsConsent(browser) {
     if (forbiddenDist.length) failures.push("dist cleanliness");
     if (hashFailures.length) failures.push("locked asset checksums");
     if (visual.some(item => !item.geometryLocked || item.differentPixels !== 0)) failures.push("visual lock");
-    if (analyticsConsent.initial.consent !== null || !analyticsConsent.initial.bannerVisible || analyticsConsent.initial.tagCount !== 0) failures.push("analytics consent initial state");
-    if (analyticsConsent.denied.consent !== "denied" || analyticsConsent.denied.bannerPresent || analyticsConsent.denied.tagCount !== 0) failures.push("analytics consent denied state");
-    if (analyticsConsent.granted.consent !== "granted" || analyticsConsent.granted.bannerPresent || analyticsConsent.granted.tagCount !== 1) failures.push("analytics consent granted state");
+    if (analyticsRuntime.tagCount !== 1 || analyticsRuntime.bannerCount !== 0) failures.push("analytics runtime");
+    const defaults = analyticsRuntime.consentEntries.find(item => item[0] === "default")?.[1] || {};
+    if (defaults.analytics_storage !== "denied" || defaults.ad_storage !== "denied" || defaults.ad_user_data !== "denied" || defaults.ad_personalization !== "denied") failures.push("analytics denied-storage defaults");
     if (!indexHtml.includes(googleFormUrl)) failures.push("Google Form URL missing from dist homepage");
     if (obsoleteSubscriptionConfig) failures.push("obsolete subscription config shipped in dist");
 
-    const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsConsent };
+    const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsRuntime };
     fs.writeFileSync(path.join(reportDir, "site-qa.json"), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({ pass: report.pass, failures, viewports: results.map(item => ({ name: item.name, overflow: item.main.overflow, brokenImages: item.meta.brokenImages.length, consoleErrors: item.consoleErrors.length, pageErrors: item.pageErrors.length, checkedPages: item.checkedPages.length })), downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual }, null, 2));
     if (failures.length) process.exitCode = 1;
