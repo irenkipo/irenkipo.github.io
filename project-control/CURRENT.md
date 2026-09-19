@@ -19,3 +19,5 @@
 - Pages recovery delta: mirror the verified canonical `dist/` artifact to repository root because the active GitHub Pages branch deployment is currently serving repository-root content instead of the custom workflow artifact. This is a deployment-path recovery only; canonical visible site content remains the locked approved site.
 
 - Visible social-links delta: explicitly approved PROMO profile completion adds YouTube, Telegram, and TikTok beside existing Instagram, Facebook, and Threads in the homepage social section. Mobile layout becomes a compact two-column grid. This is the only intended visible geometry change.
+
+- Threads OAuth callback delta: add a noindex helper page at `/threads-oauth-callback.html` used only for the one-time Threads authorization-code return. No visible homepage/profile design changes; no automatic publishing permission is granted by this site change.
