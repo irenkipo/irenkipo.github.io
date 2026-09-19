@@ -61,6 +61,7 @@ async function pageMeta(page) {
 async function runViewport(browser, name, viewport) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
   const page = await context.newPage();
+  await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
   const consoleErrors = [], pageErrors = [], badResponses = [];
   page.on("console", message => { if (message.type() === "error") consoleErrors.push(message.text()); });
   page.on("pageerror", error => pageErrors.push(error.message));
