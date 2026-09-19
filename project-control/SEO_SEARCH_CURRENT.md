@@ -43,7 +43,7 @@ Google and Bing external setup is complete. Search engines may continue processi
 - The build generates the public sitemap and robots file in `dist`; the sitemap has 15 canonical HTTPS URLs: homepage, `/read/`, 11 chapters, privacy, and terms.
 - `robots.txt` allows public crawling and declares the canonical sitemap; it does not block `/`, `/read/`, or required assets.
 - Internal browser QA covers missing anchors, internal 4xx, images, console errors, keyboard behavior, and layouts at 1440, 820, and 390 px.
-- The site remains static and uses no web-font downloads or third-party client-side libraries. GA4 measurement (`G-5F54GZZN18`) is consent-gated: the external Google tag is not requested until the visitor explicitly allows analytics.
+- The site remains static and uses no web-font downloads or third-party client-side libraries. GA4 measurement (`G-5F54GZZN18`) runs in denied-storage cookieless mode with advertising features/signals disabled and no consent banner.
 - Google Search Console ownership is verified via the deployed HTML verification file.
 - Google has accepted the sitemap submission; the homepage and `/read/` have been live-tested and submitted for indexing.
 - Bing Webmaster Tools is connected through Google Search Console import; the sitemap status is `Success`, with 15 URLs discovered, 0 errors, and 0 warnings.
