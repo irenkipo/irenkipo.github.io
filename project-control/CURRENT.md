@@ -20,6 +20,8 @@
 
 - Visible social-links delta: explicitly approved PROMO profile completion adds YouTube, Telegram, and TikTok beside existing Instagram, Facebook, and Threads in the homepage social section. Mobile layout becomes a compact two-column grid. This is the only intended visible geometry change.
 
+- TikTok Developers current URL-prefix verification delta: add exact current verification file `tiktokxqEIWzaIdqIchWPfBayCEjQ9UENdeYu0.txt` with token `xqEIWzaIdqIchWPfBayCEjQ9UENdeYu0` at source and deploy root. No visible site change.
+
 - TikTok Developers exact verification filename delta: add `tiktokl8QvfszBTbx6BbHw4UIczI4ZhomoCQnM(2).txt` at both source and deployed root because TikTok generated that exact filename for the current URL-prefix verification request. Content is identical to the existing signature; no visible site change.
 
 - Threads OAuth callback delta: add a noindex helper page at `/threads-oauth-callback.html` used only for the one-time Threads authorization-code return. No visible homepage/profile design changes; no automatic publishing permission is granted by this site change.
