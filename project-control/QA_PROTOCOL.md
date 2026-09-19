@@ -10,3 +10,4 @@
 8. Confirm `dist/` contains no source, tooling, previews, Markdown, fragments, credentials, or environment files.
 9. Compare the complete candidate homepage and current production at 1440, 820, and 390 pixels. No visible delta is allowed; the author-mark raster is checksum-verified and masked only to avoid protocol-dependent browser decoding noise.
 10. Do not merge or deploy when any check fails.
+11. Verify analytics consent states: with no stored choice the consent strip is visible and no Google tag is present; denial stores `denied` and loads no tag; acceptance stores `granted` and adds exactly one `G-5F54GZZN18` Google tag. Visual-lock screenshots must use a stored denied choice so the approved underlying site geometry remains comparable.
