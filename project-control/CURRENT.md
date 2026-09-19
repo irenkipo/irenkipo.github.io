@@ -1,6 +1,6 @@
 # SITE CURRENT
 
-- Status: candidate — consent-gated GA4 analytics and measurable promotion funnel
+- Status: candidate — cookieless GA4 analytics and measurable promotion funnel
 - Candidate branch: `ga4-consent-2026-09-19`
 - Production baseline: `50e7f33dd4ad07b8fefbb1e2ad05f97173f2dc5a`
 - Rollback tag: `SITE-PRE-SEO-SECURITY-V1`
@@ -26,4 +26,4 @@
 
 - Threads OAuth callback delta: add a noindex helper page at `/threads-oauth-callback.html` used only for the one-time Threads authorization-code return. No visible homepage/profile design changes; no automatic publishing permission is granted by this site change.
 
-- GA4 analytics delta: user-approved consent-gated Google Analytics 4 measurement using public Measurement ID `G-5F54GZZN18`. The Google tag is not requested before explicit visitor consent. The local consent choice is stored in the browser. Measured actions include reading starts, chapter starts/opens, downloads, subscription clicks, LitRes clicks, and social clicks. Homepage/book visuals, literary text, series art, typography, palette, and section order remain unchanged; the only intended visible additions are the compact consent strip when no choice exists and the privacy disclosure/control.
+- GA4 analytics delta: user-approved cookieless Google Analytics 4 measurement using public Measurement ID `G-5F54GZZN18`. `analytics_storage`, advertising storage, advertising user-data and advertising personalization remain denied; no consent banner is shown. Measured actions include reading starts, chapter starts/opens, downloads, subscription clicks, LitRes clicks, and social clicks. Homepage/book visuals, literary text, series art, typography, palette, and section order remain unchanged; privacy disclosure is updated factually.
