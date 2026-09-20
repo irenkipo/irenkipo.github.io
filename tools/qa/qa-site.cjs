@@ -61,6 +61,7 @@ async function pageMeta(page) {
 async function runViewport(browser, name, viewport) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
   const page = await context.newPage();
+  await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
   const consoleErrors = [], pageErrors = [], badResponses = [];
   page.on("console", message => { if (message.type() === "error") consoleErrors.push(message.text()); });
   page.on("pageerror", error => pageErrors.push(error.message));
@@ -147,6 +148,21 @@ async function visualCompare(browser, viewport, name) {
   await context.close();
   const visibleGeometryLocked = a.width === b.width && a.height === b.height && differentPixels === 0; return { name, production: { width: a.width, height: a.height }, candidate: { width: b.width, height: b.height }, geometryLocked: visibleGeometryLocked, differentPixels };
 }
+async function testAnalyticsRuntime(browser) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
+  await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(50);
+  const state = await page.evaluate(() => ({
+    tagCount: document.querySelectorAll('script[data-ga4="G-5F54GZZN18"]').length,
+    bannerCount: document.querySelectorAll("[data-analytics-banner]").length,
+    consentEntries: (window.dataLayer || []).filter(item => item && item[0] === "consent").map(item => [item[1], item[2]])
+  }));
+  await context.close();
+  return state;
+}
+
 (async () => {
   const server = createServer();
   await new Promise(resolve => server.listen(4173, "127.0.0.1", resolve));
@@ -155,6 +171,7 @@ async function visualCompare(browser, viewport, name) {
     const viewports = { desktop: { width: 1440, height: 1000 }, tablet: { width: 820, height: 1180 }, mobile: { width: 390, height: 844 } };
     const results = [];
     for (const [name, viewport] of Object.entries(viewports)) results.push(await runViewport(browser, name, viewport));
+    const analyticsRuntime = await testAnalyticsRuntime(browser);
 
     const downloadChecks = {};
     for (const file of ["assets/books/book1.epub", "assets/books/book1.pdf"]) {
@@ -192,10 +209,13 @@ async function visualCompare(browser, viewport, name) {
     if (forbiddenDist.length) failures.push("dist cleanliness");
     if (hashFailures.length) failures.push("locked asset checksums");
     if (visual.some(item => !item.geometryLocked || item.differentPixels !== 0)) failures.push("visual lock");
+    if (analyticsRuntime.tagCount !== 1 || analyticsRuntime.bannerCount !== 0) failures.push("analytics runtime");
+    const defaults = analyticsRuntime.consentEntries.find(item => item[0] === "default")?.[1] || {};
+    if (defaults.analytics_storage !== "denied" || defaults.ad_storage !== "denied" || defaults.ad_user_data !== "denied" || defaults.ad_personalization !== "denied") failures.push("analytics denied-storage defaults");
     if (!indexHtml.includes(googleFormUrl)) failures.push("Google Form URL missing from dist homepage");
     if (obsoleteSubscriptionConfig) failures.push("obsolete subscription config shipped in dist");
 
-    const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual };
+    const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsRuntime };
     fs.writeFileSync(path.join(reportDir, "site-qa.json"), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({ pass: report.pass, failures, viewports: results.map(item => ({ name: item.name, overflow: item.main.overflow, brokenImages: item.meta.brokenImages.length, consoleErrors: item.consoleErrors.length, pageErrors: item.pageErrors.length, checkedPages: item.checkedPages.length })), downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual }, null, 2));
     if (failures.length) process.exitCode = 1;

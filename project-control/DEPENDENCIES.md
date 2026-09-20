@@ -7,6 +7,7 @@
 - `src/read/` → contents plus 11 chapter URLs;
 - `src/assets/` → approved visuals, CSS, JavaScript, EPUB, PDF, and author mark;
 - the homepage subscription CTA links directly to the approved public Google Form; no subscription runtime config is shipped.
+- `src/assets/js/analytics.js` provides cookieless GA4 measurement with analytics/ad storage denied. No consent UI or analytics CSS is shipped; the public Measurement ID is `G-5F54GZZN18`.
 
 ## Build and QA only
 

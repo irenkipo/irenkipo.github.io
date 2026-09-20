@@ -10,3 +10,4 @@
 8. Confirm `dist/` contains no source, tooling, previews, Markdown, fragments, credentials, or environment files.
 9. Compare the complete candidate homepage and current production at 1440, 820, and 390 pixels. No visible delta is allowed; the author-mark raster is checksum-verified and masked only to avoid protocol-dependent browser decoding noise.
 10. Do not merge or deploy when any check fails.
+11. Verify analytics runtime: every public page loads the local analytics runtime; exactly one Google tag for `G-5F54GZZN18` is added; runtime defaults `analytics_storage`, `ad_storage`, `ad_user_data`, and `ad_personalization` to `denied`; no consent banner or analytics cookie UI is present.

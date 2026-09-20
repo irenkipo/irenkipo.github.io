@@ -17,3 +17,10 @@ Allowed in this change:
 - preserve the subscription section's locked heading, copy, styling, dimensions, spacing, colors, and responsive footprint.
 
 Checksums in `ASSETS_MANIFEST.md` are authoritative for locked runtime assets.
+
+Approved exception for the 2026-09-19 analytics delta:
+
+- add non-visual local GA4 runtime/CSP allowances and event measurement in cookieless denied-storage mode;
+- add a factual Google Analytics disclosure on the privacy page;
+- do not add a consent banner or other interruption to reading;
+- do not change approved book/series visuals, literary copy, section order, typography, palette, or responsive geometry.
