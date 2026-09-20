@@ -37,3 +37,5 @@
 - SEO guard maintenance: production SEO health validation accepts the current on-site subscription form as the canonical subscription CTA while retaining compatibility with the legacy external Google Form link. This changes QA logic only and does not change visible site content.
 
 - Site QA guard maintenance: the audiobook check now requires the production player structure (1 lazy HTML5 audio element, 11 exact release URLs, no initial audio src) instead of the obsolete “coming soon” placeholder. Live visual comparison masks only the approved audiobook CTA text delta; all other visible differences remain locked.
+
+- Audiobook V2 download delta: enable the existing Download modal to provide one public ZIP package containing all 11 approved WEB V2 MP3 chapters. Package asset: `Iren_Kipo_V_zone_vidimosti_Audiobook_WEB_V2.zip`, hosted in the same production GitHub Release. No audio re-encoding or literary-content changes.
