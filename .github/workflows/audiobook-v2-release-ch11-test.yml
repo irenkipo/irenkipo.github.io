@@ -1,0 +1,82 @@
+name: Audiobook V2 public Release CH11 test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audiobook-v2-release-ch11-test.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  upload-test-chapter:
+    runs-on: [self-hosted, Windows, X64, promo]
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -command ". '{0}'"
+    env:
+      AUDIO_FILE: 'D:\\Common\\II\\Novel_Project\\NovelProjectV2\\Audiobook_V_zone_vidimosti\\output\\quality_v2\\web\\CH11_WEB_V2.mp3'
+      RELEASE_TAG: 'audiobook-v-zone-vidimosti-v2-test'
+      ASSET_NAME: 'CH11_WEB_V2.mp3'
+
+    steps:
+      - name: Verify local V2 web file
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Test-Path -LiteralPath $env:AUDIO_FILE)) {
+            throw "Missing local file: $env:AUDIO_FILE"
+          }
+          $f = Get-Item -LiteralPath $env:AUDIO_FILE
+          Write-Host ("FILE={0}" -f $f.FullName)
+          Write-Host ("SIZE_BYTES={0}" -f $f.Length)
+          if ($f.Length -lt 20000000 -or $f.Length -gt 30000000) {
+            throw "Unexpected CH11 size: $($f.Length) bytes"
+          }
+
+      - name: Create or reuse public test prerelease and upload CH11
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $headers = @{
+            Authorization = "Bearer $env:GH_TOKEN"
+            Accept = "application/vnd.github+json"
+            "X-GitHub-Api-Version" = "2022-11-28"
+          }
+
+          $release = $null
+          try {
+            $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:REPO/releases/tags/$env:RELEASE_TAG" -Method Get
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
+          }
+
+          if (-not $release) {
+            $body = @{
+              tag_name = $env:RELEASE_TAG
+              target_commitish = "main"
+              name = "Audiobook V2 — GitHub streaming test"
+              body = "Public streaming test: CH11 WEB V2. The site page is not linked to this asset yet."
+              draft = $false
+              prerelease = $true
+              make_latest = "false"
+            } | ConvertTo-Json
+            $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:REPO/releases" -Method Post -Body $body -ContentType "application/json"
+          }
+
+          $assets = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:REPO/releases/$($release.id)/assets" -Method Get
+          $old = $assets | Where-Object { $_.name -eq $env:ASSET_NAME }
+          if ($old) {
+            Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:REPO/releases/assets/$($old.id)" -Method Delete | Out-Null
+          }
+
+          $uploadUrl = "https://uploads.github.com/repos/$env:REPO/releases/$($release.id)/assets?name=$env:ASSET_NAME"
+          $asset = Invoke-RestMethod -Headers $headers -Uri $uploadUrl -Method Post -InFile $env:AUDIO_FILE -ContentType "audio/mpeg"
+
+          Write-Host ("RELEASE_URL={0}" -f $release.html_url)
+          Write-Host ("ASSET_URL={0}" -f $asset.browser_download_url)
+          Write-Host ("ASSET_SIZE={0}" -f $asset.size)
+          Write-Host "UPLOAD_TEST=PASS"
