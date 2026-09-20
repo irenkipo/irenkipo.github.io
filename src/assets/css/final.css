@@ -61,12 +61,23 @@ main{margin:0 auto;box-shadow:0 8px 45px rgba(44,39,31,.08)}
   .social-section,.litres-section{padding:32px 28px}
   .footer{padding:24px 28px}
 }
-/* Subscription CTA: keep the approved section footprint while linking directly to Google Forms. */
-.subscription-form{max-width:560px;min-height:72.796875px;margin:1.5rem auto 0;display:flex;justify-content:center;align-items:flex-start}
-.subscription-cta{min-width:150px;height:48px;padding:0 20px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--teal-dark);border-radius:999px;background:var(--teal-dark);color:#fff;text-decoration:none;font-weight:700}
-.subscription-cta:focus-visible{outline:3px solid rgba(12,104,114,.28);outline-offset:2px}
-@media(max-width:560px){.subscription-form{min-height:130.796875px;align-items:center}.subscription-cta{width:100%;max-width:334px}}
-@media(min-width:901px){.next-book{min-height:360.828125px}}
+/* Russian on-site subscription form. */
+.subscription-form{max-width:560px;margin:1.5rem auto 0;text-align:left}
+.subscription-fields{display:grid;grid-template-columns:.8fr 1.2fr;gap:.7rem}
+.subscription-form label>span{display:block;margin-bottom:.35rem;font-size:.75rem;font-weight:700}
+.subscription-form input[type="text"],.subscription-form input[type="email"]{width:100%;min-height:48px;padding:.75rem 1rem;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:inherit}
+.subscription-consent{margin:1rem 0;display:flex;gap:.65rem;align-items:flex-start}
+.subscription-consent input{width:18px;height:18px;margin-top:.15rem;accent-color:var(--teal)}
+.subscription-consent span{margin:0!important;font-size:.76rem!important;font-weight:400!important;line-height:1.45;color:var(--muted)}
+.subscription-form .button{min-width:150px}
+.subscription-form .button:disabled{opacity:.55;cursor:wait}
+.subscription-note,.subscription-status{margin:.55rem 0 0;color:var(--muted);font-size:.74rem;line-height:1.45}
+.subscription-status[data-state="success"]{color:var(--teal-dark);font-weight:700}
+.subscription-status[data-state="error"]{color:#7b2e2e;font-weight:700}
+.subscription-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+.subscription-result-frame{display:none}
+@media(max-width:560px){.subscription-fields{grid-template-columns:1fr}.subscription-form .button{width:100%}}
+@media(min-width:901px){.next-book{min-height:420px}}
 .audio-placeholder{min-height:220px;margin-top:1rem;padding:1.5rem;display:grid;place-content:center;text-align:center;border:1px solid var(--line);border-radius:14px;background:rgba(215,225,228,.22)}
 .audio-placeholder-badge{width:max-content;margin:0 auto .75rem;padding:.3rem .75rem;border:1px solid var(--teal-dark);border-radius:999px;color:var(--teal-dark);font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
 .audio-placeholder-title{max-width:360px;margin:0;color:var(--ink);font-family:var(--heading);font-size:1.55rem;line-height:1.3}
