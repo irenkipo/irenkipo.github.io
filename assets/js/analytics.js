@@ -86,6 +86,15 @@
       played.add(chapter);
       sendEvent("audiobook_play", { chapter_number: chapter });
     });
+    document.addEventListener("subscription:success", event => {
+      const detail = event.detail || {};
+      sendEvent("subscription_success", {
+        utm_source: detail.utm_source || undefined,
+        utm_medium: detail.utm_medium || undefined,
+        utm_campaign: detail.utm_campaign || undefined,
+        utm_content: detail.utm_content || undefined
+      });
+    });
     const chapter = location.pathname.match(/^\/read\/chapter-(\d{2})\/$/);
     if (chapter) {
       sendEvent("chapter_open", { chapter_number: Number(chapter[1]) });
