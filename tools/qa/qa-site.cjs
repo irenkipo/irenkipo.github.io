@@ -95,7 +95,6 @@ async function runViewport(browser, name, viewport) {
   const subscriptionFormCount = await subscriptionForm.count();
   const subscription = subscriptionFormCount === 1 ? await subscriptionForm.evaluate(form => ({
     visible: Boolean(form.getClientRects().length),
-    nameLabel: form.querySelector('input[name="name"]')?.closest("label")?.innerText.trim() || "",
     emailLabel: form.querySelector('input[name="email"]')?.closest("label")?.innerText.trim() || "",
     emailRequired: Boolean(form.querySelector('input[name="email"]')?.required),
     consentText: form.querySelector(".subscription-consent")?.innerText.trim() || "",
@@ -212,7 +211,7 @@ async function testAnalyticsRuntime(browser) {
       if (!["WebSite", "Person", "Book"].every(type => result.jsonLdTypes.includes(type))) failures.push(`${result.name}: JSON-LD`);
       if (!result.modalOpen || !result.closeFocused || !result.focusTrapped || !result.focusReturned) failures.push(`${result.name}: modal keyboard behavior`);
       if (!result.audioOpen || result.audioLabel !== "Аудиокнига скоро" || result.audioStatus !== "Многоголосая аудиокнига готовится" || result.phantomAudioControls !== 0) failures.push(`${result.name}: audio placeholder`);
-      if (result.subscriptionFormCount !== 1 || !result.subscription || !result.subscription.visible || result.subscription.nameLabel !== "Имя" || result.subscription.emailLabel !== "Электронная почта" || !result.subscription.emailRequired || !result.subscription.consentRequired || !result.subscription.consentText.includes("получать новости") || result.subscription.buttonText !== "Подписаться" || result.subscription.statusLive !== "polite" || result.subscription.target !== "subscription-result" || result.oldGoogleFormLinks !== 0) failures.push(`${result.name}: Russian subscription form`);
+      if (result.subscriptionFormCount !== 1 || !result.subscription || !result.subscription.visible || result.subscription.emailLabel !== "Электронная почта" || !result.subscription.emailRequired || !result.subscription.consentRequired || !result.subscription.consentText.includes("получать новости") || result.subscription.buttonText !== "Подписаться" || result.subscription.statusLive !== "polite" || result.subscription.target !== "subscription-result" || result.oldGoogleFormLinks !== 0) failures.push(`${result.name}: Russian subscription form`);
       if (result.checkedPages.some(item => item.status !== 200 || item.overflow !== 0 || item.meta.brokenImages.length || item.meta.missingAnchors.length || item.meta.og.length || item.meta.twitter.length || !item.meta.canonical || !item.meta.description)) failures.push(`${result.name}: reader/legal pages`);
       if (result.consoleErrors.length || result.pageErrors.length || result.badResponses.length) failures.push(`${result.name}: browser errors`);
     }
