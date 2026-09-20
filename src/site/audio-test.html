@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Тест аудио CH11</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
+    audio { width: 100%; margin: 20px 0; }
+    button { font: inherit; padding: 10px 14px; cursor: pointer; }
+    #status { margin-top: 18px; padding: 12px; background: #f4f4f4; white-space: pre-wrap; }
+    .note { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Тест аудио CH11</h1>
+  <p class="note">Техническая страница. В навигацию и sitemap не включена.</p>
+
+  <audio id="player" controls preload="metadata">
+    <source src="https://github.com/irenkipo/irenkipo.github.io/releases/download/audiobook-v-zone-vidimosti-v2-test/CH11_WEB_V2.mp3" type="audio/mpeg">
+    Ваш браузер не поддерживает HTML5-аудио.
+  </audio>
+
+  <p>
+    <button id="seek10" type="button">Перейти на 10:00</button>
+  </p>
+
+  <p>Проверка: запустить Play, затем перемотать вручную в середину главы. Кнопка выше дополнительно пробует переход на 10:00.</p>
+  <div id="status">Ожидание загрузки метаданных…</div>
+
+  <script>
+    const player = document.getElementById('player');
+    const status = document.getElementById('status');
+    const seek10 = document.getElementById('seek10');
+
+    function show(message) {
+      const duration = Number.isFinite(player.duration) ? player.duration.toFixed(1) : '—';
+      status.textContent = message + '\nТекущая позиция: ' + player.currentTime.toFixed(1) + ' с' +
+        '\nДлительность: ' + duration + ' с' +
+        '\nreadyState: ' + player.readyState;
+    }
+
+    player.addEventListener('loadedmetadata', () => show('Метаданные загружены.'));
+    player.addEventListener('canplay', () => show('Можно воспроизводить.'));
+    player.addEventListener('playing', () => show('Воспроизведение идёт.'));
+    player.addEventListener('seeked', () => show('Перемотка завершена.'));
+    player.addEventListener('error', () => {
+      const code = player.error ? player.error.code : 'unknown';
+      show('ОШИБКА аудио. Код: ' + code);
+    });
+
+    seek10.addEventListener('click', () => {
+      if (!Number.isFinite(player.duration)) {
+        show('Длительность ещё не получена.');
+        return;
+      }
+      player.currentTime = Math.min(600, Math.max(0, player.duration - 1));
+      show('Запрошен переход на 10:00.');
+    });
+  </script>
+</body>
+</html>

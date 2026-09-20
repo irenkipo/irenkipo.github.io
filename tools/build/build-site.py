@@ -41,6 +41,7 @@ def build() -> None:
 
     copy_file(SRC / "site" / "index.html", DIST / "index.html")
     copy_file(SRC / "site" / "404.html", DIST / "404.html")
+    copy_file(SRC / "site" / "audio-test.html", DIST / "audio-test.html")
     copy_verification_files()
     copy_file(SRC / "legal" / "privacy.html", DIST / "privacy.html")
     copy_file(SRC / "legal" / "terms.html", DIST / "terms.html")
