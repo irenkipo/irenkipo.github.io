@@ -62,6 +62,14 @@
     submitted = false;
     submit.disabled = false;
     submit.textContent = "Подписаться";
+    document.dispatchEvent(new CustomEvent("subscription:success", {
+      detail: {
+        utm_source: values.utm_source,
+        utm_medium: values.utm_medium,
+        utm_campaign: values.utm_campaign,
+        utm_content: values.utm_content
+      }
+    }));
     const email = form.querySelector('input[type="email"]');
     const consent = form.querySelector('input[type="checkbox"]');
     if (email) email.value = "";
