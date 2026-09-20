@@ -72,7 +72,20 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    document.addEventListener("click", trackMeaningfulClick, true);
+    document.addEventListener("click", event => {
+      const audioOpen = event.target.closest('[data-open="audio"]');
+      if (audioOpen) sendEvent("audiobook_open");
+      const chapterButton = event.target.closest("[data-audio-chapter]");
+      if (chapterButton) sendEvent("audiobook_chapter_select", { chapter_number: Number(chapterButton.dataset.audioChapter) });
+      trackMeaningfulClick(event);
+    }, true);
+    const played = new Set();
+    document.addEventListener("audiobook:play", event => {
+      const chapter = Number(event.detail?.chapter || 0);
+      if (!chapter || played.has(chapter)) return;
+      played.add(chapter);
+      sendEvent("audiobook_play", { chapter_number: chapter });
+    });
     const chapter = location.pathname.match(/^\/read\/chapter-(\d{2})\/$/);
     if (chapter) {
       sendEvent("chapter_open", { chapter_number: Number(chapter[1]) });
