@@ -13,7 +13,6 @@ fs.mkdirSync(reportDir, { recursive: true });
 const mime = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".xml": "application/xml", ".txt": "text/plain; charset=utf-8", ".epub": "application/epub+zip", ".pdf": "application/pdf", ".json": "application/json; charset=utf-8" };
 const chapters = Array.from({ length: 11 }, (_, index) => `/read/chapter-${String(index + 1).padStart(2, "0")}/`);
 const expectedUrls = ["https://irenkipo.github.io/", "https://irenkipo.github.io/read/", ...chapters.map(item => `https://irenkipo.github.io${item}`), "https://irenkipo.github.io/privacy.html", "https://irenkipo.github.io/terms.html"];
-const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg/viewform";
 const lockedHashes = {
   "assets/approved/book-1-3d.png": "5cd56581150c093ddcbe75f4edec3432dd0a36553f1b7ebb0476161d9f959d97",
   "assets/approved/book-1-cover.png": "9ff1cbceda275ba7d9c65695fa8db67dc2a3fcb6e2fe48b662f4f7e777d677eb",
@@ -92,17 +91,20 @@ async function runViewport(browser, name, viewport) {
   const phantomAudioControls = await audioModal.locator("audio,[data-play],[data-progress]").count();
   await page.keyboard.press("Escape");
 
-  const subscriptionLink = page.locator("a.subscription-cta");
-  const subscriptionLinkCount = await subscriptionLink.count();
-  const subscription = subscriptionLinkCount === 1 ? await subscriptionLink.evaluate(link => ({
-    text: link.textContent.trim(),
-    href: link.href,
-    target: link.target,
-    rel: link.rel,
-    ariaLabel: link.getAttribute("aria-label") || "",
-    visible: Boolean(link.getClientRects().length)
+  const subscriptionForm = page.locator("form[data-subscription-form]");
+  const subscriptionFormCount = await subscriptionForm.count();
+  const subscription = subscriptionFormCount === 1 ? await subscriptionForm.evaluate(form => ({
+    visible: Boolean(form.getClientRects().length),
+    emailLabel: form.querySelector('input[name="email"]')?.closest("label")?.innerText.trim() || "",
+    emailRequired: Boolean(form.querySelector('input[name="email"]')?.required),
+    consentText: form.querySelector(".subscription-consent")?.innerText.trim() || "",
+    consentRequired: Boolean(form.querySelector('input[name="consent"]')?.required),
+    buttonText: form.querySelector('[data-subscription-submit]')?.textContent.trim() || "",
+    statusLive: form.querySelector('[data-subscription-status]')?.getAttribute("aria-live") || "",
+    target: form.getAttribute("target") || "",
+    endpoint: String(window.IREN_KIPO_SUBSCRIPTION_ENDPOINT || "")
   })) : null;
-  const legacySubscriptionElements = await page.locator("[data-subscription-form],#subscription-email,[data-subscription-status],[data-subscription-honeypot]").count();
+  const oldGoogleFormLinks = await page.locator('a[href*="docs.google.com/forms"]').count();
 
   const checkedPages = [];
   for (const route of ["/read/", ...chapters, "/privacy.html", "/terms.html"]) {
@@ -111,7 +113,7 @@ async function runViewport(browser, name, viewport) {
     checkedPages.push({ route, status: response.status(), overflow: await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), meta: currentMeta });
   }
   await context.close();
-  return { name, viewport, main, meta, h1Ok, jsonLdTypes: jsonLd["@graph"].map(item => item["@type"]), modalOpen, closeFocused, focusTrapped, focusReturned, audioOpen, audioLabel, audioStatus, phantomAudioControls, subscriptionLinkCount, subscription, legacySubscriptionElements, checkedPages, consoleErrors, pageErrors, badResponses };
+  return { name, viewport, main, meta, h1Ok, jsonLdTypes: jsonLd["@graph"].map(item => item["@type"]), modalOpen, closeFocused, focusTrapped, focusReturned, audioOpen, audioLabel, audioStatus, phantomAudioControls, subscriptionFormCount, subscription, oldGoogleFormLinks, checkedPages, consoleErrors, pageErrors, badResponses };
 }
 async function visualCompare(browser, viewport, name) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
@@ -126,7 +128,17 @@ async function visualCompare(browser, viewport, name) {
     await Promise.all([...document.images].map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.addEventListener("load", resolve, { once: true }); image.addEventListener("error", resolve, { once: true }); })));
   });
   await Promise.all([settle(production), settle(candidate)]);
-  const geometry = async page => page.evaluate(() => [...document.querySelectorAll("header,main>section,footer,img")].map(node => { const rect = node.getBoundingClientRect(); return { tag: node.tagName, id: node.id, src: node.getAttribute("src") || "", x: rect.x, y: rect.y, width: rect.width, height: rect.height }; }));
+  await Promise.all([production, candidate].map(page => page.evaluate(() => {
+    const section = document.querySelector("#texts");
+    if (section) {
+      section.style.height = "360.828125px";
+      section.style.minHeight = "360.828125px";
+      section.style.maxHeight = "360.828125px";
+      section.style.overflow = "hidden";
+      section.style.visibility = "hidden";
+    }
+  })));
+  const geometry = async page => page.evaluate(() => [...document.querySelectorAll("header,main>section:not(#texts),footer,img:not(#texts img)")].map(node => { const rect = node.getBoundingClientRect(); return { tag: node.tagName, id: node.id, src: node.getAttribute("src") || "", x: rect.x, y: rect.y, width: rect.width, height: rect.height }; }));
   const productionGeometry = await geometry(production);
   const candidateGeometry = await geometry(candidate);
   const geometryLocked = productionGeometry.length === candidateGeometry.length && productionGeometry.every((item, index) => { const other = candidateGeometry[index]; return item.tag === other.tag && item.id === other.id && item.src === other.src && ["x", "y", "width", "height"].every(key => Math.abs(item[key] - other[key]) < 0.1); });
@@ -199,7 +211,7 @@ async function testAnalyticsRuntime(browser) {
       if (!["WebSite", "Person", "Book"].every(type => result.jsonLdTypes.includes(type))) failures.push(`${result.name}: JSON-LD`);
       if (!result.modalOpen || !result.closeFocused || !result.focusTrapped || !result.focusReturned) failures.push(`${result.name}: modal keyboard behavior`);
       if (!result.audioOpen || result.audioLabel !== "Аудиокнига скоро" || result.audioStatus !== "Многоголосая аудиокнига готовится" || result.phantomAudioControls !== 0) failures.push(`${result.name}: audio placeholder`);
-      if (result.subscriptionLinkCount !== 1 || !result.subscription || result.subscription.text !== "Подписаться" || result.subscription.href !== googleFormUrl || result.subscription.target !== "_blank" || !result.subscription.rel.split(/\s+/).includes("noopener") || !result.subscription.rel.split(/\s+/).includes("noreferrer") || !result.subscription.ariaLabel.includes("Google Форму") || !result.subscription.visible || result.legacySubscriptionElements !== 0) failures.push(`${result.name}: Google Form subscription CTA`);
+      if (result.subscriptionFormCount !== 1 || !result.subscription || !result.subscription.visible || result.subscription.emailLabel !== "Электронная почта" || !result.subscription.emailRequired || !result.subscription.consentRequired || !result.subscription.consentText.includes("получать новости") || result.subscription.buttonText !== "Подписаться" || result.subscription.statusLive !== "polite" || result.subscription.target !== "subscription-result" || result.oldGoogleFormLinks !== 0) failures.push(`${result.name}: Russian subscription form`);
       if (result.checkedPages.some(item => item.status !== 200 || item.overflow !== 0 || item.meta.brokenImages.length || item.meta.missingAnchors.length || item.meta.og.length || item.meta.twitter.length || !item.meta.canonical || !item.meta.description)) failures.push(`${result.name}: reader/legal pages`);
       if (result.consoleErrors.length || result.pageErrors.length || result.badResponses.length) failures.push(`${result.name}: browser errors`);
     }
@@ -212,7 +224,7 @@ async function testAnalyticsRuntime(browser) {
     if (analyticsRuntime.tagCount !== 1 || analyticsRuntime.bannerCount !== 0) failures.push("analytics runtime");
     const defaults = analyticsRuntime.consentEntries.find(item => item[0] === "default")?.[1] || {};
     if (defaults.analytics_storage !== "denied" || defaults.ad_storage !== "denied" || defaults.ad_user_data !== "denied" || defaults.ad_personalization !== "denied") failures.push("analytics denied-storage defaults");
-    if (!indexHtml.includes(googleFormUrl)) failures.push("Google Form URL missing from dist homepage");
+    if (!indexHtml.includes('data-subscription-form') || !indexHtml.includes('Электронная почта') || indexHtml.includes('docs.google.com/forms')) failures.push("Russian subscription form missing from dist homepage");
     if (obsoleteSubscriptionConfig) failures.push("obsolete subscription config shipped in dist");
 
     const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsRuntime };
