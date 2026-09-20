@@ -6,7 +6,8 @@
   const submit = form.querySelector("[data-subscription-submit]");
   const status = form.querySelector("[data-subscription-status]");
   const frame = form.querySelector('iframe[name="subscription-result"]');
-  const endpoint = String(window.IREN_KIPO_SUBSCRIPTION_ENDPOINT || "").trim();
+  const config = window.IREN_KIPO_SUBSCRIPTION || {};
+  const fields = config.fields || {};
   let submitted = false;
 
   const setStatus = (message, kind = "") => {
@@ -15,26 +16,41 @@
   };
 
   const params = new URLSearchParams(location.search);
-  for (const name of ["utm_source", "utm_medium", "utm_campaign", "utm_content"]) {
-    const field = form.elements.namedItem(name);
-    if (field) field.value = params.get(name) || "";
-  }
-  form.elements.namedItem("page_url").value = location.href;
-  form.elements.namedItem("referrer").value = document.referrer || "";
+  const values = {
+    utm_source: params.get("utm_source") || "",
+    utm_medium: params.get("utm_medium") || "",
+    utm_campaign: params.get("utm_campaign") || "",
+    utm_content: params.get("utm_content") || "",
+    page_url: location.href,
+    referrer: document.referrer || ""
+  };
 
-  if (endpoint) form.action = endpoint;
+  for (const [key, value] of Object.entries(values)) {
+    const control = form.elements.namedItem(key);
+    if (control) control.value = value;
+  }
+
+  const requiredMappings = ["email", "name", "consent"];
+  const ready = Boolean(config.action) && requiredMappings.every(key => Boolean(fields[key]));
 
   form.addEventListener("submit", event => {
     setStatus("");
-    if (!endpoint) {
-      event.preventDefault();
-      setStatus("Подписка временно недоступна. Попробуйте немного позже.", "error");
-      return;
-    }
     if (!form.reportValidity()) {
       event.preventDefault();
       return;
     }
+    if (!ready) {
+      event.preventDefault();
+      setStatus("Форма почти готова: завершается подключение к Google Forms.", "error");
+      return;
+    }
+
+    form.action = config.action;
+    for (const [logicalName, googleName] of Object.entries(fields)) {
+      const control = form.elements.namedItem(logicalName);
+      if (control && googleName) control.setAttribute("name", googleName);
+    }
+
     submitted = true;
     submit.disabled = true;
     submit.textContent = "Отправляем…";
@@ -46,9 +62,12 @@
     submitted = false;
     submit.disabled = false;
     submit.textContent = "Подписаться";
-    form.elements.namedItem("name").value = "";
-    form.elements.namedItem("email").value = "";
-    form.elements.namedItem("consent").checked = false;
-    setStatus("Спасибо! Подписка оформлена.", "success");
+    const name = form.querySelector('input[type="text"]:not(.subscription-honeypot)');
+    const email = form.querySelector('input[type="email"]');
+    const consent = form.querySelector('input[type="checkbox"]');
+    if (name) name.value = "";
+    if (email) email.value = "";
+    if (consent) consent.checked = false;
+    setStatus("Спасибо! Подписка оформлена. Подтверждение отправлено на вашу почту.", "success");
   });
 })();
