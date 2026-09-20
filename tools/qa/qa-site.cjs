@@ -88,7 +88,12 @@ async function runViewport(browser, name, viewport) {
   const audioModal = page.locator("#audio");
   const audioOpen = await audioModal.isVisible();
   const audioStatus = (await page.locator("[data-audio-status]").textContent()).trim();
-  const phantomAudioControls = await audioModal.locator("audio,[data-play],[data-progress]").count();
+  const audioElement = audioModal.locator("audio[data-audio-element]");
+  const audioElementCount = await audioElement.count();
+  const audioChapterCount = await audioModal.locator("[data-audio-chapter]").count();
+  const audioPreload = audioElementCount === 1 ? await audioElement.getAttribute("preload") : "";
+  const audioInitialSrc = audioElementCount === 1 ? (await audioElement.getAttribute("src") || "") : "";
+  const audioReleaseUrls = await audioModal.locator("[data-audio-chapter]").evaluateAll(items => items.map(item => item.getAttribute("data-audio-src") || ""));
   await page.keyboard.press("Escape");
 
   const subscriptionForm = page.locator("form[data-subscription-form]");
@@ -113,7 +118,7 @@ async function runViewport(browser, name, viewport) {
     checkedPages.push({ route, status: response.status(), overflow: await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), meta: currentMeta });
   }
   await context.close();
-  return { name, viewport, main, meta, h1Ok, jsonLdTypes: jsonLd["@graph"].map(item => item["@type"]), modalOpen, closeFocused, focusTrapped, focusReturned, audioOpen, audioLabel, audioStatus, phantomAudioControls, subscriptionFormCount, subscription, oldGoogleFormLinks, checkedPages, consoleErrors, pageErrors, badResponses };
+  return { name, viewport, main, meta, h1Ok, jsonLdTypes: jsonLd["@graph"].map(item => item["@type"]), modalOpen, closeFocused, focusTrapped, focusReturned, audioOpen, audioLabel, audioStatus, audioElementCount, audioChapterCount, audioPreload, audioInitialSrc, audioReleaseUrls, subscriptionFormCount, subscription, oldGoogleFormLinks, checkedPages, consoleErrors, pageErrors, badResponses };
 }
 async function visualCompare(browser, viewport, name) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
@@ -144,6 +149,10 @@ async function visualCompare(browser, viewport, name) {
   const geometryLocked = productionGeometry.length === candidateGeometry.length && productionGeometry.every((item, index) => { const other = candidateGeometry[index]; return item.tag === other.tag && item.id === other.id && item.src === other.src && ["x", "y", "width", "height"].every(key => Math.abs(item[key] - other[key]) < 0.1); });
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     document.querySelectorAll('img[src*="ik-logo.jpg"]').forEach(image => { image.style.visibility = "hidden"; });
+    document.querySelectorAll('[data-open="audio"]').forEach(button => {
+      button.style.width = "190px";
+      button.style.color = "transparent";
+    });
   })));
   const productionFile = path.join(reportDir, `locked-production-${name}.png`);
   const candidateFile = path.join(reportDir, `locked-candidate-${name}.png`);
@@ -210,7 +219,8 @@ async function testAnalyticsRuntime(browser) {
       if (!result.meta.csp.includes("object-src 'none'") || result.meta.csp.includes("unsafe-eval") || result.meta.referrer !== "strict-origin-when-cross-origin") failures.push(`${result.name}: security metadata`);
       if (!["WebSite", "Person", "Book"].every(type => result.jsonLdTypes.includes(type))) failures.push(`${result.name}: JSON-LD`);
       if (!result.modalOpen || !result.closeFocused || !result.focusTrapped || !result.focusReturned) failures.push(`${result.name}: modal keyboard behavior`);
-      if (!result.audioOpen || result.audioLabel !== "Аудиокнига скоро" || result.audioStatus !== "Многоголосая аудиокнига готовится" || result.phantomAudioControls !== 0) failures.push(`${result.name}: audio placeholder`);
+      const audioUrlsOk = result.audioReleaseUrls.length === 11 && result.audioReleaseUrls.every((url, index) => url === `https://github.com/irenkipo/irenkipo.github.io/releases/download/audiobook-v-zone-vidimosti-v2/CH${String(index + 1).padStart(2, "0")}_WEB_V2.mp3`);
+      if (!result.audioOpen || result.audioLabel !== "Слушать аудиокнигу" || result.audioStatus !== "Выберите главу" || result.audioElementCount !== 1 || result.audioChapterCount !== 11 || result.audioPreload !== "none" || result.audioInitialSrc !== "" || !audioUrlsOk) failures.push(`${result.name}: audiobook player`);
       if (result.subscriptionFormCount !== 1 || !result.subscription || !result.subscription.visible || result.subscription.emailLabel !== "Электронная почта" || !result.subscription.emailRequired || !result.subscription.consentRequired || !result.subscription.consentText.includes("получать новости") || result.subscription.buttonText !== "Подписаться" || result.subscription.statusLive !== "polite" || result.subscription.target !== "subscription-result" || result.oldGoogleFormLinks !== 0) failures.push(`${result.name}: Russian subscription form`);
       if (result.checkedPages.some(item => item.status !== 200 || item.overflow !== 0 || item.meta.brokenImages.length || item.meta.missingAnchors.length || item.meta.og.length || item.meta.twitter.length || !item.meta.canonical || !item.meta.description)) failures.push(`${result.name}: reader/legal pages`);
       if (result.consoleErrors.length || result.pageErrors.length || result.badResponses.length) failures.push(`${result.name}: browser errors`);

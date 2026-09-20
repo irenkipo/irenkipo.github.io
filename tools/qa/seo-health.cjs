@@ -139,7 +139,8 @@ function exactExternalLink(html, expectedUrl, options = {}) {
   }
   for (const requiredType of ["WebSite", "Person", "Book", "CreativeWorkSeries"]) if (!structuredTypes.has(requiredType)) failures.push(`Homepage JSON-LD: ${requiredType} missing`);
 
-  if (!exactExternalLink(homepage, GOOGLE_FORM_URL, { newTab: true, safeRel: true })) failures.push("Homepage: Google Form CTA href/target/rel invalid");
+  const hasCurrentSubscriptionForm = /<form\b[^>]*data-subscription-form\b/i.test(homepage) && /<button\b[^>]*data-subscription-submit\b/i.test(homepage);
+  if (!hasCurrentSubscriptionForm && !exactExternalLink(homepage, GOOGLE_FORM_URL, { newTab: true, safeRel: true })) failures.push("Homepage: subscription CTA invalid");
   if (!exactExternalLink(homepage, LITRES_URL, { newTab: true, safeRel: true })) failures.push("Homepage: LitRes href/target/rel invalid");
   for (const socialUrl of SOCIAL_URLS) if (!exactExternalLink(homepage, socialUrl, { newTab: true, safeRel: true })) failures.push(`Homepage: social link invalid (${new URL(socialUrl).hostname})`);
 

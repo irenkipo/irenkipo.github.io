@@ -5,7 +5,7 @@
 - Production baseline: `50e7f33dd4ad07b8fefbb1e2ad05f97173f2dc5a`
 - Rollback tag: `SITE-PRE-SEO-SECURITY-V1`
 - Public URL: <https://irenkipo.github.io/>
-- Visual state: LOCKED; no visible page changes are allowed in this state-only delta.
+- Visual state: LOCKED except for the explicitly approved Audiobook V2 delta: the existing audiobook button/placeholder may become the production 11-chapter player. All unrelated homepage geometry, art, typography, palette and content remain locked.
 - Build: `python tools/build/build-site.py`
 - QA: `node tools/qa/qa-site.cjs`, `node tools/qa/seo-health.cjs`, and `node tools/qa/security-scan.cjs`
 - Deployment source: generated `dist/` artifact only.
@@ -31,3 +31,9 @@
 - Audiobook V2 GitHub-release test delta: add a test-only workflow that uploads the already approved local `CH11_WEB_V2.mp3` from the self-hosted runner to a public prerelease asset for streaming compatibility checks. No page content, player, production deploy, or public site navigation is changed by this delta.
 
 - Audiobook HTML5 browser test delta: add isolated noindex `/audio-test.html` with a standard HTML5 audio player pointed at the public CH11 GitHub Release asset. The page is intentionally absent from navigation and sitemap and exists only to verify real browser playback and seeking before integrating the audiobook into the site.
+
+- Audiobook V2 production-player delta: the approved 11-chapter WEB V2 audiobook is hosted as public GitHub Release assets under tag `audiobook-v-zone-vidimosti-v2`. Automated sync verifies FILES_LOCAL=11/11, ASSETS=11/11 and PUBLIC_RANGE=11/11. The existing audiobook modal is upgraded from a placeholder to a lazy-loading HTML5 player with chapter selection; no audio is fetched until a listener chooses a chapter. GA4 records audiobook open, chapter selection and first play per chapter. No literary text, cover art, series art or unrelated page geometry is changed.
+
+- SEO guard maintenance: production SEO health validation accepts the current on-site subscription form as the canonical subscription CTA while retaining compatibility with the legacy external Google Form link. This changes QA logic only and does not change visible site content.
+
+- Site QA guard maintenance: the audiobook check now requires the production player structure (1 lazy HTML5 audio element, 11 exact release URLs, no initial audio src) instead of the obsolete “coming soon” placeholder. Live visual comparison masks only the approved audiobook CTA text delta; all other visible differences remain locked.
