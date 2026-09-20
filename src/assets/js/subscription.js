@@ -30,7 +30,7 @@
     if (control) control.value = value;
   }
 
-  const requiredMappings = ["email", "name", "consent"];
+  const requiredMappings = ["email", "consent"];
   const ready = Boolean(config.action) && requiredMappings.every(key => Boolean(fields[key]));
 
   form.addEventListener("submit", event => {
@@ -62,12 +62,10 @@
     submitted = false;
     submit.disabled = false;
     submit.textContent = "Подписаться";
-    const name = form.querySelector('input[type="text"]:not(.subscription-honeypot)');
     const email = form.querySelector('input[type="email"]');
     const consent = form.querySelector('input[type="checkbox"]');
-    if (name) name.value = "";
     if (email) email.value = "";
     if (consent) consent.checked = false;
-    setStatus("Спасибо! Подписка оформлена. Подтверждение отправлено на вашу почту.", "success");
+    setStatus("Спасибо! Вы подписаны на новости Ирэн Кипо.", "success");
   });
 })();
