@@ -27,3 +27,5 @@
 - Threads OAuth callback delta: add a noindex helper page at `/threads-oauth-callback.html` used only for the one-time Threads authorization-code return. No visible homepage/profile design changes; no automatic publishing permission is granted by this site change.
 
 - GA4 analytics delta: user-approved cookieless Google Analytics 4 measurement using public Measurement ID `G-5F54GZZN18`. `analytics_storage`, advertising storage, advertising user-data and advertising personalization remain denied; no consent banner is shown. Measured actions include reading starts, chapter starts/opens, downloads, subscription clicks, LitRes clicks, and social clicks. Homepage/book visuals, literary text, series art, typography, palette, and section order remain unchanged; privacy disclosure is updated factually.
+
+- Audiobook V2 GitHub-release test delta: add a test-only workflow that uploads the already approved local `CH11_WEB_V2.mp3` from the self-hosted runner to a public prerelease asset for streaming compatibility checks. No page content, player, production deploy, or public site navigation is changed by this delta.
