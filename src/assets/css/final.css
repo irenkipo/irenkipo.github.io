@@ -92,3 +92,5 @@ main{margin:0 auto;box-shadow:0 8px 45px rgba(44,39,31,.08)}
 .audio-player .track-list button span:last-child{color:var(--muted);font-size:.75rem}
 .audio-player .track-list button[aria-current="true"]{border-color:var(--teal);background:rgba(215,225,228,.22);color:var(--teal-dark)}
 @media(max-width:560px){.audio-card{max-height:92vh}.audio-player .track-list{grid-template-columns:1fr}}
+
+.author-news{margin-top:1.25rem;padding-top:1.1rem;border-top:1px solid var(--line)}.author-news .eyebrow{margin-bottom:.45rem}.author-news-item time{display:block;margin-bottom:.35rem;color:var(--muted);font-size:.74rem}.author-news-item h3{margin:0 0 .4rem;font-size:1rem;letter-spacing:0}.author-news-item p{margin:0;max-width:620px;color:var(--muted);font-size:.88rem;line-height:1.55}
