@@ -75,3 +75,5 @@
 - Subscriber browser state: after a successful Google Forms submission, the same browser stores only a boolean subscription marker (no email) and shows “Вы уже подписаны на новости Ирэн Кипо.” on later visits instead of repeating the form. No subscriber list is exposed to the public site.
 
 - QA mechanism: branch `author-copy-approved-2026-09-21` may skip only the live pixel-lock comparison for the explicitly approved author-copy delta. HTML, SEO, security, responsive, download, asset-hash, analytics, and runtime checks remain mandatory.
+
+- 2026-09-21: User-approved author-section copy change: removed “Страницы разные. Всё хорошо.” Retained “Писатель. Истории о людях, которые ищут, любят и остаются собой.” and the existing “Подписаться на новости” button. No site news feed added.
