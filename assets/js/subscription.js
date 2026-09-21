@@ -69,6 +69,6 @@
     const consent = consentField;
     if (email) email.value = "";
     if (consent) consent.checked = false;
-    setStatus("Заявка отправлена. Подтверждение придёт на электронную почту после обработки.", "pending");
+    setStatus("Спасибо! Заявка отправлена. Подтверждение придёт на электронную почту.", "sent");
   });
 })();
