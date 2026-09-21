@@ -1,0 +1,67 @@
+name: Core Web Vitals audit
+
+on:
+  push:
+    branches:
+      - site-cwv-audit-2026-09-21
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Run Lighthouse audits
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p cwv
+          npm exec --yes lighthouse@12.8.2 -- https://irenkipo.github.io/ --output=json --output-path=cwv/home-mobile.json --chrome-flags="--headless --no-sandbox"
+          npm exec --yes lighthouse@12.8.2 -- https://irenkipo.github.io/ --preset=desktop --output=json --output-path=cwv/home-desktop.json --chrome-flags="--headless --no-sandbox"
+          npm exec --yes lighthouse@12.8.2 -- https://irenkipo.github.io/read/ --output=json --output-path=cwv/read-mobile.json --chrome-flags="--headless --no-sandbox"
+          npm exec --yes lighthouse@12.8.2 -- https://irenkipo.github.io/read/ --preset=desktop --output=json --output-path=cwv/read-desktop.json --chrome-flags="--headless --no-sandbox"
+
+      - name: Summarize metrics
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          for (const name of ['home-mobile','home-desktop','read-mobile','read-desktop']) {
+            const j = JSON.parse(fs.readFileSync(`cwv/${name}.json`, 'utf8'));
+            const a = j.audits;
+            const c = j.categories;
+            const pick = id => a[id] && a[id].numericValue;
+            console.log(JSON.stringify({
+              name,
+              performance: Math.round((c.performance?.score || 0) * 100),
+              lcp_ms: Math.round(pick('largest-contentful-paint') || 0),
+              cls: Number((pick('cumulative-layout-shift') || 0).toFixed(4)),
+              fcp_ms: Math.round(pick('first-contentful-paint') || 0),
+              tbt_ms: Math.round(pick('total-blocking-time') || 0),
+              speed_index_ms: Math.round(pick('speed-index') || 0),
+              server_response_ms: Math.round(pick('server-response-time') || 0)
+            }));
+          }
+          NODE
+
+      - name: Check CrUX field data
+        shell: bash
+        continue-on-error: true
+        run: |
+          for url in "https://irenkipo.github.io/" "https://irenkipo.github.io/read/"; do
+            echo "CRUX_URL=$url"
+            curl -sS --max-time 30 "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=$(python -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$url")&strategy=mobile&category=performance"               | python -c 'import json,sys; d=json.load(sys.stdin); le=d.get("loadingExperience",{}); print(json.dumps({"overall_category":le.get("overall_category"),"metrics":le.get("metrics",{})}, ensure_ascii=False))'               || true
+          done
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: cwv-lighthouse-reports
+          path: cwv/*.json
+          retention-days: 7
