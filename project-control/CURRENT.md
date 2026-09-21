@@ -69,3 +69,5 @@
 - Hero CLS reservation delta: replace the approved hero image CSS aspect-ratio:auto override with the exact decoded asset ratio 2033/774 so the browser reserves the final banner height before the PNG loads. Final rendered geometry, PNG bytes, crop, artwork, copy, colors, typography and layout are unchanged; strict visual lock is required before merge.
 
 - Subscription status hardening: after Google Forms iframe load, the visible status now states only that the request was sent and that email confirmation follows after processing; it no longer claims the subscription is already recorded. No layout/style/control/artwork/literary-text changes.
+
+- Subscription feedback: after confirmed Google Forms iframe response, show a more prominent factual message: “Спасибо! Заявка отправлена. Подтверждение придёт на электронную почту.” Overall page composition and controls remain unchanged.

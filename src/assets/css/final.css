@@ -72,7 +72,7 @@ main{margin:0 auto;box-shadow:0 8px 45px rgba(44,39,31,.08)}
 .subscription-form .button{min-width:150px}
 .subscription-form .button:disabled{opacity:.55;cursor:wait}
 .subscription-note,.subscription-status{margin:.55rem 0 0;color:var(--muted);font-size:.74rem;line-height:1.45}
-.subscription-status[data-state="success"]{color:var(--teal-dark);font-weight:700}
+.subscription-status[data-state="success"],.subscription-status[data-state="sent"]{color:var(--teal-dark);font-weight:700;font-size:.88rem}
 .subscription-status[data-state="error"]{color:#7b2e2e;font-weight:700}
 .subscription-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
 .subscription-result-frame{display:none}
