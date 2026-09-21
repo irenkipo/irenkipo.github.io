@@ -1,0 +1,43 @@
+name: Lossless image optimize
+
+on:
+  push:
+    branches:
+      - site-lossless-images-2026-09-21
+    paths:
+      - "tools/performance/optimize-approved-images.py"
+      - ".github/workflows/lossless-image-optimize.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    if: ${{ !contains(github.event.head_commit.message, '[lossless-images]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: site-lossless-images-2026-09-21
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install lossless tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y optipng
+          python -m pip install --disable-pip-version-check pillow
+      - name: Optimize and verify exact decoded pixels
+        run: python tools/performance/optimize-approved-images.py
+      - name: Commit verified reductions
+        run: |
+          if git diff --quiet; then
+            echo "No lossless reductions available."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/assets/approved assets/approved tools/qa/qa-site.cjs project-control/CURRENT.md
+          git commit -m "Losslessly optimize approved images [lossless-images]"
+          git push origin HEAD:site-lossless-images-2026-09-21
