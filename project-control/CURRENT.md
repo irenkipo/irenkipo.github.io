@@ -53,3 +53,5 @@
 - Technical SEO and reader-measurement delta: add explicit index/follow and author metadata, Book/Chapter/Breadcrumb structured data for the book and all 11 chapter pages, and GA4 reader-depth events at 50% and 90% plus book completion at 90% of chapter 11. No book text, visible copy, layout, palette, typography, or artwork is changed.
 
 - Search-intent metadata delta: target Russian-language discovery for the book with natural, non-stuffed phrases around «В зоне видимости», contemporary family fiction, family saga, family/technology/publicity themes and free online reading. Add a small meta-keywords set for Yandex only; Google-facing work relies on title, description and structured Book genre/keywords because Google ignores meta-keywords. No visible page copy, book text, layout, artwork, typography or palette is changed.
+
+- Visual-change governance: no externally visible homepage/reader layout, copy, artwork, typography, palette, spacing, section order, controls, or other presentation changes may be made without the user's prior explicit approval. Technical SEO, analytics and performance work must remain visually neutral unless separately approved.
