@@ -97,7 +97,30 @@
     });
     const chapter = location.pathname.match(/^\/read\/chapter-(\d{2})\/$/);
     if (chapter) {
-      sendEvent("chapter_open", { chapter_number: Number(chapter[1]) });
+      const chapterNumber = Number(chapter[1]);
+      sendEvent("chapter_open", { chapter_number: chapterNumber });
+
+      const milestones = new Set();
+      const reportProgress = () => {
+        const doc = document.documentElement;
+        const max = Math.max(1, doc.scrollHeight - innerHeight);
+        const progress = Math.max(0, Math.min(100, Math.round((scrollY / max) * 100)));
+        for (const threshold of [50, 90]) {
+          if (progress >= threshold && !milestones.has(threshold)) {
+            milestones.add(threshold);
+            sendEvent("chapter_progress", {
+              chapter_number: chapterNumber,
+              percent_read: threshold
+            });
+            if (chapterNumber === 11 && threshold === 90) {
+              sendEvent("book_complete", { book_title: "В зоне видимости" });
+            }
+          }
+        }
+      };
+      addEventListener("scroll", reportProgress, { passive: true });
+      addEventListener("resize", reportProgress, { passive: true });
+      reportProgress();
     }
   });
 })();
