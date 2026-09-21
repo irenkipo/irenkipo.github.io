@@ -33,6 +33,21 @@
   const emailField = form.querySelector('[data-subscription-field="email"]');
   const consentField = form.querySelector('[data-subscription-field="consent"]');
   const ready = Boolean(form.action) && Boolean(emailField) && Boolean(consentField);
+  const subscribedKey = "iren_kipo_subscribed";
+
+  const showAlreadySubscribed = () => {
+    form.querySelectorAll("label, .subscription-note, [data-subscription-submit]").forEach(node => {
+      node.hidden = true;
+    });
+    setStatus("Вы уже подписаны на новости Ирэн Кипо.", "sent");
+  };
+
+  try {
+    if (localStorage.getItem(subscribedKey) === "1") {
+      showAlreadySubscribed();
+      return;
+    }
+  } catch {}
 
   form.addEventListener("submit", event => {
     setStatus("");
@@ -69,6 +84,10 @@
     const consent = consentField;
     if (email) email.value = "";
     if (consent) consent.checked = false;
-    setStatus("Спасибо! Заявка отправлена. Подтверждение придёт на электронную почту.", "sent");
+    try { localStorage.setItem(subscribedKey, "1"); } catch {}
+    form.querySelectorAll("label, .subscription-note, [data-subscription-submit]").forEach(node => {
+      node.hidden = true;
+    });
+    setStatus("Спасибо! Вы подписаны на новости Ирэн Кипо.", "sent");
   });
 })();
