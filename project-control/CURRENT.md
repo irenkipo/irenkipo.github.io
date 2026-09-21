@@ -65,3 +65,5 @@
 - Subscription transport hardening delta: make the existing on-site Google Forms submission action and required entry names native HTML attributes so delivery no longer depends on JavaScript renaming fields; keep the current visible form unchanged; downgrade browser-side analytics from unverified `subscription_success` to `subscription_submit` because iframe load alone cannot prove a Google Sheet write. No visible copy, layout, styling, controls, artwork or literary text changes.
 
 - Hero CWV metadata delta: correct the approved series-banner intrinsic HTML dimensions to the decoded asset size 2033×774 and mark this existing above-the-fold image fetchpriority=high. The PNG bytes, CSS, rendered geometry, crop, artwork, copy and layout remain unchanged; strict visual lock is required before merge.
+
+- Hero CLS reservation delta: replace the approved hero image CSS aspect-ratio:auto override with the exact decoded asset ratio 2033/774 so the browser reserves the final banner height before the PNG loads. Final rendered geometry, PNG bytes, crop, artwork, copy, colors, typography and layout are unchanged; strict visual lock is required before merge.
