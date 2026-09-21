@@ -73,3 +73,5 @@
 - Subscription feedback: after confirmed Google Forms iframe response, show a more prominent factual message: “Спасибо! Заявка отправлена. Подтверждение придёт на электронную почту.” Overall page composition and controls remain unchanged.
 
 - Subscriber browser state: after a successful Google Forms submission, the same browser stores only a boolean subscription marker (no email) and shows “Вы уже подписаны на новости Ирэн Кипо.” on later visits instead of repeating the form. No subscriber list is exposed to the public site.
+
+- 2026-09-21: Author section copy simplified by user approval. Removed the sentence “Страницы разные. Всё хорошо.” Kept “Писатель. Истории о людях, которые ищут, любят и остаются собой.” and the existing “Подписаться на новости” button. No news feed was added to the site.
