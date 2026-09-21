@@ -1,0 +1,27 @@
+name: IndexNow recrawl
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Deploy GitHub Pages']
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Submit canonical URLs to IndexNow
+        run: |
+          cat > payload.json <<'JSON'
+          {"host":"irenkipo.github.io","key":"3f2c9d7a51b84e6ca04d9827f1ab63e5","keyLocation":"https://irenkipo.github.io/3f2c9d7a51b84e6ca04d9827f1ab63e5.txt","urlList":["https://irenkipo.github.io/","https://irenkipo.github.io/read/","https://irenkipo.github.io/read/chapter-01/","https://irenkipo.github.io/read/chapter-02/","https://irenkipo.github.io/read/chapter-03/","https://irenkipo.github.io/read/chapter-04/","https://irenkipo.github.io/read/chapter-05/","https://irenkipo.github.io/read/chapter-06/","https://irenkipo.github.io/read/chapter-07/","https://irenkipo.github.io/read/chapter-08/","https://irenkipo.github.io/read/chapter-09/","https://irenkipo.github.io/read/chapter-10/","https://irenkipo.github.io/read/chapter-11/","https://irenkipo.github.io/privacy.html","https://irenkipo.github.io/terms.html" ]}
+          JSON
+          curl --retry 3 --retry-all-errors --fail-with-body \
+            -H 'Content-Type: application/json; charset=utf-8' \
+            --data-binary @payload.json \
+            https://api.indexnow.org/indexnow

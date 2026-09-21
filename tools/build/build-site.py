@@ -7,6 +7,8 @@ SRC = ROOT / "src"
 DIST = ROOT / "dist"
 BASE_URL = "https://irenkipo.github.io"
 EXPECTED_CHAPTERS = [f"chapter-{index:02d}" for index in range(1, 12)]
+INDEXNOW_KEY = "3f2c9d7a51b84e6ca04d9827f1ab63e5"
+LASTMOD = "2026-09-21"
 
 
 def copy_file(source: Path, target: Path) -> None:
@@ -48,14 +50,37 @@ def build() -> None:
     shutil.copytree(SRC / "assets", DIST / "assets")
     shutil.copytree(SRC / "read", DIST / "read")
     (DIST / ".nojekyll").write_text("", encoding="utf-8")
+    (DIST / f"{INDEXNOW_KEY}.txt").write_text(INDEXNOW_KEY + "\n", encoding="utf-8")
 
     urls = [f"{BASE_URL}/", f"{BASE_URL}/read/"]
     urls.extend(f"{BASE_URL}/read/{chapter}/" for chapter in chapters)
     urls.extend((f"{BASE_URL}/privacy.html", f"{BASE_URL}/terms.html"))
     sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    sitemap += "".join(f"  <url><loc>{url}</loc></url>\n" for url in urls)
+    sitemap += "".join(f"  <url><loc>{url}</loc><lastmod>{LASTMOD}</lastmod></url>\n" for url in urls)
     sitemap += "</urlset>\n"
     (DIST / "sitemap.xml").write_text(sitemap, encoding="utf-8")
+
+    image_entries = {
+        f"{BASE_URL}/": [
+            ("assets/approved/series-banner.png", "Серия романов «Всё хорошо» — Ирэн Кипо"),
+            ("assets/approved/book-1-3d.png", "Книга «В зоне видимости» — Ирэн Кипо"),
+            ("assets/approved/book-1-cover.png", "Обложка книги «В зоне видимости»"),
+            ("assets/approved/book-2-cover.png", "Обложка книги «Правила игры»"),
+            ("assets/approved/book-3-cover.png", "Обложка книги «Другая Вера»"),
+            ("assets/approved/book-4-cover.png", "Обложка книги «Ничего личного»"),
+            ("assets/approved/social-share.png", "Ирэн Кипо — серия «Всё хорошо»"),
+            ("assets/brand/ik-logo.jpg", "Авторский знак Ирэн Кипо"),
+        ],
+        f"{BASE_URL}/read/": [("assets/approved/book-1-cover.png", "Обложка книги «В зоне видимости»")],
+    }
+    image_sitemap = '<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\\n'
+    for page_url, images in image_entries.items():
+        image_sitemap += f"  <url><loc>{page_url}</loc>\\n"
+        for image_path, image_title in images:
+            image_sitemap += f"    <image:image><image:loc>{BASE_URL}/{image_path}</image:loc><image:title>{image_title}</image:title></image:image>\\n"
+        image_sitemap += "  </url>\\n"
+    image_sitemap += "</urlset>\\n"
+    (DIST / "image-sitemap.xml").write_text(image_sitemap, encoding="utf-8")
 
     robots = "\n".join((
         "User-agent: *",
@@ -65,6 +90,7 @@ def build() -> None:
         "Disallow: /legacy/",
         "Disallow: /v2/",
         f"Sitemap: {BASE_URL}/sitemap.xml",
+        f"Sitemap: {BASE_URL}/image-sitemap.xml",
         "",
     ))
     (DIST / "robots.txt").write_text(robots, encoding="utf-8")
