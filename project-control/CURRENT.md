@@ -45,3 +45,5 @@
 - Subscription funnel analytics delta: successful on-site Google Forms submissions emit a `subscription_success` GA4 event with only campaign attribution fields (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`). Subscriber email is never sent to analytics. No visible site change.
 
 - Facebook canonical Page navigation delta: the visible homepage Facebook link opens the Reels tab of canonical Page ID `1236694432869766` directly, because the Page root view may not surface published Reels. `Person.sameAs` remains the canonical root Page URL. No Facebook identity, content, analytics, book text, artwork, typography, palette, or section-order change.
+
+- Technical SEO and reader-measurement delta: add explicit index/follow and author metadata, Book/Chapter/Breadcrumb structured data for the book and all 11 chapter pages, and GA4 reader-depth events at 50% and 90% plus book completion at 90% of chapter 11. No book text, visible copy, layout, palette, typography, or artwork is changed.
