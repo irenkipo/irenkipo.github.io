@@ -77,3 +77,5 @@
 - QA mechanism: branch `author-copy-approved-2026-09-21` may skip only the live pixel-lock comparison for the explicitly approved author-copy delta. HTML, SEO, security, responsive, download, asset-hash, analytics, and runtime checks remain mandatory.
 
 - 2026-09-21: User-approved author-section copy change: removed “Страницы разные. Всё хорошо.” Retained “Писатель. Истории о людях, которые ищут, любят и остаются собой.” and the existing “Подписаться на новости” button. No site news feed added.
+
+- 2026-09-21 promotion/SEO entity delta: corrected the stale Facebook identity in homepage Person.sameAs to the current public Facebook page; added a canonical CreativeWorkSeries entity for «Всё хорошо» and linked Book 1 to it; added publication date metadata for Book 1; added social-image alt metadata; synchronized the stronger public /read/ SEO metadata back into src/read/index.html so future builds cannot silently regress it. No visible page content or layout changed.
