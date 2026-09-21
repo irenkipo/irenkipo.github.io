@@ -14,13 +14,13 @@ const mime = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=u
 const chapters = Array.from({ length: 11 }, (_, index) => `/read/chapter-${String(index + 1).padStart(2, "0")}/`);
 const expectedUrls = ["https://irenkipo.github.io/", "https://irenkipo.github.io/read/", ...chapters.map(item => `https://irenkipo.github.io${item}`), "https://irenkipo.github.io/privacy.html", "https://irenkipo.github.io/terms.html"];
 const lockedHashes = {
-  "assets/approved/book-1-3d.png": "5cd56581150c093ddcbe75f4edec3432dd0a36553f1b7ebb0476161d9f959d97",
-  "assets/approved/book-1-cover.png": "9ff1cbceda275ba7d9c65695fa8db67dc2a3fcb6e2fe48b662f4f7e777d677eb",
-  "assets/approved/book-2-3d.png": "e09a5b1c7e9d63a59b70d959269f29dd5677d3902e3fa9d327ab5f05b893e4c0",
-  "assets/approved/book-2-cover.png": "1b33aee2001ac8ac61e7246186c5fb12558dc297e21873ecdac5f9bf3b7dc6cb",
-  "assets/approved/book-3-cover.png": "40aac76d068d536a5acfff7c531f9ddaaf49e6a5ddd0dc1d59fde1e6899fcb77",
-  "assets/approved/book-4-cover.png": "114ccf8aa931cb279db7b41c6ac6d8f517c181930a18a09c91d823e1f18988db",
-  "assets/approved/series-banner.png": "2dbc630edc8b666b5b2f358b9edc1fba157f10547c611bea31e33e202c6bce7b",
+  "assets/approved/book-1-3d.png": "85325b6d2db76d15bcb4bf64ef2bb174007157de501d65ba24ba0bc305a4539f",
+  "assets/approved/book-1-cover.png": "b8592c7d590f6a3142e8f92597238fbea78356fe7bef586d59ad090b94a39b03",
+  "assets/approved/book-2-3d.png": "4c3f205528e16d9937eaeb49c831d9b2b7586445bfec23e4dc9e3342e0ea2432",
+  "assets/approved/book-2-cover.png": "707e47a2dbddab4c8e419a87fec50ab68d62c24c2e18c4b6992819fe958985fb",
+  "assets/approved/book-3-cover.png": "fe308999542d46f09b2538c2d2ff2bb7958b8d9fc549fcb21551175f58114bcc",
+  "assets/approved/book-4-cover.png": "ed12ed92caab3e4228ae48c3321b7610b5e932547dcb6c45b6259b682798acf3",
+  "assets/approved/series-banner.png": "239a7b3da64a958e0672eb935fb2fa84a31e2e9f6f29f7e705f880cd8787cb2c",
   "assets/brand/ik-logo.jpg": "12de380b6a96813bd544ab6ecd19d25fae4e664f5a37cbc4c6cebb3ec76004a1",
   "assets/books/book1.epub": "ad83b4c8dc6c9e2ffcf153fdb1a353741106bd8f41b7fbd88ab1946d597776b4",
   "assets/books/book1.pdf": "d0c7841ff8309afc9f5738831ec57d5c87b1a4c09be3e0df54643f50ee7b7268"
