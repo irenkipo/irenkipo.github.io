@@ -6,9 +6,13 @@ const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43
 const LITRES_URL = "https://www.litres.ru/74382683/";
 const SOCIAL_URLS = [
   "https://www.instagram.com/irenkipo/",
-  "https://www.facebook.com/1236694432869766",
   "https://www.threads.com/@irenkipo"
 ];
+const FACEBOOK_PUBLIC_URLS = new Set([
+  "https://www.facebook.com/1236694432869766",
+  "https://www.facebook.com/1236694432869766/reels/",
+  "https://www.facebook.com/reel/1751115659272771/"
+]);
 const CHAPTER_PATHS = Array.from({ length: 11 }, (_, index) => `/read/chapter-${String(index + 1).padStart(2, "0")}/`);
 const EXPECTED_PATHS = ["/", "/read/", ...CHAPTER_PATHS, "/privacy.html", "/terms.html"];
 const EXPECTED_CANONICALS = EXPECTED_PATHS.map(pathname => `${CANONICAL_ORIGIN}${pathname}`);
@@ -143,6 +147,12 @@ function exactExternalLink(html, expectedUrl, options = {}) {
   if (!hasCurrentSubscriptionForm && !exactExternalLink(homepage, GOOGLE_FORM_URL, { newTab: true, safeRel: true })) failures.push("Homepage: subscription CTA invalid");
   if (!exactExternalLink(homepage, LITRES_URL, { newTab: true, safeRel: true })) failures.push("Homepage: LitRes href/target/rel invalid");
   for (const socialUrl of SOCIAL_URLS) if (!exactExternalLink(homepage, socialUrl, { newTab: true, safeRel: true })) failures.push(`Homepage: social link invalid (${new URL(socialUrl).hostname})`);
+  const facebookLink = anchors(homepage).find(item => FACEBOOK_PUBLIC_URLS.has(item.href));
+  if (!facebookLink || attribute(facebookLink.tag, "target") !== "_blank") failures.push("Homepage: social link invalid (www.facebook.com)");
+  else {
+    const rel = attribute(facebookLink.tag, "rel").toLowerCase().split(/\s+/);
+    if (!rel.includes("noopener") || !rel.includes("noreferrer")) failures.push("Homepage: social link invalid (www.facebook.com)");
+  }
 
   const internalLinks = new Set();
   for (const [pathname, html] of pages) {
