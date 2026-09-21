@@ -129,6 +129,7 @@ async function visualCompare(browser, viewport, name) {
     candidate.goto("http://127.0.0.1:4173/", { waitUntil: "load", timeout: 60000 })
   ]);
   const settle = page => page.evaluate(async () => {
+    document.querySelectorAll("img[loading='lazy']").forEach(image => { image.loading = "eager"; });
     if (document.fonts?.ready) await document.fonts.ready;
     await Promise.all([...document.images].map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.addEventListener("load", resolve, { once: true }); image.addEventListener("error", resolve, { once: true }); })));
   });
