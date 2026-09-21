@@ -69,6 +69,6 @@
     const consent = consentField;
     if (email) email.value = "";
     if (consent) consent.checked = false;
-    setStatus("Спасибо! Вы подписаны на новости Ирэн Кипо.", "success");
+    setStatus("Заявка отправлена. Подтверждение придёт на электронную почту после обработки.", "pending");
   });
 })();
