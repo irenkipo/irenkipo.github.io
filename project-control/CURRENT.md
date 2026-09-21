@@ -45,3 +45,5 @@
 - Subscription funnel analytics delta: successful on-site Google Forms submissions emit a `subscription_success` GA4 event with only campaign attribution fields (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`). Subscriber email is never sent to analytics. No visible site change.
 
 - Facebook canonical Page navigation delta: the visible homepage Facebook link opens the Reels tab of canonical Page ID `1236694432869766` directly, because the Page root view may not surface published Reels. `Person.sameAs` remains the canonical root Page URL. No Facebook identity, content, analytics, book text, artwork, typography, palette, or section-order change.
+
+- Facebook live-Reel navigation correction: the visible homepage Facebook link points directly to the currently published canonical Reel `1751115659272771`, because the numeric Page `/reels/` route returns an unavailable-page error in the current Facebook UI. `Person.sameAs` remains the canonical Page root URL. No content, artwork, typography, palette, section order, or Facebook identity changes.
