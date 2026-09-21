@@ -43,3 +43,5 @@
 - Audiobook modal behavior delta: closing the audiobook modal by the × button, backdrop click or Escape pauses any playing audio while preserving the current playback position for later resume. This fixes background playback after the player is closed.
 
 - Subscription funnel analytics delta: successful on-site Google Forms submissions emit a `subscription_success` GA4 event with only campaign attribution fields (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`). Subscriber email is never sent to analytics. No visible site change.
+
+- Facebook canonical Page navigation delta: the visible homepage Facebook link opens the Reels tab of canonical Page ID `1236694432869766` directly, because the Page root view may not surface published Reels. `Person.sameAs` remains the canonical root Page URL. No Facebook identity, content, analytics, book text, artwork, typography, palette, or section-order change.
