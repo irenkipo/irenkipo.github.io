@@ -86,9 +86,9 @@
       played.add(chapter);
       sendEvent("audiobook_play", { chapter_number: chapter });
     });
-    document.addEventListener("subscription:success", event => {
+    document.addEventListener("subscription:submitted", event => {
       const detail = event.detail || {};
-      sendEvent("subscription_success", {
+      sendEvent("subscription_submit", {
         utm_source: detail.utm_source || undefined,
         utm_medium: detail.utm_medium || undefined,
         utm_campaign: detail.utm_campaign || undefined,
