@@ -43,3 +43,5 @@
 - Audiobook modal behavior delta: closing the audiobook modal by the × button, backdrop click or Escape pauses any playing audio while preserving the current playback position for later resume. This fixes background playback after the player is closed.
 
 - Subscription funnel analytics delta: successful on-site Google Forms submissions emit a `subscription_success` GA4 event with only campaign attribution fields (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`). Subscriber email is never sent to analytics. No visible site change.
+
+- Technical SEO and reader-measurement delta: add explicit index/follow and author metadata, Book/Chapter/Breadcrumb structured data for the book and all 11 chapter pages, and GA4 reader-depth events at 50% and 90% plus book completion at 90% of chapter 11. No book text, visible copy, layout, palette, typography, or artwork is changed. Homepage image decoding/preload hints are nonvisual and preserve the visual lock.
