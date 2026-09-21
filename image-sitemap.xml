@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url><loc>https://irenkipo.github.io/</loc>
+    <image:image><image:loc>https://irenkipo.github.io/assets/approved/series-banner.png</image:loc><image:title>Серия романов «Всё хорошо» — Ирэн Кипо</image:title></image:image>
+    <image:image><image:loc>https://irenkipo.github.io/assets/approved/book-1-3d.png</image:loc><image:title>Книга «В зоне видимости» — Ирэн Кипо</image:title></image:image>
+    <image:image><image:loc>https://irenkipo.github.io/assets/approved/book-1-cover.png</image:loc><image:title>Обложка книги «В зоне видимости»</image:title></image:image>
+    <image:image><image:loc>https://irenkipo.github.io/assets/approved/book-2-cover.png</image:loc><image:title>Обложка книги «Правила игры»</image:title></image:image>
+    <image:image><image:loc>https://irenkipo.github.io/assets/approved/book-3-cover.png</image:loc><image:title>Обложка книги «Другая Вера»</image:title></image:image>
+    <image:image><image:loc>https://irenkipo.github.io/assets/approved/book-4-cover.png</image:loc><image:title>Обложка книги «Ничего личного»</image:title></image:image>
+    <image:image><image:loc>https://irenkipo.github.io/assets/approved/social-share.png</image:loc><image:title>Ирэн Кипо — серия «Всё хорошо»</image:title></image:image>
+    <image:image><image:loc>https://irenkipo.github.io/assets/brand/ik-logo.jpg</image:loc><image:title>Авторский знак Ирэн Кипо</image:title></image:image>
+  </url>
+  <url><loc>https://irenkipo.github.io/read/</loc>
+    <image:image><image:loc>https://irenkipo.github.io/assets/approved/book-1-cover.png</image:loc><image:title>Обложка книги «В зоне видимости»</image:title></image:image>
+  </url>
+</urlset>
