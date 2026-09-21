@@ -10,6 +10,7 @@ const SOCIAL_URLS = [
 ];
 const FACEBOOK_PUBLIC_URLS = new Set([
   "https://www.facebook.com/1236694432869766",
+  "https://www.facebook.com/1236694432869766/reels/",
   "https://www.facebook.com/reel/1751115659272771/"
 ]);
 const CHAPTER_PATHS = Array.from({ length: 11 }, (_, index) => `/read/chapter-${String(index + 1).padStart(2, "0")}/`);
