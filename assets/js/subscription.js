@@ -30,8 +30,9 @@
     if (control) control.value = value;
   }
 
-  const requiredMappings = ["email", "consent"];
-  const ready = Boolean(config.action) && requiredMappings.every(key => Boolean(fields[key]));
+  const emailField = form.querySelector('[data-subscription-field="email"]');
+  const consentField = form.querySelector('[data-subscription-field="consent"]');
+  const ready = Boolean(form.action) && Boolean(emailField) && Boolean(consentField);
 
   form.addEventListener("submit", event => {
     setStatus("");
@@ -45,12 +46,6 @@
       return;
     }
 
-    form.action = config.action;
-    for (const [logicalName, googleName] of Object.entries(fields)) {
-      const control = form.elements.namedItem(logicalName);
-      if (control && googleName) control.setAttribute("name", googleName);
-    }
-
     submitted = true;
     submit.disabled = true;
     submit.textContent = "Отправляем…";
@@ -62,7 +57,7 @@
     submitted = false;
     submit.disabled = false;
     submit.textContent = "Подписаться";
-    document.dispatchEvent(new CustomEvent("subscription:success", {
+    document.dispatchEvent(new CustomEvent("subscription:submitted", {
       detail: {
         utm_source: values.utm_source,
         utm_medium: values.utm_medium,
@@ -70,8 +65,8 @@
         utm_content: values.utm_content
       }
     }));
-    const email = form.querySelector('input[type="email"]');
-    const consent = form.querySelector('input[type="checkbox"]');
+    const email = emailField;
+    const consent = consentField;
     if (email) email.value = "";
     if (consent) consent.checked = false;
     setStatus("Спасибо! Вы подписаны на новости Ирэн Кипо.", "success");
