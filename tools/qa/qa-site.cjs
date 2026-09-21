@@ -100,14 +100,14 @@ async function runViewport(browser, name, viewport) {
   const subscriptionFormCount = await subscriptionForm.count();
   const subscription = subscriptionFormCount === 1 ? await subscriptionForm.evaluate(form => ({
     visible: Boolean(form.getClientRects().length),
-    emailLabel: form.querySelector('input[name="email"]')?.closest("label")?.innerText.trim() || "",
-    emailRequired: Boolean(form.querySelector('input[name="email"]')?.required),
+    emailLabel: form.querySelector('[data-subscription-field="email"]')?.closest("label")?.innerText.trim() || "",
+    emailRequired: Boolean(form.querySelector('[data-subscription-field="email"]')?.required),
     consentText: form.querySelector(".subscription-consent")?.innerText.trim() || "",
-    consentRequired: Boolean(form.querySelector('input[name="consent"]')?.required),
+    consentRequired: Boolean(form.querySelector('[data-subscription-field="consent"]')?.required),
     buttonText: form.querySelector('[data-subscription-submit]')?.textContent.trim() || "",
     statusLive: form.querySelector('[data-subscription-status]')?.getAttribute("aria-live") || "",
     target: form.getAttribute("target") || "",
-    endpoint: String(window.IREN_KIPO_SUBSCRIPTION_ENDPOINT || "")
+    endpoint: form.getAttribute("action") || ""
   })) : null;
   const oldGoogleFormLinks = await page.locator('a[href*="docs.google.com/forms"]').count();
 
@@ -234,7 +234,7 @@ async function testAnalyticsRuntime(browser) {
     if (analyticsRuntime.tagCount !== 1 || analyticsRuntime.bannerCount !== 0) failures.push("analytics runtime");
     const defaults = analyticsRuntime.consentEntries.find(item => item[0] === "default")?.[1] || {};
     if (defaults.analytics_storage !== "denied" || defaults.ad_storage !== "denied" || defaults.ad_user_data !== "denied" || defaults.ad_personalization !== "denied") failures.push("analytics denied-storage defaults");
-    if (!indexHtml.includes('data-subscription-form') || !indexHtml.includes('Электронная почта') || indexHtml.includes('docs.google.com/forms')) failures.push("Russian subscription form missing from dist homepage");
+    if (!indexHtml.includes('data-subscription-form') || !indexHtml.includes('Электронная почта') || !indexHtml.includes('action="https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg/formResponse"')) failures.push("Russian subscription form missing from dist homepage");
     if (obsoleteSubscriptionConfig) failures.push("obsolete subscription config shipped in dist");
 
     const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsRuntime };
