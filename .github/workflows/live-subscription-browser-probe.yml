@@ -1,0 +1,45 @@
+name: Live subscription browser probe
+
+on:
+  push:
+    branches:
+      - live-subscription-browser-probe-2026-09-21
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Submit live site form in a real browser
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage();
+            const requests=[];
+            page.on('request',r=>{ if(r.url().includes('docs.google.com/forms')) requests.push({url:r.url(),method:r.method(),postData:r.postData()}); });
+            page.on('response',async r=>{ if(r.url().includes('docs.google.com/forms')) console.log('FORM_RESPONSE',r.status(),r.url()); });
+            await page.goto('https://irenkipo.github.io/?probe=1',{waitUntil:'networkidle',timeout:60000});
+            await page.locator('[data-subscription-field="email"]').fill('live-browser-probe-20260921@example.invalid');
+            await page.locator('[data-subscription-field="consent"]').check();
+            await Promise.all([
+              page.waitForTimeout(4000),
+              page.locator('[data-subscription-submit]').click()
+            ]);
+            console.log('STATUS_TEXT='+(await page.locator('[data-subscription-status]').textContent()));
+            console.log('REQUESTS='+JSON.stringify(requests));
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
