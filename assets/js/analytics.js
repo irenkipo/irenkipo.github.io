@@ -32,6 +32,8 @@
     return Object.fromEntries(ATTRIBUTION_FIELDS.map(key => [key, a[key] || undefined]));
   }
 
+  currentAttribution();
+
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
 
