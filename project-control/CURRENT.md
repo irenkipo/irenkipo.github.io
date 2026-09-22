@@ -87,3 +87,5 @@
 - Instagram OAuth callback delta: add a noindex helper page at `/instagram-oauth-callback.html` used only for the one-time Instagram authorization-code return for PROMO automation. No visible homepage/profile design changes; no automatic publishing permission is granted by this site change.
 
 - Facebook Meta V2 canonical link delta: replace the retired Facebook profile URL in the visible social link and Person.sameAs metadata with the new canonical Page `https://www.facebook.com/irenkipo/`. No visible layout, artwork, typography, palette, or section-order change.
+
+- 2026-09-22 runtime integrity repair: the generated `dist/index.html` is now normalized to the canonical Meta V2 Facebook Page and the build rejects the retired Facebook profile ID if it leaks into the deploy artifact. The build also requires all six canonical social links plus LitRes to exist in the final deploy artifact. No visible layout, copy, artwork, typography, palette, controls, or section-order change.
