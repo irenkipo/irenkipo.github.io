@@ -83,3 +83,5 @@
 - 2026-09-21 promotion attribution delta: preserve only non-personal campaign UTM fields (utm_source, utm_medium, utm_campaign, utm_content) in sessionStorage for the current browser session and attach them to key GA4 events across homepage/reader navigation, including read_start, chapter_open/progress, audiobook events, subscription_submit and LitRes outbound clicks. No email or subscriber identity is stored in analytics attribution. QA now verifies facebook/P13 attribution survives navigation to chapter 1. No visible site change.
 
 - Instagram OAuth callback delta: add a noindex helper page at `/instagram-oauth-callback.html` used only for the one-time Instagram authorization-code return for PROMO automation. No visible homepage/profile design changes; no automatic publishing permission is granted by this site change.
+
+- Facebook Meta V2 canonical link delta: replace the retired Facebook profile URL in the visible social link and Person.sameAs metadata with the new canonical Page `https://www.facebook.com/irenkipo/`. No visible layout, artwork, typography, palette, or section-order change.
