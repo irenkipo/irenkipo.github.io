@@ -6,8 +6,6 @@
   const submit = form.querySelector("[data-subscription-submit]");
   const status = form.querySelector("[data-subscription-status]");
   const frame = form.querySelector('iframe[name="subscription-result"]');
-  const config = window.IREN_KIPO_SUBSCRIPTION || {};
-  const fields = config.fields || {};
   let submitted = false;
 
   const setStatus = (message, kind = "") => {
@@ -33,21 +31,6 @@
   const emailField = form.querySelector('[data-subscription-field="email"]');
   const consentField = form.querySelector('[data-subscription-field="consent"]');
   const ready = Boolean(form.action) && Boolean(emailField) && Boolean(consentField);
-  const subscribedKey = "iren_kipo_subscribed";
-
-  const showAlreadySubscribed = () => {
-    form.querySelectorAll("label, .subscription-note, [data-subscription-submit]").forEach(node => {
-      node.hidden = true;
-    });
-    setStatus("Вы уже подписаны на новости Ирэн Кипо.", "sent");
-  };
-
-  try {
-    if (localStorage.getItem(subscribedKey) === "1") {
-      showAlreadySubscribed();
-      return;
-    }
-  } catch {}
 
   form.addEventListener("submit", event => {
     setStatus("");
@@ -57,7 +40,7 @@
     }
     if (!ready) {
       event.preventDefault();
-      setStatus("Форма почти готова: завершается подключение к Google Forms.", "error");
+      setStatus("Не удалось подключиться к форме подписки. Попробуйте позже.", "error");
       return;
     }
 
@@ -80,14 +63,8 @@
         utm_content: values.utm_content
       }
     }));
-    const email = emailField;
-    const consent = consentField;
-    if (email) email.value = "";
-    if (consent) consent.checked = false;
-    try { localStorage.setItem(subscribedKey, "1"); } catch {}
-    form.querySelectorAll("label, .subscription-note, [data-subscription-submit]").forEach(node => {
-      node.hidden = true;
-    });
-    setStatus("Спасибо! Вы подписаны на новости Ирэн Кипо.", "sent");
+    if (emailField) emailField.value = "";
+    if (consentField) consentField.checked = false;
+    setStatus("Спасибо! Заявка отправлена.", "sent");
   });
 })();
