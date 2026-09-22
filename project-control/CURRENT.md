@@ -89,3 +89,5 @@
 - Facebook Meta V2 canonical link delta: replace the retired Facebook profile URL in the visible social link and Person.sameAs metadata with the new canonical Page `https://www.facebook.com/irenkipo/`. No visible layout, artwork, typography, palette, or section-order change.
 
 - 2026-09-22 runtime integrity repair: the generated `dist/index.html` is now normalized to the canonical Meta V2 Facebook Page and the build rejects the retired Facebook profile ID if it leaks into the deploy artifact. The build also requires all six canonical social links plus LitRes to exist in the final deploy artifact. No visible layout, copy, artwork, typography, palette, controls, or section-order change.
+
+- 2026-09-22 subscription runtime correction: remove browser-side `iren_kipo_subscribed` persistence and the unverified “Вы уже подписаны” state. A hidden Google Forms iframe load is treated only as evidence that the request was sent; the UI now says “Спасибо! Заявка отправлена.” and never claims the subscriber is recorded. The existing form endpoint and required Google entry names remain unchanged. No layout, styling, artwork, typography, palette, or literary-content change.
