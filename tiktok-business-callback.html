@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>TikTok authorization — Ирэн Кипо</title>
+  <style>
+    body{font-family:system-ui,sans-serif;max-width:720px;margin:12vh auto;padding:24px;line-height:1.5}
+  </style>
+</head>
+<body>
+  <h1>Авторизация TikTok</h1>
+  <p id="status">Возвращаемся в локальную систему публикации…</p>
+  <script>
+    (function(){
+      var q = new URLSearchParams(location.search);
+      var hash = new URLSearchParams(location.hash.replace(/^#/,''));
+      var authCode = q.get('auth_code') || q.get('code') || hash.get('auth_code') || hash.get('code') || '';
+      var state = q.get('state') || hash.get('state') || '';
+      var error = q.get('error') || q.get('error_code') || hash.get('error') || '';
+      var errorDescription = q.get('error_description') || q.get('description') || hash.get('error_description') || '';
+      var local = new URL('http://127.0.0.1:3456/callback/');
+      if (authCode) local.searchParams.set('auth_code',authCode);
+      if (state) local.searchParams.set('state',state);
+      if (error) local.searchParams.set('error',error);
+      if (errorDescription) local.searchParams.set('error_description',errorDescription);
+      if (!authCode && !error) {
+        document.getElementById('status').textContent='TikTok не передал код авторизации. Вернитесь в окно настройки.';
+        return;
+      }
+      location.replace(local.toString());
+    })();
+  </script>
+</body>
+</html>
