@@ -169,6 +169,26 @@ async function visualCompare(browser, viewport, name) {
   await context.close();
   const visibleGeometryLocked = a.width === b.width && a.height === b.height && differentPixels === 0; return { name, production: { width: a.width, height: a.height }, candidate: { width: b.width, height: b.height }, geometryLocked: visibleGeometryLocked, differentPixels };
 }
+async function testAttributionRuntime(browser) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
+  await page.goto("http://127.0.0.1:4173/?utm_source=facebook&utm_medium=organic_social&utm_campaign=book_01_visibility&utm_content=p13", { waitUntil: "domcontentloaded" });
+  await page.goto("http://127.0.0.1:4173/read/chapter-01/", { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(50);
+  const state = await page.evaluate(() => {
+    let stored = {};
+    try { stored = JSON.parse(sessionStorage.getItem("iren_kipo_campaign_attribution") || "{}"); } catch {}
+    const event = (window.dataLayer || []).find(item => item && item[0] === "event" && item[1] === "chapter_open");
+    return {
+      stored,
+      chapterOpen: event ? event[2] : null
+    };
+  });
+  await context.close();
+  return state;
+}
+
 async function testAnalyticsRuntime(browser) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
@@ -193,6 +213,7 @@ async function testAnalyticsRuntime(browser) {
     const results = [];
     for (const [name, viewport] of Object.entries(viewports)) results.push(await runViewport(browser, name, viewport));
     const analyticsRuntime = await testAnalyticsRuntime(browser);
+    const attributionRuntime = await testAttributionRuntime(browser);
 
     const downloadChecks = {};
     for (const file of ["assets/books/book1.epub", "assets/books/book1.pdf"]) {
@@ -232,12 +253,13 @@ async function testAnalyticsRuntime(browser) {
     if (hashFailures.length) failures.push("locked asset checksums");
     if (visual.some(item => !item.geometryLocked || item.differentPixels !== 0)) failures.push("visual lock");
     if (analyticsRuntime.tagCount !== 1 || analyticsRuntime.bannerCount !== 0) failures.push("analytics runtime");
+    if (attributionRuntime.stored.utm_source !== "facebook" || attributionRuntime.stored.utm_medium !== "organic_social" || attributionRuntime.stored.utm_campaign !== "book_01_visibility" || attributionRuntime.stored.utm_content !== "p13" || !attributionRuntime.chapterOpen || attributionRuntime.chapterOpen.utm_source !== "facebook" || attributionRuntime.chapterOpen.utm_content !== "p13") failures.push("campaign attribution runtime");
     const defaults = analyticsRuntime.consentEntries.find(item => item[0] === "default")?.[1] || {};
     if (defaults.analytics_storage !== "denied" || defaults.ad_storage !== "denied" || defaults.ad_user_data !== "denied" || defaults.ad_personalization !== "denied") failures.push("analytics denied-storage defaults");
     if (!indexHtml.includes('data-subscription-form') || !indexHtml.includes('Электронная почта') || !indexHtml.includes('action="https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg/formResponse"')) failures.push("Russian subscription form missing from dist homepage");
     if (obsoleteSubscriptionConfig) failures.push("obsolete subscription config shipped in dist");
 
-    const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsRuntime };
+    const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsRuntime, attributionRuntime };
     fs.writeFileSync(path.join(reportDir, "site-qa.json"), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({ pass: report.pass, failures, viewports: results.map(item => ({ name: item.name, overflow: item.main.overflow, brokenImages: item.meta.brokenImages.length, consoleErrors: item.consoleErrors.length, pageErrors: item.pageErrors.length, checkedPages: item.checkedPages.length })), downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual }, null, 2));
     if (failures.length) process.exitCode = 1;
