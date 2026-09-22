@@ -10,6 +10,28 @@
     ["www.tiktok.com", "tiktok"], ["tiktok.com", "tiktok"]
   ]);
 
+  const ATTRIBUTION_KEY = "iren_kipo_campaign_attribution";
+  const ATTRIBUTION_FIELDS = ["utm_source", "utm_medium", "utm_campaign", "utm_content"];
+
+  function currentAttribution() {
+    const direct = Object.fromEntries(ATTRIBUTION_FIELDS.map(key => [key, new URLSearchParams(location.search).get(key) || ""]));
+    if (direct.utm_source || direct.utm_medium || direct.utm_campaign || direct.utm_content) {
+      try { sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(direct)); } catch {}
+      return direct;
+    }
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(ATTRIBUTION_KEY) || "{}");
+      return Object.fromEntries(ATTRIBUTION_FIELDS.map(key => [key, typeof saved[key] === "string" ? saved[key] : ""]));
+    } catch {
+      return Object.fromEntries(ATTRIBUTION_FIELDS.map(key => [key, ""]));
+    }
+  }
+
+  function attributionParameters() {
+    const a = currentAttribution();
+    return Object.fromEntries(ATTRIBUTION_FIELDS.map(key => [key, a[key] || undefined]));
+  }
+
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
 
@@ -34,7 +56,7 @@
   document.head.appendChild(script);
 
   function sendEvent(name, parameters = {}) {
-    window.gtag("event", name, { transport_type: "beacon", ...parameters });
+    window.gtag("event", name, { transport_type: "beacon", ...attributionParameters(), ...parameters });
   }
 
   function trackMeaningfulClick(event) {
@@ -89,10 +111,10 @@
     document.addEventListener("subscription:submitted", event => {
       const detail = event.detail || {};
       sendEvent("subscription_submit", {
-        utm_source: detail.utm_source || undefined,
-        utm_medium: detail.utm_medium || undefined,
-        utm_campaign: detail.utm_campaign || undefined,
-        utm_content: detail.utm_content || undefined
+        utm_source: detail.utm_source || attributionParameters().utm_source,
+        utm_medium: detail.utm_medium || attributionParameters().utm_medium,
+        utm_campaign: detail.utm_campaign || attributionParameters().utm_campaign,
+        utm_content: detail.utm_content || attributionParameters().utm_content
       });
     });
     const chapter = location.pathname.match(/^\/read\/chapter-(\d{2})\/$/);
