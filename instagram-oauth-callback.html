@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Instagram OAuth — Ирэн Кипо</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:760px;margin:48px auto;padding:0 20px;line-height:1.5}
+    .card{border:1px solid #ddd;border-radius:16px;padding:24px}
+    code{word-break:break-all;background:#f5f5f5;padding:8px 10px;border-radius:8px;display:block}
+    button{margin-top:14px;padding:10px 16px;border:0;border-radius:10px;cursor:pointer}
+    .ok{font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Instagram OAuth</h1>
+    <p id="status">Проверяю результат авторизации…</p>
+    <div id="codeWrap" hidden>
+      <p>Авторизация Instagram успешна. Скопируйте код авторизации.</p>
+      <code id="code"></code>
+      <button id="copy">Скопировать код</button>
+    </div>
+    <p id="error"></p>
+  </div>
+<script>
+  const p=new URLSearchParams(location.search);
+  const code=p.get('code');
+  const error=p.get('error');
+  const errorDescription=p.get('error_description');
+  if(code){
+    document.getElementById('status').textContent='Авторизация Instagram успешна.';
+    document.getElementById('status').className='ok';
+    document.getElementById('code').textContent=code;
+    document.getElementById('codeWrap').hidden=false;
+    document.getElementById('copy').onclick=async()=>{
+      await navigator.clipboard.writeText(code);
+      document.getElementById('copy').textContent='Скопировано';
+    };
+  }else{
+    document.getElementById('status').textContent='Код авторизации не получен.';
+    document.getElementById('error').textContent=errorDescription||error||'Вернитесь к окну авторизации Instagram и повторите попытку.';
+  }
+</script>
+</body>
+</html>
