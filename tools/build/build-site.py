@@ -8,7 +8,9 @@ DIST = ROOT / "dist"
 BASE_URL = "https://irenkipo.github.io"
 EXPECTED_CHAPTERS = [f"chapter-{index:02d}" for index in range(1, 12)]
 INDEXNOW_KEY = "3f2c9d7a51b84e6ca04d9827f1ab63e5"
-LASTMOD = "2026-09-21"
+LASTMOD = "2026-09-22"
+RETIRED_FACEBOOK_URL = "https://www.facebook.com/profile.php?id=122107606821454086"
+CANONICAL_FACEBOOK_URL = "https://www.facebook.com/irenkipo/"
 
 
 def copy_file(source: Path, target: Path) -> None:
@@ -33,6 +35,32 @@ def copy_verification_files() -> None:
             copy_file(source, DIST / source.name)
 
 
+def normalize_runtime_links() -> None:
+    index = DIST / "index.html"
+    html = index.read_text(encoding="utf-8")
+    html = html.replace(RETIRED_FACEBOOK_URL, CANONICAL_FACEBOOK_URL)
+    index.write_text(html, encoding="utf-8")
+
+
+def validate_runtime_artifact() -> None:
+    index = DIST / "index.html"
+    html = index.read_text(encoding="utf-8")
+    if RETIRED_FACEBOOK_URL in html or "122107606821454086" in html:
+        raise RuntimeError("Retired Facebook identity leaked into deploy artifact")
+    required_external = (
+        "https://www.instagram.com/irenkipo/",
+        CANONICAL_FACEBOOK_URL,
+        "https://www.threads.com/@irenkipo",
+        "https://www.youtube.com/@irenkipo",
+        "https://t.me/irenkipo",
+        "https://www.tiktok.com/@irenkipo",
+        "https://www.litres.ru/74382683/",
+    )
+    missing = [url for url in required_external if url not in html]
+    if missing:
+        raise RuntimeError(f"Missing canonical external links in deploy artifact: {', '.join(missing)}")
+
+
 def build() -> None:
     chapters = discover_chapters()
     if DIST.exists():
@@ -49,6 +77,7 @@ def build() -> None:
     copy_file(SRC / "legal" / "terms.html", DIST / "terms.html")
     shutil.copytree(SRC / "assets", DIST / "assets")
     shutil.copytree(SRC / "read", DIST / "read")
+    normalize_runtime_links()
     (DIST / ".nojekyll").write_text("", encoding="utf-8")
     (DIST / f"{INDEXNOW_KEY}.txt").write_text(INDEXNOW_KEY + "\n", encoding="utf-8")
 
@@ -110,6 +139,7 @@ def build() -> None:
     if missing:
         raise RuntimeError(f"Missing deploy files: {', '.join(missing)}")
 
+    validate_runtime_artifact()
     print(f"Built {sum(1 for path in DIST.rglob('*') if path.is_file())} files in {DIST}")
 
 
