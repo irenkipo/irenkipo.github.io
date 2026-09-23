@@ -1,6 +1,9 @@
 window.IREN_KIPO_SUBSCRIPTION = Object.freeze({
   action: "",
-  messageOrigin: "https://script.google.com",
+  messageOrigins: Object.freeze([
+    "https://script.google.com",
+    "https://script.googleusercontent.com"
+  ]),
   fields: Object.freeze({
     email: "email",
     consent: "consent",
