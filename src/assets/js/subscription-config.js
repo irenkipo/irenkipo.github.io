@@ -1,13 +1,14 @@
 window.IREN_KIPO_SUBSCRIPTION = Object.freeze({
-  action: "https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg/formResponse",
+  action: "",
+  messageOrigin: "https://script.google.com",
   fields: Object.freeze({
-    email: "entry.639030799",
-    consent: "entry.2056694574",
-    utm_source: "",
-    utm_medium: "",
-    utm_campaign: "",
-    utm_content: "",
-    page_url: "",
-    referrer: ""
+    email: "email",
+    consent: "consent",
+    utm_source: "utm_source",
+    utm_medium: "utm_medium",
+    utm_campaign: "utm_campaign",
+    utm_content: "utm_content",
+    page_url: "page_url",
+    referrer: "referrer"
   })
 });
