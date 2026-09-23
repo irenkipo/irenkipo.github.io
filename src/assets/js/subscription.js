@@ -36,6 +36,7 @@
   }
 
   const ready = Boolean(config.action) && Boolean(emailField) && Boolean(consentField);
+  const allowedOrigins = Array.isArray(config.messageOrigins) ? config.messageOrigins : [];
 
   form.addEventListener("submit", event => {
     setStatus("");
@@ -57,7 +58,7 @@
 
   window.addEventListener("message", event => {
     if (!submitted) return;
-    if (!config.messageOrigin || event.origin !== config.messageOrigin) return;
+    if (!allowedOrigins.includes(event.origin)) return;
     const data = event.data || {};
     if (data.type !== "iren-kipo-subscription-result") return;
 
@@ -66,7 +67,7 @@
     submit.textContent = "Подписаться";
 
     const message = data.message || (data.status === "SUBSCRIBED" ? "Спасибо! Вы получите письмо." : data.status === "ALREADY_SUBSCRIBED" ? "Вы уже подписаны." : "Не удалось оформить подписку. Попробуйте позже.");
-    const kind = data.status === "SUBSCRIBED" ? "sent" : data.status === "ALREADY_SUBSCRIBED" ? "sent" : "error";
+    const kind = data.status === "SUBSCRIBED" || data.status === "ALREADY_SUBSCRIBED" ? "sent" : "error";
     setStatus(message, kind);
 
     if (data.status === "SUBSCRIBED") {
