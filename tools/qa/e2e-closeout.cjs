@@ -79,15 +79,19 @@ async function readingProgress(browser) {
   await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
 
   await page.goto("http://127.0.0.1:4174/read/chapter-01/", { waitUntil: "domcontentloaded" });
-  await page.evaluate(() => {
+  const actualRatio = await page.evaluate(() => {
     const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
     scrollTo(0, Math.round(max * 0.56));
+    const ratio = scrollY / max;
+    dispatchEvent(new Event("pagehide"));
+    return ratio;
   });
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(100);
 
   const saved = await page.evaluate(key => JSON.parse(localStorage.getItem(key) || "null"), READING_KEY);
+  assert(actualRatio > 0.2, "chapter did not scroll far enough for a meaningful progress test");
   assert(saved && saved.chapter === 1 && saved.path === "/read/chapter-01/", "reading progress was not saved for chapter 1");
-  assert(saved.ratio > 0.45 && saved.ratio < 0.7, "reading progress ratio is outside expected range");
+  assert(Math.abs(saved.ratio - actualRatio) < 0.03, "saved reading progress does not match actual scroll position");
 
   await page.goto("http://127.0.0.1:4174/", { waitUntil: "domcontentloaded" });
   const continuePath = await page.locator('a.button.primary').first().evaluate(a => new URL(a.href).pathname);
