@@ -18,6 +18,14 @@ def copy_file(source: Path, target: Path) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, target)
 
+def allow_native_counter_transport() -> None:
+    old = "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com"
+    new = old + " https://docs.google.com"
+    for html_path in DIST.rglob("*.html"):
+        text = html_path.read_text(encoding="utf-8")
+        if old in text:
+            html_path.write_text(text.replace(old, new), encoding="utf-8")
+
 
 def discover_chapters() -> list[str]:
     chapters = sorted(path.parent.name for path in (SRC / "read").glob("chapter-*/index.html"))
@@ -90,6 +98,7 @@ def build() -> None:
     copy_file(SRC / "legal" / "terms.html", DIST / "terms.html")
     shutil.copytree(SRC / "assets", DIST / "assets")
     shutil.copytree(SRC / "read", DIST / "read")
+    allow_native_counter_transport()
     (DIST / ".nojekyll").write_text("", encoding="utf-8")
     (DIST / f"{INDEXNOW_KEY}.txt").write_text(INDEXNOW_KEY + "\n", encoding="utf-8")
 
