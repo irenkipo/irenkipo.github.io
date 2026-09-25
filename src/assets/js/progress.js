@@ -46,11 +46,19 @@
   const chapter = Number(article.dataset.chapter || 0);
   if (!Number.isInteger(chapter) || chapter < 1 || chapter > 11) return;
 
-  if (saved && saved.chapter === chapter && saved.path === location.pathname && saved.ratio > 0) {
+  const shouldRestore = Boolean(
+    saved &&
+    saved.chapter === chapter &&
+    saved.path === location.pathname &&
+    saved.ratio > 0
+  );
+
+  if (shouldRestore) {
     const restore = () => {
       const doc = document.documentElement;
       const max = Math.max(0, doc.scrollHeight - innerHeight);
       if (max > 0) scrollTo(0, Math.round(max * saved.ratio));
+      saveProgress(chapter);
     };
     requestAnimationFrame(() => requestAnimationFrame(restore));
   }
@@ -64,7 +72,7 @@
     }, 500);
   };
 
-  saveProgress(chapter);
+  if (!shouldRestore) saveProgress(chapter);
   addEventListener("scroll", queueSave, { passive: true });
   addEventListener("resize", queueSave, { passive: true });
   addEventListener("pagehide", () => saveProgress(chapter));
