@@ -1,6 +1,7 @@
 from pathlib import Path
 import re
 import shutil
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
@@ -8,7 +9,7 @@ DIST = ROOT / "dist"
 BASE_URL = "https://irenkipo.github.io"
 EXPECTED_CHAPTERS = [f"chapter-{index:02d}" for index in range(1, 12)]
 INDEXNOW_KEY = "3f2c9d7a51b84e6ca04d9827f1ab63e5"
-LASTMOD = "2026-09-22"
+FALLBACK_LASTMOD = "2026-09-22"
 RETIRED_FACEBOOK_URL = "https://www.facebook.com/profile.php?id=122107606821454086"
 CANONICAL_FACEBOOK_URL = "https://www.facebook.com/irenkipo/"
 
@@ -35,11 +36,22 @@ def copy_verification_files() -> None:
             copy_file(source, DIST / source.name)
 
 
-def normalize_runtime_links() -> None:
-    index = DIST / "index.html"
-    html = index.read_text(encoding="utf-8")
-    html = html.replace(RETIRED_FACEBOOK_URL, CANONICAL_FACEBOOK_URL)
-    index.write_text(html, encoding="utf-8")
+def git_lastmod(source: Path) -> str:
+    try:
+        relative = source.relative_to(ROOT).as_posix()
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%cs", "--", relative],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        value = result.stdout.strip()
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+            return value
+    except (OSError, ValueError, subprocess.SubprocessError):
+        pass
+    return FALLBACK_LASTMOD
 
 
 def validate_runtime_artifact() -> None:
@@ -78,15 +90,26 @@ def build() -> None:
     copy_file(SRC / "legal" / "terms.html", DIST / "terms.html")
     shutil.copytree(SRC / "assets", DIST / "assets")
     shutil.copytree(SRC / "read", DIST / "read")
-    normalize_runtime_links()
     (DIST / ".nojekyll").write_text("", encoding="utf-8")
     (DIST / f"{INDEXNOW_KEY}.txt").write_text(INDEXNOW_KEY + "\n", encoding="utf-8")
 
-    urls = [f"{BASE_URL}/", f"{BASE_URL}/read/"]
-    urls.extend(f"{BASE_URL}/read/{chapter}/" for chapter in chapters)
-    urls.extend((f"{BASE_URL}/privacy.html", f"{BASE_URL}/terms.html"))
+    sitemap_sources = [
+        (f"{BASE_URL}/", SRC / "site" / "index.html"),
+        (f"{BASE_URL}/read/", SRC / "read" / "index.html"),
+    ]
+    sitemap_sources.extend(
+        (f"{BASE_URL}/read/{chapter}/", SRC / "read" / chapter / "index.html")
+        for chapter in chapters
+    )
+    sitemap_sources.extend((
+        (f"{BASE_URL}/privacy.html", SRC / "legal" / "privacy.html"),
+        (f"{BASE_URL}/terms.html", SRC / "legal" / "terms.html"),
+    ))
     sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    sitemap += "".join(f"  <url><loc>{url}</loc><lastmod>{LASTMOD}</lastmod></url>\n" for url in urls)
+    sitemap += "".join(
+        f"  <url><loc>{url}</loc><lastmod>{git_lastmod(source)}</lastmod></url>\n"
+        for url, source in sitemap_sources
+    )
     sitemap += "</urlset>\n"
     (DIST / "sitemap.xml").write_text(sitemap, encoding="utf-8")
 
