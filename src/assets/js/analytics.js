@@ -82,7 +82,13 @@
       return;
     }
     if (link.hasAttribute("download") || /\/assets\/books\/book1\.(?:epub|pdf)$/i.test(url.pathname)) {
-      sendEvent("book_download", { ...params, file_name: url.pathname.split("/").pop() });
+      const fileName = url.pathname.split("/").pop() || "";
+      let downloadFormat = "other";
+      if (/\.epub$/i.test(fileName)) downloadFormat = "epub";
+      else if (/\.pdf$/i.test(fileName)) downloadFormat = "pdf";
+      else if (/\.zip$/i.test(fileName) || /audiobook/i.test(fileName)) downloadFormat = "audiobook_zip";
+      sendEvent("book_download", { ...params, file_name: fileName, download_format: downloadFormat });
+      if (downloadFormat !== "other") sendEvent("book_download_" + downloadFormat, params);
       return;
     }
     if (url.origin === location.origin && location.pathname === "/" && url.pathname === "/read/") {
@@ -100,7 +106,11 @@
       const audioOpen = event.target.closest('[data-open="audio"]');
       if (audioOpen) sendEvent("audiobook_open");
       const chapterButton = event.target.closest("[data-audio-chapter]");
-      if (chapterButton) sendEvent("audiobook_chapter_select", { chapter_number: Number(chapterButton.dataset.audioChapter) });
+      if (chapterButton) {
+        const chapterNumber = Number(chapterButton.dataset.audioChapter);
+        sendEvent("audiobook_chapter_select", { chapter_number: chapterNumber });
+        if (chapterNumber) sendEvent("audiobook_chapter_select_ch" + String(chapterNumber).padStart(2, "0"));
+      }
       trackMeaningfulClick(event);
     }, true);
     const played = new Set();
@@ -109,6 +119,7 @@
       if (!chapter || played.has(chapter)) return;
       played.add(chapter);
       sendEvent("audiobook_play", { chapter_number: chapter });
+      sendEvent("audiobook_play_ch" + String(chapter).padStart(2, "0"));
     });
     document.addEventListener("subscription:submitted", event => {
       const detail = event.detail || {};
@@ -119,6 +130,13 @@
         utm_content: detail.utm_content || attributionParameters().utm_content
       });
     });
+    if (document.body?.dataset.page === "404") {
+      sendEvent("404_view", {
+        requested_path: location.pathname + location.search,
+        page_referrer: document.referrer || undefined
+      });
+    }
+
     const chapter = location.pathname.match(/^\/read\/chapter-(\d{2})\/$/);
     if (chapter) {
       const chapterNumber = Number(chapter[1]);
@@ -133,6 +151,7 @@
           if (progress >= threshold && !milestones.has(threshold)) {
             milestones.add(threshold);
             sendEvent("chapter_progress", { chapter_number: chapterNumber, percent_read: threshold });
+            sendEvent("chapter_progress_" + threshold, { chapter_number: chapterNumber });
             if (chapterNumber === 11 && threshold === 90) {
               sendEvent("book_complete", { book_title: "В зоне видимости" });
             }
