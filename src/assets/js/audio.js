@@ -55,17 +55,20 @@
     if (!src || !chapter) return;
 
     const absoluteSrc = new URL(src, document.baseURI).href;
-    if (active && audio.src && audio.src !== absoluteSrc) saveCurrent(true);
+    const changingSource = audio.src !== absoluteSrc;
+
+    if (changingSource) {
+      if (active && audio.src) saveCurrent(true);
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+    }
 
     buttons.forEach(item => item.setAttribute("aria-current", String(item === button)));
     active = chapter;
     status.textContent = title;
 
-    if (audio.src !== absoluteSrc) {
-      audio.pause();
-      audio.removeAttribute("src");
-      audio.load();
-
+    if (changingSource) {
       if (resumeTime !== null && resumeTime > 0) {
         audio.addEventListener("loadedmetadata", () => {
           const duration = Number(audio.duration);
