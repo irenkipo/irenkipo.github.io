@@ -42,6 +42,10 @@ jobs:
           PLAYWRIGHT_BROWSER: chromium
           SKIP_LIVE_VISUAL_COMPARE: "1"
         run: node tools/qa/qa-site.cjs
+      - name: Validate final user journey
+        env:
+          PLAYWRIGHT_BROWSER: chromium
+        run: node tools/qa/e2e-closeout.cjs
       - name: Scan current tree and Git history
         run: node tools/qa/security-scan.cjs
       - name: Upload Pages artifact
