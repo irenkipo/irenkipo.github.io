@@ -37,5 +37,9 @@ jobs:
           PLAYWRIGHT_BROWSER: chromium
           SKIP_LIVE_VISUAL_COMPARE: ${{ github.event_name == 'pull_request' && (github.head_ref == 'promo-visible-social-links-2026-09-18' || github.head_ref == 'author-copy-approved-2026-09-21') && '1' || '0' }}
         run: node tools/qa/qa-site.cjs
+      - name: Validate final user journey
+        env:
+          PLAYWRIGHT_BROWSER: chromium
+        run: node tools/qa/e2e-closeout.cjs
       - name: Scan current tree and Git history
         run: node tools/qa/security-scan.cjs
