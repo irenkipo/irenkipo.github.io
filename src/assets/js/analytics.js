@@ -114,7 +114,7 @@
   }
 
   function nativeEvent(eventName, dimension = "all", source = sourceToken()) {
-    if (OWNER_TEST) return;
+    if (OWNER_TEST || location.origin !== "https://irenkipo.github.io") return;
     const event = compactToken(eventName, "event", 16);
     const dim = compactToken(dimension, "all", 12);
     const src = compactToken(source, "direct", 18);
