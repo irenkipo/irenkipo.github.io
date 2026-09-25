@@ -10,7 +10,7 @@
 - QA: `node tools/qa/qa-site.cjs`, `node tools/qa/seo-health.cjs`, and `node tools/qa/security-scan.cjs`
 - Deployment source: generated `dist/` artifact only.
 - Release: PR + owner approval required before merge.
-- Subscription: one public Google Form CTA; no local input, backend, provider config, or client-side submission logic.
+- Subscription: one public Google Form CTA remains the subscription transport. User-approved one-click unsubscribe uses a noindex `/unsubscribe.html` helper that submits an opaque unsubscribe token through the same existing Google Form; no new backend or provider is introduced.
 - Search engines: technical preparation and external setup are complete. Google Search Console ownership is verified; sitemap is submitted; homepage and `/read/` indexing were requested. Bing Webmaster Tools is connected via Google Search Console import; sitemap status is `Success`, with 15 URLs discovered, 0 errors, and 0 warnings. Remaining crawl/index timing is external search-engine processing, not a missing site task.
 - TikTok Developers: verification file `src/site/tiktokl8QvfszBTbx6BbHw4UIczI4ZhomoCQnM.txt` is copied by the build into the deploy artifact root so URL-prefix ownership verification can resolve publicly. No visible site content or publishing behavior changes.
 
@@ -91,3 +91,5 @@
 - 2026-09-22 runtime integrity repair: the generated `dist/index.html` is now normalized to the canonical Meta V2 Facebook Page and the build rejects the retired Facebook profile ID if it leaks into the deploy artifact. The build also requires all six canonical social links plus LitRes to exist in the final deploy artifact. No visible layout, copy, artwork, typography, palette, controls, or section-order change.
 
 - 2026-09-22 subscription runtime correction: remove browser-side `iren_kipo_subscribed` persistence and the unverified “Вы уже подписаны” state. A hidden Google Forms iframe load is treated only as evidence that the request was sent; the UI now says “Спасибо! Заявка отправлена.” and never claims the subscriber is recorded. The existing form endpoint and required Google entry names remain unchanged. No layout, styling, artwork, typography, palette, or literary-content change.
+
+- 2026-09-25 one-click unsubscribe delta: user explicitly selected the one-click option. Subscription confirmation emails may contain a clickable «Отписаться» link to `/unsubscribe.html?t=<opaque-token>`. The helper posts only a synthetic token carrier to the existing Google Form, never the subscriber email. The PROMO subscriber sync validates the current token, records `UNSUBSCRIBED`, sends the approved unsubscribe confirmation and owner notice, and rotates the token on every later subscription so stale links cannot unsubscribe a newer subscription. Reply-based Yahoo unsubscribe parsing is retired. No homepage layout, copy, artwork, typography, palette, section order, or reader content changes.
