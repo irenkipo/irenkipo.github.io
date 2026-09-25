@@ -79,12 +79,16 @@ async function readingProgress(browser) {
   await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
 
   await page.goto("http://127.0.0.1:4174/read/chapter-01/", { waitUntil: "domcontentloaded" });
-  const actualRatio = await page.evaluate(() => {
+  await page.evaluate(() => {
+    document.documentElement.style.scrollBehavior = "auto";
     const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
     scrollTo(0, Math.round(max * 0.56));
-    const ratio = scrollY / max;
+  });
+  await page.waitForTimeout(250);
+  const actualRatio = await page.evaluate(() => {
+    const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
     dispatchEvent(new Event("pagehide"));
-    return ratio;
+    return scrollY / max;
   });
   await page.waitForTimeout(100);
 
