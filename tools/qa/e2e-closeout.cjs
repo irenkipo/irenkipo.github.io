@@ -102,7 +102,11 @@ async function readingProgress(browser) {
   assert(continuePath === "/read/chapter-01/", "homepage read CTA did not continue to saved chapter");
 
   await page.goto("http://127.0.0.1:4174/read/chapter-01/", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(150);
+  await page.waitForFunction(target => {
+    const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    const ratio = scrollY / max;
+    return Math.abs(ratio - target) < 0.12;
+  }, saved.ratio, { timeout: 4000 });
   const restoredRatio = await page.evaluate(() => {
     const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
     return scrollY / max;
