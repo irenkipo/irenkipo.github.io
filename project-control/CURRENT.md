@@ -1,13 +1,12 @@
 # SITE CURRENT
 
-- Status: candidate — cookieless GA4 analytics and measurable promotion funnel
-- Candidate branch: `ga4-consent-2026-09-19`
-- Production baseline: `50e7f33dd4ad07b8fefbb1e2ad05f97173f2dc5a`
-- Rollback tag: `SITE-PRE-SEO-SECURITY-V1`
+- Status: PRODUCTION LOCKED — final site closeout 2026-09-25
+- Production baseline: `cc1574cb5d474f3bc02da456b4a616705ca4a22b`
+- Rollback branch: `site-rollback-final-2026-09-25` -> `cc1574cb5d474f3bc02da456b4a616705ca4a22b`
 - Public URL: <https://irenkipo.github.io/>
-- Visual state: LOCKED except for the explicitly approved Audiobook V2 delta: the existing audiobook button/placeholder may become the production 11-chapter player. All unrelated homepage geometry, art, typography, palette and content remain locked.
+- Visual state: LOCKED. The current production homepage, reader, 11-chapter audiobook player, download modal, subscription form, legal pages, typography, palette, artwork, controls, spacing and section order require new explicit owner approval before any visible change.
 - Build: `python tools/build/build-site.py`
-- QA: `node tools/qa/qa-site.cjs`, `node tools/qa/seo-health.cjs`, and `node tools/qa/security-scan.cjs`
+- QA: `node tools/qa/qa-site.cjs`, `node tools/qa/seo-health.cjs`, `node tools/qa/e2e-closeout.cjs`, and `node tools/qa/security-scan.cjs`
 - Deployment source: generated `dist/` artifact only.
 - Release: PR + owner approval required before merge.
 - Subscription: one public Google Form CTA remains the subscription transport. User-approved one-click unsubscribe uses a noindex `/unsubscribe.html` helper that submits an opaque unsubscribe token through the same existing Google Form; no new backend or provider is introduced.
@@ -106,3 +105,5 @@
 - 2026-09-25 privacy disclosure closeout delta: explicitly approved update to the visible Privacy page documents the anonymous native Google Forms event counter and browser-local reading/audio progress storage. The Privacy CSP also explicitly allows the existing Google Forms transport for the native counter. No homepage, reader, artwork, typography, palette, controls, section order, or literary text changes.
 
 - 2026-09-25 final user-journey QA delta: add a nonvisual Playwright closeout test that verifies reading progress save/restore and homepage continuation, audiobook chapter/time restoration without autoplay plus pause/save on modal close, EPUB/PDF/audiobook-ZIP links, canonical LitRes link, intercepted subscription form transport/status/event, and one-click unsubscribe token transport/status. The same test is required in PR Site quality and before production Pages deployment. No visible site change.
+
+- 2026-09-25 FINAL SITE CLOSEOUT: production commit `cc1574cb5d474f3bc02da456b4a616705ca4a22b` passed SITE CURRENT guard, Site quality, SEO health, Pages build/deployment, and the final user-journey QA. Rollback branch `site-rollback-final-2026-09-25` points exactly to this verified production commit. Future work must start from this baseline and must not restore obsolete placeholders, pre-audiobook assets/behavior, pre-counter analytics, or older subscription/runtime states.
