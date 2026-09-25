@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Отписка от новостей Ирэн Кипо</title>
+  <style>
+    body{margin:0;font-family:Arial,sans-serif;background:#fff;color:#222}
+    main{max-width:620px;margin:12vh auto;padding:24px;text-align:center}
+    h1{font-size:28px;margin:0 0 18px}
+    p{font-size:18px;line-height:1.5}
+    .small{font-size:14px;color:#666}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Отписка от новостей Ирэн Кипо</h1>
+  <p id="status">Оформляем отписку…</p>
+  <p class="small">Больше ничего нажимать или отправлять не нужно.</p>
+</main>
+<iframe name="unsubscribe-result" hidden></iframe>
+<form id="unsubscribe-form"
+      method="post"
+      action="https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg/formResponse"
+      target="unsubscribe-result"
+      hidden>
+  <input id="unsubscribe-email" name="entry.639030799" value="">
+  <input name="entry.2056694574" value="Согласен">
+</form>
+<script>
+(function () {
+  var status = document.getElementById('status');
+  var token = new URLSearchParams(window.location.search).get('t') || '';
+  if (!/^[a-f0-9]{32}$/i.test(token)) {
+    status.textContent = 'Ссылка для отписки недействительна.';
+    return;
+  }
+
+  document.getElementById('unsubscribe-email').value =
+    'unsubscribe+' + token.toLowerCase() + '@irenkipo.github.io';
+
+  document.getElementById('unsubscribe-form').submit();
+  history.replaceState(null, '', '/unsubscribe.html');
+
+  window.setTimeout(function () {
+    status.textContent = 'Запрос на отписку принят.';
+  }, 900);
+}());
+</script>
+</body>
+</html>
