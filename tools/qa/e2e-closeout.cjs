@@ -117,7 +117,14 @@ async function readingProgress(browser) {
     const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
     scrollTo(0, Math.round(max * 0.95));
   });
-  await page.waitForTimeout(100);
+  await page.waitForFunction(() => {
+    const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    const ratio = scrollY / max;
+    const events = window.dataLayer || [];
+    const has50 = events.some(item => item && item[0] === "event" && item[1] === "chapter_progress" && item[2]?.percent_read === 50);
+    const has90 = events.some(item => item && item[0] === "event" && item[1] === "chapter_progress" && item[2]?.percent_read === 90);
+    return ratio >= 0.9 && has50 && has90;
+  }, null, { timeout: 4000 });
   const milestone50 = await page.evaluate(() => (window.dataLayer || []).some(item => item && item[0] === "event" && item[1] === "chapter_progress" && item[2]?.percent_read === 50));
   const milestone90 = await page.evaluate(() => (window.dataLayer || []).some(item => item && item[0] === "event" && item[1] === "chapter_progress" && item[2]?.percent_read === 90));
   assert(milestone50 && milestone90, "reader analytics milestones 50/90 were not emitted");
