@@ -98,3 +98,13 @@ Resolved:
 ## Operating rule
 
 Technical search preparation and external search-engine setup are complete. This file should now only record real Google Search Console/Bing crawl, sitemap, or indexing states reported by those services; new audience-development planning belongs in the existing PROMO workflow.
+## Google Search Console — verified 2026-09-26
+
+- Page indexing report currently shows 2 indexed pages and 0 known not-indexed pages.
+- Indexed pages confirmed: `https://irenkipo.github.io/` and `https://irenkipo.github.io/read/`.
+- Both were last crawled by Googlebot smartphone on 2026-09-13 in the report snapshot.
+- Previous submitted `/sitemap.xml` entry showed `Couldn't fetch`, type `Unknown`, discovered pages 0.
+- On 2026-09-26 `sitemap.xml` was resubmitted in Search Console and accepted with `Sitemap submitted successfully`; discovered-page count may remain 0 until Google processes the new submission.
+- Live/current URL inspection confirmed the homepage is available to Google, crawl is allowed, fetch succeeds, indexing is allowed, and Google-selected canonical matches the inspected canonical URL.
+- Manual `Request indexing` was submitted successfully for the homepage and `/read/`; both were added to Google's priority crawl queue.
+- Do not manually submit all chapter URLs while the sitemap is healthy. Wait for sitemap processing and recheck `Sitemaps -> Discovered pages` plus `Pages -> Indexed pages`.
