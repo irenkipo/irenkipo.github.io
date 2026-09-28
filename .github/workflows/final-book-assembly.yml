@@ -1,0 +1,226 @@
+name: Build final Book 1 DOCX
+
+on:
+  push:
+    branches:
+      - work/final-book-assembly-2026-09-28
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout assembly branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Fetch approved working branches
+        run: |
+          git fetch origin '+refs/heads/work/chapter-*:refs/remotes/origin/work/chapter-*'
+
+      - name: Install DOCX dependency
+        run: python -m pip install --disable-pip-version-check python-docx beautifulsoup4
+
+      - name: Build final DOCX
+        shell: bash
+        run: |
+          cat > /tmp/build_book.py <<'PY'
+          import json, re, subprocess
+          from pathlib import Path
+          from bs4 import BeautifulSoup, NavigableString, Tag
+          from docx import Document
+          from docx.shared import Pt, Cm
+          from docx.enum.text import WD_ALIGN_PARAGRAPH
+          from docx.enum.section import WD_SECTION
+          from docx.oxml import OxmlElement
+          from docx.oxml.ns import qn
+
+          SOURCES = [
+              (1, "work/chapter-01-u-2026-09-28", "working/chapter-01_U_2026-09-28.html", "2d362a0ffe6239ae269bee1b0824e40084f60368"),
+              (2, "work/chapter-02-u-2026-09-28", "working/chapter-02_U_2026-09-28.html", "712ca5b00c01ceba75a52be319ed43a6de7aa6a6"),
+              (3, "work/chapter-03-u-2026-09-28", "working/chapter-03_U_2026-09-28.html", "38feb13e48eba483d9b7594a61f9747731333e9a"),
+              (4, "work/chapter-04-u-2026-09-28", "working/chapter-04_U_2026-09-28.html", "39a1fa7cc9d9b60575eeea1c673f23981c1883a9"),
+              (5, "work/chapter-05-u-2026-09-28", "working/chapter-05_U_2026-09-28.html", "c5401fd57660f5f196fdf93256609898cb30a67c"),
+              (6, "work/chapter-06-u-2026-09-28", "working/chapter-06_U_2026-09-28.html", "cbbb8ddd474510ed0d0c2a6e6edb1e569e99154e"),
+              (7, "work/chapter-07-u-2026-09-28", "working/chapter-07_U_2026-09-28.html", "8d2e7b3b75a922b1c8dc2b174db98bdb8d060a53"),
+              (8, "work/chapter-08-u-2026-09-28", "working/chapter-08_U_2026-09-28.html", "7ba1408efbbf719e2ae7d41f3094da8ea1bf442f"),
+              (9, "work/chapter-09-u-2026-09-28", "working/chapter-09_U_2026-09-28.html", "37f98f58c399f6c03d561d33dd77bc7a997c583b"),
+              (10, "work/chapter-10-u-2026-09-28", "working/chapter-10_U_2026-09-28.html", "5aafbae221ba5d98413382f246fbe4416b5cb01d"),
+              (11, "work/chapter-11-u-2026-09-28", "working/chapter-11_U_2026-09-28.html", "408a6413b152dc710e02b55abe9b6bd7e784b641"),
+          ]
+
+          def git_text(branch, path):
+              ref = f"refs/remotes/origin/{branch}:{path}"
+              return subprocess.check_output(["git", "show", ref], text=True, encoding="utf-8")
+
+          def blob_sha(branch, path):
+              ref = f"refs/remotes/origin/{branch}:{path}"
+              return subprocess.check_output(["git", "rev-parse", ref], text=True).strip()
+
+          def set_run_font(run, name="Times New Roman", size=12):
+              run.font.name = name
+              run.font.size = Pt(size)
+              rPr = run._element.get_or_add_rPr()
+              rFonts = rPr.rFonts
+              if rFonts is None:
+                  rFonts = OxmlElement("w:rFonts")
+                  rPr.insert(0, rFonts)
+              for attr in ("ascii", "hAnsi", "eastAsia", "cs"):
+                  rFonts.set(qn(f"w:{attr}"), name)
+
+          def add_inline(paragraph, node, bold=False, italic=False):
+              if isinstance(node, NavigableString):
+                  if str(node):
+                      run = paragraph.add_run(str(node))
+                      run.bold = bold
+                      run.italic = italic
+                      set_run_font(run)
+                  return
+              if not isinstance(node, Tag):
+                  return
+              b = bold or node.name in ("strong", "b")
+              i = italic or node.name in ("em", "i")
+              if node.name == "br":
+                  paragraph.add_run().add_break()
+                  return
+              for child in node.children:
+                  add_inline(paragraph, child, b, i)
+
+          def add_body_paragraph(doc, tag):
+              classes = set(tag.get("class", []))
+              if "scene-break" in classes:
+                  p = doc.add_paragraph()
+                  p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                  p.paragraph_format.space_before = Pt(8)
+                  p.paragraph_format.space_after = Pt(8)
+                  p.paragraph_format.first_line_indent = Cm(0)
+                  for child in tag.children:
+                      add_inline(p, child)
+                  for run in p.runs:
+                      set_run_font(run, size=11)
+                  return
+              p = doc.add_paragraph()
+              pf = p.paragraph_format
+              pf.first_line_indent = Cm(0.75)
+              pf.left_indent = Cm(0)
+              pf.right_indent = Cm(0)
+              pf.space_before = Pt(0)
+              pf.space_after = Pt(0)
+              pf.line_spacing = 1.15
+              p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+              for child in tag.children:
+                  add_inline(p, child)
+
+          doc = Document()
+          sec = doc.sections[0]
+          sec.top_margin = Cm(2.0)
+          sec.bottom_margin = Cm(2.0)
+          sec.left_margin = Cm(2.2)
+          sec.right_margin = Cm(2.0)
+          sec.page_width = Cm(21.0)
+          sec.page_height = Cm(29.7)
+
+          styles = doc.styles
+          normal = styles["Normal"]
+          normal.font.name = "Times New Roman"
+          normal.font.size = Pt(12)
+
+          props = doc.core_properties
+          props.title = "В зоне видимости"
+          props.author = "Ирэн Кипо"
+          props.subject = "Всё хорошо. Книга 1"
+
+          manifest = {"title":"В зоне видимости","author":"Ирэн Кипо","chapters":[]}
+          last_part = None
+          first_chapter = True
+          word_count = 0
+          block_count = 0
+
+          for chapter, branch, path, expected_blob in SOURCES:
+              actual_blob = blob_sha(branch, path)
+              if actual_blob != expected_blob:
+                  raise SystemExit(f"Blob SHA mismatch ch{chapter}: {actual_blob} != {expected_blob}")
+              html = git_text(branch, path)
+              soup = BeautifulSoup(html, "html.parser")
+              article = soup.find("article", class_="chapter-text")
+              if article is None:
+                  raise SystemExit(f"No chapter-text article in ch{chapter}")
+
+              blocks = [x for x in article.children if isinstance(x, Tag) and x.name in ("p","h1")]
+              part_tag = next((x for x in blocks if x.name=="p" and "part-label" in x.get("class",[])), None)
+              chapter_tag = next((x for x in blocks if x.name=="h1"), None)
+              part_text = part_tag.get_text("", strip=True) if part_tag else None
+              chapter_text = chapter_tag.get_text("", strip=True) if chapter_tag else f"ГЛАВА {chapter}"
+
+              if part_text and part_text != last_part:
+                  if not first_chapter:
+                      doc.add_page_break()
+                  p = doc.add_paragraph()
+                  p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                  p.paragraph_format.space_before = Pt(0)
+                  p.paragraph_format.space_after = Pt(18)
+                  p.paragraph_format.first_line_indent = Cm(0)
+                  run = p.add_run(part_text)
+                  run.bold = True
+                  set_run_font(run, size=16)
+                  last_part = part_text
+              elif not first_chapter:
+                  doc.add_page_break()
+
+              p = doc.add_paragraph()
+              p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+              p.paragraph_format.first_line_indent = Cm(0)
+              p.paragraph_format.space_before = Pt(0)
+              p.paragraph_format.space_after = Pt(18)
+              run = p.add_run(chapter_text)
+              run.bold = True
+              set_run_font(run, size=16)
+
+              body_blocks = [x for x in blocks if x is not part_tag and x is not chapter_tag]
+              for tag in body_blocks:
+                  add_body_paragraph(doc, tag)
+                  text = tag.get_text(" ", strip=True)
+                  word_count += len(re.findall(r"[A-Za-zА-Яа-яЁё0-9]+", text))
+                  block_count += 1
+
+              manifest["chapters"].append({
+                  "chapter": chapter, "branch": branch, "path": path,
+                  "blob_sha": actual_blob, "body_blocks": len(body_blocks)
+              })
+              first_chapter = False
+
+          # Page numbers in footer
+          for section in doc.sections:
+              footer = section.footer
+              p = footer.paragraphs[0]
+              p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+              fld = OxmlElement("w:fldSimple")
+              fld.set(qn("w:instr"), "PAGE")
+              p._p.append(fld)
+
+          out = Path("dist")
+          out.mkdir(exist_ok=True)
+          docx_path = out / "Iren_Kipo_V_zone_vidimosti_FINAL_2026-09-28.docx"
+          doc.save(docx_path)
+
+          manifest["word_count_body"] = word_count
+          manifest["body_blocks"] = block_count
+          (out / "assembly_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+          print(f"Built {docx_path} words={word_count} blocks={block_count}")
+          PY
+          python /tmp/build_book.py
+          ls -lh dist/
+
+      - name: Upload final book
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-book-1
+          path: |
+            dist/Iren_Kipo_V_zone_vidimosti_FINAL_2026-09-28.docx
+            dist/assembly_manifest.json
+          if-no-files-found: error
+          retention-days: 7
