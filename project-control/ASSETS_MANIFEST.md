@@ -12,8 +12,8 @@ SHA-256 values were captured from production commit `b48d5f0c6b782c605304b2ed90d
 | `src/assets/approved/book-4-cover.png` | `114ccf8aa931cb279db7b41c6ac6d8f517c181930a18a09c91d823e1f18988db` |
 | `src/assets/approved/series-banner.png` | `2dbc630edc8b666b5b2f358b9edc1fba157f10547c611bea31e33e202c6bce7b` |
 | `src/assets/brand/ik-logo.jpg` | `12de380b6a96813bd544ab6ecd19d25fae4e664f5a37cbc4c6cebb3ec76004a1` |
-| `src/assets/books/book1.epub` | `ad83b4c8dc6c9e2ffcf153fdb1a353741106bd8f41b7fbd88ab1946d597776b4` |
-| `src/assets/books/book1.pdf` | `d0c7841ff8309afc9f5738831ec57d5c87b1a4c09be3e0df54643f50ee7b7268` |
+| `src/assets/books/book1.epub` | `d8cac697c91de650b5b5b5af02b9b9ff6836b33c670b5ed50d2ecca155043207` |
+| `src/assets/books/book1.pdf` | `7bd0b29dbc27349da0bf8b86d2bf7f781cad94e6a3f93c31f0bb8904060b0e12` |
 
 Derived share asset:
 
