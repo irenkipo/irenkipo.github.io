@@ -24,5 +24,6 @@ Verification:
 - Extracted chapter text from article.chapter-text only.
 - Preserved paragraph order and wording.
 - Reopened generated DOCX and compared every non-empty paragraph exactly.
+- Preserved inline <strong>/<b> and <em>/<i> emphasis where present.
 - No text mismatch detected.
 - main/site not modified by this build.
