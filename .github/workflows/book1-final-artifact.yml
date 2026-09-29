@@ -1,0 +1,29 @@
+name: Book1 final artifact
+
+on:
+  push:
+    branches:
+      - work/book1-final-assembly-2026-09-29
+    paths:
+      - '.github/workflows/book1-final-artifact.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out assembly branch
+        uses: actions/checkout@v4
+      - name: Verify final DOCX exists
+        run: |
+          test -f working/Book1_FINAL_2026-09-29.docx
+          ls -lh working/Book1_FINAL_2026-09-29.docx
+      - name: Upload final DOCX
+        uses: actions/upload-artifact@v4
+        with:
+          name: Book1_FINAL_2026-09-29
+          path: working/Book1_FINAL_2026-09-29.docx
+          if-no-files-found: error
+          retention-days: 7
