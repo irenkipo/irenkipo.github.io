@@ -22,8 +22,8 @@ const lockedHashes = {
   "assets/approved/book-4-cover.png": "ed12ed92caab3e4228ae48c3321b7610b5e932547dcb6c45b6259b682798acf3",
   "assets/approved/series-banner.png": "239a7b3da64a958e0672eb935fb2fa84a31e2e9f6f29f7e705f880cd8787cb2c",
   "assets/brand/ik-logo.jpg": "12de380b6a96813bd544ab6ecd19d25fae4e664f5a37cbc4c6cebb3ec76004a1",
-  "assets/books/book1.epub": "ad83b4c8dc6c9e2ffcf153fdb1a353741106bd8f41b7fbd88ab1946d597776b4",
-  "assets/books/book1.pdf": "d0c7841ff8309afc9f5738831ec57d5c87b1a4c09be3e0df54643f50ee7b7268"
+  "assets/books/book1.epub": "d8cac697c91de650b5b5b5af02b9b9ff6836b33c670b5ed50d2ecca155043207",
+  "assets/books/book1.pdf": "7bd0b29dbc27349da0bf8b86d2bf7f781cad94e6a3f93c31f0bb8904060b0e12"
 };
 
 function sha256(file) { return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"); }
