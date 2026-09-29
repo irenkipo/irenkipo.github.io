@@ -1,0 +1,31 @@
+name: Build Book 1 Final DOCX
+on:
+  push:
+    branches:
+      - work/book1-final-assembly-2026-09-28
+    paths:
+      - '.github/workflows/build-book1-final.yml'
+      - 'scripts/build_book1_final.py'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch working branches
+        run: git fetch origin '+refs/heads/work/*:refs/remotes/origin/work/*'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install python-docx beautifulsoup4 lxml
+      - name: Build and exact-text QC
+        run: python scripts/build_book1_final.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: book1-final-docx
+          path: artifacts/В_зоне_видимости_Книга_1_FINAL_EDIT_2026-09-28.docx
+          if-no-files-found: error
