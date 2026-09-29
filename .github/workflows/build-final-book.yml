@@ -40,7 +40,7 @@ jobs:
           import subprocess
           from pathlib import Path
 
-          from bs4 import BeautifulSoup
+          from bs4 import BeautifulSoup, NavigableString, Tag
           from docx import Document
           from docx.enum.section import WD_SECTION
           from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -154,7 +154,10 @@ jobs:
                       p.paragraph_format.first_line_indent = Cm(1.25)
                       p.paragraph_format.line_spacing = 1.15
                       p.paragraph_format.space_after = Pt(0)
-                      p.add_run(text)
+                      for seg_text, seg_bold, seg_italic in b["segments"]:
+                          run = p.add_run(seg_text)
+                          run.bold = seg_bold
+                          run.italic = seg_italic
 
           doc.core_properties.title = "В зоне видимости"
           doc.core_properties.author = "Ирэн Кипо"
@@ -198,6 +201,7 @@ jobs:
               "- Extracted chapter text from article.chapter-text only.",
               "- Preserved paragraph order and wording.",
               "- Reopened generated DOCX and compared every non-empty paragraph exactly.",
+              "- Preserved inline <strong>/<b> and <em>/<i> emphasis where present.",
               "- No text mismatch detected.",
               "- main/site not modified by this build.",
           ]
