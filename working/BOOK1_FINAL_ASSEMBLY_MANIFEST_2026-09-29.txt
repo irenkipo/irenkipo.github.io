@@ -1,0 +1,22 @@
+BOOK 1 FINAL ASSEMBLY
+Title: В зоне видимости
+Author: Ирэн Кипо
+Assembly date: 2026-09-29
+Source: final working HTML copies, chapters 1–11
+
+CH01 ГЛАВА 1 sha=2d362a0ffe6239ae269bee1b0824e40084f60368 blocks=711
+CH02 ГЛАВА 2 sha=712ca5b00c01ceba75a52be319ed43a6de7aa6a6 blocks=783
+CH03 ГЛАВА 3 sha=38feb13e48eba483d9b7594a61f9747731333e9a blocks=565
+CH04 ГЛАВА 4 sha=39a1fa7cc9d9b60575eeea1c673f23981c1883a9 blocks=960
+CH05 ГЛАВА 5 sha=c5401fd57660f5f196fdf93256609898cb30a67c blocks=1085
+CH06 ГЛАВА 6 sha=cbbb8ddd474510ed0d0c2a6e6edb1e569e99154e blocks=1416
+CH07 Глава 7 sha=8d2e7b3b75a922b1c8dc2b174db98bdb8d060a53 blocks=1257
+CH08 Глава 8 sha=7ba1408efbbf719e2ae7d41f3094da8ea1bf442f blocks=1634
+CH09 Глава 9 sha=37f98f58c399f6c03d561d33dd77bc7a997c583b blocks=2222
+CH10 Глава 10 sha=5aafbae221ba5d98413382f246fbe4416b5cb01d blocks=1364
+CH11 Глава 11 sha=408a6413b152dc710e02b55abe9b6bd7e784b641 blocks=471
+
+DOCX bytes=2344003
+document.xml chars=1816746
+Validated chapter headings: 11/11
+main/site unchanged; artifact exists only on the assembly branch.
