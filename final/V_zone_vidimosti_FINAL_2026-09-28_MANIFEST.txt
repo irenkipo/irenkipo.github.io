@@ -1,0 +1,21 @@
+BOOK 1 FINAL ASSEMBLY
+Title: В зоне видимости
+Author: Ирэн Кипо
+Date: 2026-09-28
+Status: FINAL WORKING ASSEMBLY / NOT PUBLISHED
+Distribution: HOLD
+main/site: UNCHANGED
+Chapters: 11
+Approx words: 95151
+Source working refs:
+CH01 | work/chapter-01-u-2026-09-28 | 2d362a0ffe6239ae269bee1b0824e40084f60368
+CH02 | work/chapter-02-u-2026-09-28 | 712ca5b00c01ceba75a52be319ed43a6de7aa6a6
+CH03 | work/chapter-03-u-2026-09-28 | 38feb13e48eba483d9b7594a61f9747731333e9a
+CH04 | work/chapter-04-u-2026-09-28 | 39a1fa7cc9d9b60575eeea1c673f23981c1883a9
+CH05 | work/chapter-05-u-2026-09-28 | c5401fd57660f5f196fdf93256609898cb30a67c
+CH06 | work/chapter-06-u-2026-09-28 | cbbb8ddd474510ed0d0c2a6e6edb1e569e99154e
+CH07 | work/chapter-07-u-2026-09-28 | 8d2e7b3b75a922b1c8dc2b174db98bdb8d060a53
+CH08 | work/chapter-08-u-2026-09-28 | 7ba1408efbbf719e2ae7d41f3094da8ea1bf442f
+CH09 | work/chapter-09-u-2026-09-28 | 37f98f58c399f6c03d561d33dd77bc7a997c583b
+CH10 | work/chapter-10-u-2026-09-28 | 5aafbae221ba5d98413382f246fbe4416b5cb01d
+CH11 | work/chapter-11-u-2026-09-28 | 408a6413b152dc710e02b55abe9b6bd7e784b641
