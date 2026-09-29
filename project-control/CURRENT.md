@@ -113,3 +113,5 @@
 - 2026-09-29 Book 1 final editorial delta: apply exactly the approved 99-operation text delta from `В_зоне_видимости_FINAL_2026-09-29.docx` to all 11 reader chapters in both the canonical deploy source `src/read/` and the synchronized root mirror `read/`. Chapter boundaries, reader behavior, navigation, analytics, local progress, CSS, fonts, colors, images and all unrelated pages remain unchanged.
 
 - 2026-09-29 Book 1 download files delta: website PDF and EPUB updated to the final corrected Book 1 edition. Reader HTML, design, audio and LitRes remain unchanged.
+
+- 2026-09-29 Book 1 download checksum sync: align `ASSETS_MANIFEST.md` with the already published final PDF/EPUB hashes. No public files, HTML, design, audio or LitRes change.
