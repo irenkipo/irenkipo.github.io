@@ -1,0 +1,226 @@
+name: Assemble Book 1 Final
+
+on:
+  push:
+    branches:
+      - work/book1-final-assembly-2026-09-29
+    paths:
+      - ".github/workflows/assemble-book1-final.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout assembly branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch final working chapter branches
+        shell: bash
+        run: |
+          set -euo pipefail
+          for n in $(seq -w 1 11); do
+            b="work/chapter-${n}-u-2026-09-28"
+            git fetch origin "${b}:refs/remotes/origin/${b}"
+          done
+          mkdir -p /tmp/book1-html
+          for n in $(seq -w 1 11); do
+            b="work/chapter-${n}-u-2026-09-28"
+            p="working/chapter-${n}_U_2026-09-28.html"
+            git show "refs/remotes/origin/${b}:${p}" > "/tmp/book1-html/chapter-${n}.html"
+          done
+
+      - name: Install document dependencies
+        run: python -m pip install --disable-pip-version-check python-docx beautifulsoup4 lxml
+
+      - name: Assemble DOCX
+        shell: bash
+        run: |
+          cat > /tmp/assemble_book1.py <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup, NavigableString, Tag
+          from docx import Document
+          from docx.shared import Pt, Cm
+          from docx.enum.text import WD_ALIGN_PARAGRAPH
+          from docx.enum.section import WD_SECTION
+          from docx.oxml import OxmlElement
+          from docx.oxml.ns import qn
+          import re, json, hashlib
+
+          SRC = Path("/tmp/book1-html")
+          OUT = Path("/tmp/book1-out")
+          OUT.mkdir(exist_ok=True)
+          out_path = OUT / "В_зоне_видимости_Книга_1_FINAL_2026-09-29.docx"
+
+          doc = Document()
+          sec = doc.sections[0]
+          sec.top_margin = Cm(2.0)
+          sec.bottom_margin = Cm(2.0)
+          sec.left_margin = Cm(2.2)
+          sec.right_margin = Cm(2.0)
+
+          styles = doc.styles
+          normal = styles["Normal"]
+          normal.font.name = "Times New Roman"
+          normal.font.size = Pt(12)
+          normal._element.rPr.rFonts.set(qn("w:ascii"), "Times New Roman")
+          normal._element.rPr.rFonts.set(qn("w:hAnsi"), "Times New Roman")
+          normal._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+
+          def set_run_font(run, size=12, bold=None, italic=None):
+              run.font.name = "Times New Roman"
+              run.font.size = Pt(size)
+              run._element.get_or_add_rPr().rFonts.set(qn("w:ascii"), "Times New Roman")
+              run._element.get_or_add_rPr().rFonts.set(qn("w:hAnsi"), "Times New Roman")
+              run._element.get_or_add_rPr().rFonts.set(qn("w:eastAsia"), "Times New Roman")
+              if bold is not None:
+                  run.bold = bold
+              if italic is not None:
+                  run.italic = italic
+
+          # Title page: metadata/front matter only, no novel prose added.
+          p = doc.add_paragraph()
+          p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+          p.paragraph_format.space_before = Pt(150)
+          r = p.add_run("ИРЭН КИПО")
+          set_run_font(r, 16, bold=True)
+          p = doc.add_paragraph()
+          p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+          p.paragraph_format.space_before = Pt(26)
+          r = p.add_run("В ЗОНЕ ВИДИМОСТИ")
+          set_run_font(r, 22, bold=True)
+          p = doc.add_paragraph()
+          p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+          p.paragraph_format.space_before = Pt(12)
+          r = p.add_run("Книга 1 серии «Всё хорошо»")
+          set_run_font(r, 13)
+          doc.add_page_break()
+
+          def append_inline(paragraph, node, bold=False, italic=False):
+              if isinstance(node, NavigableString):
+                  txt = str(node)
+                  if txt:
+                      rr = paragraph.add_run(txt)
+                      set_run_font(rr, 12, bold=bold, italic=italic)
+                  return
+              if not isinstance(node, Tag):
+                  return
+              nb = bold or node.name in ("b", "strong")
+              ni = italic or node.name in ("i", "em")
+              if node.name == "br":
+                  paragraph.add_run().add_break()
+                  return
+              for child in node.children:
+                  append_inline(paragraph, child, nb, ni)
+
+          manifest = []
+          for ch in range(1, 12):
+              path = SRC / f"chapter-{ch:02d}.html"
+              html = path.read_text(encoding="utf-8")
+              soup = BeautifulSoup(html, "lxml")
+              article = soup.select_one("article.chapter-text")
+              if article is None:
+                  raise RuntimeError(f"Chapter {ch}: article.chapter-text not found")
+
+              blocks = [x for x in article.children if isinstance(x, Tag) and x.name in ("p", "h1")]
+              # Each chapter begins on a new page. Ch1 already follows title page.
+              if ch > 1:
+                  doc.add_page_break()
+
+              para_count = 0
+              text_chars = 0
+              for block in blocks:
+                  cls = set(block.get("class", []))
+                  text = block.get_text("", strip=False)
+                  text_chars += len(text)
+
+                  if block.name == "h1":
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.space_before = Pt(8)
+                      p.paragraph_format.space_after = Pt(18)
+                      p.paragraph_format.keep_with_next = True
+                      r = p.add_run(text.strip())
+                      set_run_font(r, 16, bold=True)
+                      para_count += 1
+                      continue
+
+                  if "part-label" in cls:
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.space_before = Pt(0)
+                      p.paragraph_format.space_after = Pt(10)
+                      p.paragraph_format.keep_with_next = True
+                      r = p.add_run(text.strip())
+                      set_run_font(r, 13, bold=True)
+                      para_count += 1
+                      continue
+
+                  if "scene-break" in cls or text.strip() == "***":
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.first_line_indent = Cm(0)
+                      p.paragraph_format.space_before = Pt(7)
+                      p.paragraph_format.space_after = Pt(7)
+                      r = p.add_run("***")
+                      set_run_font(r, 12)
+                      para_count += 1
+                      continue
+
+                  p = doc.add_paragraph()
+                  pf = p.paragraph_format
+                  pf.first_line_indent = Cm(0.65)
+                  pf.line_spacing = 1.15
+                  pf.space_before = Pt(0)
+                  pf.space_after = Pt(0)
+                  pf.widow_control = True
+                  for child in block.children:
+                      append_inline(p, child)
+                  para_count += 1
+
+              manifest.append({
+                  "chapter": ch,
+                  "blocks": len(blocks),
+                  "docx_paragraphs_added": para_count,
+                  "article_text_chars": text_chars,
+                  "html_sha256": hashlib.sha256(html.encode("utf-8")).hexdigest(),
+              })
+
+          # Simple page number footer.
+          for section in doc.sections:
+              fp = section.footer.paragraphs[0]
+              fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+              fld = OxmlElement("w:fldSimple")
+              fld.set(qn("w:instr"), "PAGE")
+              fp._p.append(fld)
+
+          props = doc.core_properties
+          props.title = "В зоне видимости"
+          props.author = "Ирэн Кипо"
+          props.subject = "Книга 1 серии «Всё хорошо»"
+          props.keywords = "Ирэн Кипо, Всё хорошо, В зоне видимости"
+          props.comments = "Финальная сборка из утверждённых рабочих версий глав 1–11."
+
+          doc.save(out_path)
+          (OUT / "assembly_manifest.json").write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+          )
+          print(out_path)
+          print(json.dumps(manifest, ensure_ascii=False))
+          PY
+          python /tmp/assemble_book1.py
+
+      - name: Upload final book artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: book1-final-docx
+          path: |
+            /tmp/book1-out/В_зоне_видимости_Книга_1_FINAL_2026-09-29.docx
+            /tmp/book1-out/assembly_manifest.json
+          if-no-files-found: error
+          retention-days: 7
