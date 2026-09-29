@@ -1,0 +1,231 @@
+name: Build final Book 1 DOCX
+
+on:
+  push:
+    branches:
+      - work/final-book-build-2026-09-28
+    paths:
+      - .github/workflows/build-final-book.yml
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout build branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Fetch approved working chapter branches
+        shell: bash
+        run: |
+          set -euo pipefail
+          for n in $(seq -w 1 11); do
+            git fetch origin "work/chapter-${n}-u-2026-09-28:refs/remotes/source/ch${n}"
+          done
+
+      - name: Install document tools
+        run: python -m pip install --disable-pip-version-check python-docx beautifulsoup4 lxml
+
+      - name: Build final DOCX and verify text
+        shell: bash
+        run: |
+          cat > /tmp/build_book.py <<'PY'
+          import hashlib
+          import html as htmllib
+          import re
+          import subprocess
+          from pathlib import Path
+
+          from bs4 import BeautifulSoup
+          from docx import Document
+          from docx.enum.section import WD_SECTION
+          from docx.enum.text import WD_ALIGN_PARAGRAPH
+          from docx.oxml import OxmlElement
+          from docx.oxml.ns import qn
+          from docx.shared import Cm, Pt
+
+          OUT = Path("final/Книга_1_В_зоне_видимости_FINAL_2026-09-28.docx")
+          REPORT = Path("final/FINAL_BOOK_QC_2026-09-28.txt")
+          OUT.parent.mkdir(parents=True, exist_ok=True)
+
+          chapter_specs = [
+              (n, f"refs/remotes/source/ch{n:02d}", f"working/chapter-{n:02d}_U_2026-09-28.html")
+              for n in range(1, 12)
+          ]
+
+          def git_show(ref, path):
+              return subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True, encoding="utf-8")
+
+          def norm(s):
+              s = s.replace("\u00a0", " ")
+              s = re.sub(r"[ \t]+", " ", s)
+              s = re.sub(r"\s*\n\s*", "\n", s)
+              return s.strip()
+
+          def extract_blocks(html_text):
+              soup = BeautifulSoup(html_text, "lxml")
+              article = soup.select_one("article.chapter-text")
+              if article is None:
+                  raise RuntimeError("chapter-text article not found")
+              blocks = []
+              for el in article.find_all(["p", "h1", "h2", "h3"], recursive=True):
+                  text = el.get_text("", strip=False)
+                  text = htmllib.unescape(text).replace("\u00a0", " ")
+                  text = re.sub(r"[ \t]+", " ", text).strip()
+                  if not text:
+                      continue
+                  blocks.append({
+                      "tag": el.name,
+                      "class": " ".join(el.get("class", [])),
+                      "text": text,
+                  })
+              return blocks
+
+          chapters = []
+          for n, ref, path in chapter_specs:
+              raw = git_show(ref, path)
+              blocks = extract_blocks(raw)
+              if not blocks:
+                  raise RuntimeError(f"Chapter {n}: no text blocks")
+              chapters.append((n, blocks))
+
+          doc = Document()
+          sec = doc.sections[0]
+          sec.top_margin = Cm(2)
+          sec.bottom_margin = Cm(2)
+          sec.left_margin = Cm(2.3)
+          sec.right_margin = Cm(2.0)
+
+          normal = doc.styles["Normal"]
+          normal.font.name = "Times New Roman"
+          normal.font.size = Pt(12)
+          normal._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+          normal.paragraph_format.first_line_indent = Cm(1.25)
+          normal.paragraph_format.line_spacing = 1.15
+          normal.paragraph_format.space_after = Pt(0)
+          normal.paragraph_format.space_before = Pt(0)
+          normal.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
+          h1 = doc.styles["Heading 1"]
+          h1.font.name = "Times New Roman"
+          h1.font.size = Pt(15)
+          h1.font.bold = True
+          h1._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+          h1.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+          h1.paragraph_format.space_before = Pt(0)
+          h1.paragraph_format.space_after = Pt(12)
+
+          expected_lines = []
+          first_chapter = True
+          for n, blocks in chapters:
+              if not first_chapter:
+                  doc.add_page_break()
+              first_chapter = False
+              for b in blocks:
+                  text = b["text"]
+                  expected_lines.append(text)
+                  cls = b["class"].lower()
+                  if b["tag"] in {"h1", "h2", "h3"}:
+                      p = doc.add_paragraph(style="Heading 1")
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.first_line_indent = Cm(0)
+                      run = p.add_run(text)
+                      run.bold = True
+                  elif "part-label" in cls:
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.first_line_indent = Cm(0)
+                      p.paragraph_format.space_after = Pt(12)
+                      run = p.add_run(text)
+                      run.bold = True
+                  elif text == "***":
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.first_line_indent = Cm(0)
+                      p.paragraph_format.space_before = Pt(8)
+                      p.paragraph_format.space_after = Pt(8)
+                      p.add_run(text)
+                  else:
+                      p = doc.add_paragraph()
+                      p.paragraph_format.first_line_indent = Cm(1.25)
+                      p.paragraph_format.line_spacing = 1.15
+                      p.paragraph_format.space_after = Pt(0)
+                      p.add_run(text)
+
+          doc.core_properties.title = "В зоне видимости"
+          doc.core_properties.author = "Ирэн Кипо"
+          doc.core_properties.subject = "Книга 1 серии «Всё хорошо»"
+
+          doc.save(OUT)
+
+          # Re-open and compare every non-empty paragraph in exact order.
+          check = Document(OUT)
+          actual_lines = [p.text for p in check.paragraphs if p.text.strip()]
+          if actual_lines != expected_lines:
+              for i, (a, e) in enumerate(zip(actual_lines, expected_lines), 1):
+                  if a != e:
+                      raise RuntimeError(f"Text mismatch at paragraph {i}: actual={a!r} expected={e!r}")
+              raise RuntimeError(
+                  f"Paragraph count mismatch actual={len(actual_lines)} expected={len(expected_lines)}"
+              )
+
+          total_chars = sum(len(x) for x in expected_lines)
+          total_words = sum(len(re.findall(r"[A-Za-zА-Яа-яЁё0-9]+", x)) for x in expected_lines)
+          sha = hashlib.sha256("\n".join(expected_lines).encode("utf-8")).hexdigest()
+
+          lines = [
+              "FINAL BOOK QC — PASS",
+              "Book: В зоне видимости",
+              "Author: Ирэн Кипо",
+              "Chapters: 11/11",
+              f"Paragraphs: {len(expected_lines)}",
+              f"Words: {total_words}",
+              f"Characters: {total_chars}",
+              f"Text SHA256: {sha}",
+              "",
+              "Source branches:",
+          ]
+          for n, ref, path in chapter_specs:
+              commit = subprocess.check_output(["git", "rev-parse", ref], text=True).strip()
+              lines.append(f"CH{n:02d}: {ref} @ {commit} :: {path}")
+          lines += [
+              "",
+              "Verification:",
+              "- Extracted chapter text from article.chapter-text only.",
+              "- Preserved paragraph order and wording.",
+              "- Reopened generated DOCX and compared every non-empty paragraph exactly.",
+              "- No text mismatch detected.",
+              "- main/site not modified by this build.",
+          ]
+          REPORT.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          print("\n".join(lines[:8]))
+          PY
+          python /tmp/build_book.py
+
+      - name: Upload final book artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-book-1
+          path: |
+            final/Книга_1_В_зоне_видимости_FINAL_2026-09-28.docx
+            final/FINAL_BOOK_QC_2026-09-28.txt
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Commit final files to build branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "book-build-bot"
+          git config user.email "book-build-bot@users.noreply.github.com"
+          git add final/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Build final Book 1 DOCX from approved working chapters"
+            git push origin HEAD:work/final-book-build-2026-09-28
+          fi
