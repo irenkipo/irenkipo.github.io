@@ -1,0 +1,130 @@
+name: Build Book 1 Final DOCX
+
+on:
+  push:
+    branches:
+      - work/book1-final-2026-09-28
+    paths:
+      - .book-final-trigger
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout final branch
+        uses: actions/checkout@v4
+
+      - name: Install document tools
+        run: python -m pip install --quiet python-docx beautifulsoup4
+
+      - name: Build DOCX
+        shell: bash
+        run: |
+          python - <<'PY'
+          from bs4 import BeautifulSoup
+          from docx import Document
+          from docx.shared import Pt, Cm
+          from docx.enum.text import WD_ALIGN_PARAGRAPH
+          from docx.enum.section import WD_SECTION
+          from docx.oxml.ns import qn
+          from pathlib import Path
+
+          src = Path("final/V_zone_vidimosti_FINAL_2026-09-28.html")
+          out = Path("V_zone_vidimosti_FINAL_2026-09-28.docx")
+          soup = BeautifulSoup(src.read_text(encoding="utf-8"), "html.parser")
+
+          doc = Document()
+          sec = doc.sections[0]
+          sec.page_width = Cm(21)
+          sec.page_height = Cm(29.7)
+          sec.top_margin = Cm(2)
+          sec.bottom_margin = Cm(2)
+          sec.left_margin = Cm(2)
+          sec.right_margin = Cm(2)
+
+          normal = doc.styles["Normal"]
+          normal.font.name = "Times New Roman"
+          normal._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+          normal.font.size = Pt(12)
+
+          title_sec = soup.select_one("section.title")
+          if title_sec:
+              p = doc.add_paragraph()
+              p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+              p.paragraph_format.space_before = Pt(180)
+              r = p.add_run("В зоне видимости")
+              r.bold = True
+              r.font.name = "Times New Roman"
+              r._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+              r.font.size = Pt(22)
+
+              p = doc.add_paragraph()
+              p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+              r = p.add_run("Ирэн Кипо")
+              r.font.name = "Times New Roman"
+              r._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+              r.font.size = Pt(14)
+              doc.add_page_break()
+
+          chapters = soup.select("section.chapter")
+          for ci, chapter in enumerate(chapters):
+              for node in chapter.find_all(["h1","p"], recursive=False):
+                  txt = node.get_text("", strip=True)
+                  if not txt:
+                      continue
+                  classes = set(node.get("class") or [])
+                  if node.name == "h1":
+                      if ci > 0:
+                          doc.add_page_break()
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.space_before = Pt(12)
+                      p.paragraph_format.space_after = Pt(12)
+                      r = p.add_run(txt)
+                      r.bold = True
+                      r.font.name = "Times New Roman"
+                      r._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+                      r.font.size = Pt(15)
+                  elif "part-label" in classes:
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      r = p.add_run(txt)
+                      r.italic = True
+                      r.font.name = "Times New Roman"
+                      r._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+                      r.font.size = Pt(12)
+                  elif "scene-break" in classes or txt == "***":
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.space_before = Pt(6)
+                      p.paragraph_format.space_after = Pt(6)
+                      p.add_run("***")
+                  else:
+                      p = doc.add_paragraph()
+                      p.paragraph_format.first_line_indent = Cm(1)
+                      p.paragraph_format.space_after = Pt(0)
+                      p.paragraph_format.line_spacing = 1.15
+                      r = p.add_run(txt)
+                      r.font.name = "Times New Roman"
+                      r._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+                      r.font.size = Pt(12)
+
+          props = doc.core_properties
+          props.title = "В зоне видимости"
+          props.author = "Ирэн Кипо"
+          props.subject = "Финальная рабочая сборка книги 1"
+          props.comments = "Собрано из утверждённых рабочих версий глав 1–11. Не опубликовано."
+          doc.save(out)
+          print(out, out.stat().st_size)
+          PY
+
+      - name: Upload DOCX
+        uses: actions/upload-artifact@v4
+        with:
+          name: V_zone_vidimosti_FINAL_2026-09-28
+          path: V_zone_vidimosti_FINAL_2026-09-28.docx
+          if-no-files-found: error
+          retention-days: 30
