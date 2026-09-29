@@ -110,4 +110,4 @@
 
 - 2026-09-26 Search Console status record: documentation-only update to `project-control/SEO_SEARCH_CURRENT.md` recording the verified Google state after sitemap resubmission and indexing requests for `/` and `/read/`. No public site, build, runtime, content, design, analytics, or deployment behavior changes.
 
-- 2026-09-29 Book 1 final editorial delta: apply exactly the approved 99-operation text delta from `В_зоне_видимости_FINAL_2026-09-29.docx` to the existing 11 reader chapter pages. Chapter boundaries, reader behavior, navigation, analytics, local progress, CSS, fonts, colors, images and all unrelated pages remain unchanged.
+- 2026-09-29 Book 1 final editorial delta: apply exactly the approved 99-operation text delta from `В_зоне_видимости_FINAL_2026-09-29.docx` to all 11 reader chapters in both the canonical deploy source `src/read/` and the synchronized root mirror `read/`. Chapter boundaries, reader behavior, navigation, analytics, local progress, CSS, fonts, colors, images and all unrelated pages remain unchanged.
