@@ -1,0 +1,28 @@
+FINAL BOOK QC — PASS
+Book: В зоне видимости
+Author: Ирэн Кипо
+Chapters: 11/11
+Paragraphs: 12468
+Words: 94372
+Characters: 629143
+Text SHA256: 87d1e096c5ce1c21f7eed49b7dafd4761e944a281fccf62d7aba4dcadf111f3e
+
+Source branches:
+CH01: refs/remotes/source/ch01 @ 9df6d9dfc582df4591810a44da8a671eefa7ca14 :: working/chapter-01_U_2026-09-28.html
+CH02: refs/remotes/source/ch02 @ 11a25c8df65d789ff631448b343781c6f0ad1d3e :: working/chapter-02_U_2026-09-28.html
+CH03: refs/remotes/source/ch03 @ 6d3ab48ae859bdf66770c86c256b37ecfdb37795 :: working/chapter-03_U_2026-09-28.html
+CH04: refs/remotes/source/ch04 @ d41d57c5098884e24d2d17aa90853d8986516c66 :: working/chapter-04_U_2026-09-28.html
+CH05: refs/remotes/source/ch05 @ 51e907a1b64e67c665107426ab99e898dd9f38a1 :: working/chapter-05_U_2026-09-28.html
+CH06: refs/remotes/source/ch06 @ f1adac45aa771f8d549c628f09b6e1390cccaeeb :: working/chapter-06_U_2026-09-28.html
+CH07: refs/remotes/source/ch07 @ 1ad33cd32a2004aed799a97bed9c3bf5f3195ef1 :: working/chapter-07_U_2026-09-28.html
+CH08: refs/remotes/source/ch08 @ 97ce736b31e3eb2cfb5450fd0e76bc907bf5df03 :: working/chapter-08_U_2026-09-28.html
+CH09: refs/remotes/source/ch09 @ 4836a06a563b05138dc1bb3e06b610ff379562bf :: working/chapter-09_U_2026-09-28.html
+CH10: refs/remotes/source/ch10 @ e204d4a5b592d99ff390e11e70f59b6fa9f7a121 :: working/chapter-10_U_2026-09-28.html
+CH11: refs/remotes/source/ch11 @ ad9cc6687ac948f67122989f521b16c7701bd0be :: working/chapter-11_U_2026-09-28.html
+
+Verification:
+- Extracted chapter text from article.chapter-text only.
+- Preserved paragraph order and wording.
+- Reopened generated DOCX and compared every non-empty paragraph exactly.
+- No text mismatch detected.
+- main/site not modified by this build.
