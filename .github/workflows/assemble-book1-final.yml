@@ -1,0 +1,275 @@
+name: Assemble Book 1 final DOCX
+
+on:
+  push:
+    branches:
+      - 'assembly/book1-final-2026-09-29'
+    paths:
+      - '.github/workflows/assemble-book1-final.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out assembly branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch locked working chapters
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p chapters output
+          declare -a refs=(
+            "work/chapter-01-u-2026-09-28"
+            "work/chapter-02-u-2026-09-28"
+            "work/chapter-03-u-2026-09-28"
+            "work/chapter-04-u-2026-09-28"
+            "work/chapter-05-u-2026-09-28"
+            "work/chapter-06-u-2026-09-28"
+            "work/chapter-07-u-2026-09-28"
+            "work/chapter-08-u-2026-09-28"
+            "work/chapter-09-u-2026-09-28"
+            "work/chapter-10-u-2026-09-28"
+            "work/chapter-11-u-2026-09-28"
+          )
+          declare -a paths=(
+            "working/chapter-01_U_2026-09-28.html"
+            "working/chapter-02_U_2026-09-28.html"
+            "working/chapter-03_U_2026-09-28.html"
+            "working/chapter-04_U_2026-09-28.html"
+            "working/chapter-05_U_2026-09-28.html"
+            "working/chapter-06_U_2026-09-28.html"
+            "working/chapter-07_U_2026-09-28.html"
+            "working/chapter-08_U_2026-09-28.html"
+            "working/chapter-09_U_2026-09-28.html"
+            "working/chapter-10_U_2026-09-28.html"
+            "working/chapter-11_U_2026-09-28.html"
+          )
+          declare -a shas=(
+            "2d362a0ffe6239ae269bee1b0824e40084f60368"
+            "712ca5b00c01ceba75a52be319ed43a6de7aa6a6"
+            "38feb13e48eba483d9b7594a61f9747731333e9a"
+            "39a1fa7cc9d9b60575eeea1c673f23981c1883a9"
+            "c5401fd57660f5f196fdf93256609898cb30a67c"
+            "cbbb8ddd474510ed0d0c2a6e6edb1e569e99154e"
+            "8d2e7b3b75a922b1c8dc2b174db98bdb8d060a53"
+            "7ba1408efbbf719e2ae7d41f3094da8ea1bf442f"
+            "37f98f58c399f6c03d561d33dd77bc7a997c583b"
+            "5aafbae221ba5d98413382f246fbe4416b5cb01d"
+            "408a6413b152dc710e02b55abe9b6bd7e784b641"
+          )
+          for i in $(seq 0 10); do
+            git fetch --no-tags origin "${refs[$i]}:refs/remotes/origin/${refs[$i]}"
+            out=$(printf "chapters/ch%02d.html" $((i+1)))
+            git show "origin/${refs[$i]}:${paths[$i]}" > "$out"
+            actual=$(git hash-object "$out")
+            test "$actual" = "${shas[$i]}" || {
+              echo "SHA mismatch chapter $((i+1)): expected ${shas[$i]}, got $actual" >&2
+              exit 1
+            }
+          done
+
+      - name: Install DOCX library
+        run: python -m pip install --disable-pip-version-check python-docx==1.2.0
+
+      - name: Build and verify DOCX
+        shell: bash
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from docx import Document
+          from docx.shared import Pt, Cm
+          from docx.enum.text import WD_ALIGN_PARAGRAPH
+          from docx.oxml import OxmlElement
+          from docx.oxml.ns import qn
+
+          class ArticleParser(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.in_article = False
+                  self.article_depth = 0
+                  self.current = None
+                  self.blocks = []
+                  self.bold = 0
+                  self.italic = 0
+
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  classes = set(attrs.get('class','').split())
+                  if tag == 'article' and 'chapter-text' in classes:
+                      self.in_article = True
+                      self.article_depth = 1
+                      return
+                  if not self.in_article:
+                      return
+                  if tag == 'article':
+                      self.article_depth += 1
+                  if tag in ('p','h1'):
+                      self.current = {'tag': tag, 'class': attrs.get('class',''), 'runs': []}
+                  elif tag in ('strong','b'):
+                      self.bold += 1
+                  elif tag in ('em','i'):
+                      self.italic += 1
+                  elif tag == 'br' and self.current is not None:
+                      self.current['runs'].append(('\n', self.bold>0, self.italic>0))
+
+              def handle_endtag(self, tag):
+                  if not self.in_article:
+                      return
+                  if tag in ('strong','b'):
+                      self.bold = max(0, self.bold-1)
+                  elif tag in ('em','i'):
+                      self.italic = max(0, self.italic-1)
+                  elif tag in ('p','h1') and self.current is not None:
+                      self.blocks.append(self.current)
+                      self.current = None
+                  elif tag == 'article':
+                      self.article_depth -= 1
+                      if self.article_depth <= 0:
+                          self.in_article = False
+
+              def handle_data(self, data):
+                  if self.in_article and self.current is not None and data:
+                      self.current['runs'].append((data, self.bold>0, self.italic>0))
+
+          chapters = []
+          for n in range(1,12):
+              p = Path(f'chapters/ch{n:02d}.html')
+              parser = ArticleParser()
+              parser.feed(p.read_text(encoding='utf-8'))
+              if not parser.blocks:
+                  raise SystemExit(f'No article blocks parsed for chapter {n}')
+              chapters.append(parser.blocks)
+
+          def block_text(block):
+              return ''.join(t for t,_,_ in block['runs'])
+
+          # Structural validation before document creation.
+          for n, blocks in enumerate(chapters, 1):
+              headings = [block_text(b) for b in blocks if b['tag']=='h1']
+              if headings != [f'ГЛАВА {n}']:
+                  raise SystemExit(f'Heading mismatch chapter {n}: {headings}')
+
+          doc = Document()
+          section = doc.sections[0]
+          section.top_margin = Cm(2)
+          section.bottom_margin = Cm(2)
+          section.left_margin = Cm(2.5)
+          section.right_margin = Cm(2)
+          section.header_distance = Cm(1)
+          section.footer_distance = Cm(1)
+
+          styles = doc.styles
+          normal = styles['Normal']
+          normal.font.name = 'Times New Roman'
+          normal.font.size = Pt(12)
+          normal._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+          normal.paragraph_format.first_line_indent = Cm(1.25)
+          normal.paragraph_format.line_spacing = 1.15
+          normal.paragraph_format.space_after = Pt(0)
+
+          # Title page: document metadata only, not literary prose.
+          p = doc.add_paragraph()
+          p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+          p.paragraph_format.space_before = Pt(170)
+          r = p.add_run('В зоне видимости')
+          r.bold = True
+          r.font.name = 'Times New Roman'
+          r.font.size = Pt(20)
+          p = doc.add_paragraph()
+          p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+          r = p.add_run('Ирэн Кипо')
+          r.font.name = 'Times New Roman'
+          r.font.size = Pt(14)
+          doc.add_page_break()
+
+          source_sequence = []
+          for ch_num, blocks in enumerate(chapters, 1):
+              if ch_num > 1:
+                  doc.add_page_break()
+              for b in blocks:
+                  text = block_text(b)
+                  source_sequence.append(text)
+                  classes = set(b['class'].split())
+                  if b['tag'] == 'h1':
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.first_line_indent = Cm(0)
+                      p.paragraph_format.space_before = Pt(0)
+                      p.paragraph_format.space_after = Pt(12)
+                  elif 'part-label' in classes:
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.first_line_indent = Cm(0)
+                      p.paragraph_format.space_after = Pt(6)
+                  elif 'scene-break' in classes:
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                      p.paragraph_format.first_line_indent = Cm(0)
+                      p.paragraph_format.space_before = Pt(6)
+                      p.paragraph_format.space_after = Pt(6)
+                  else:
+                      p = doc.add_paragraph()
+                      p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
+                  for txt, bold, italic in b['runs']:
+                      run = p.add_run(txt)
+                      run.bold = bold or b['tag']=='h1' or 'part-label' in classes
+                      run.italic = italic
+                      run.font.name = 'Times New Roman'
+                      run._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+                      run.font.size = Pt(14 if b['tag']=='h1' else 12)
+
+          # Footer page number field.
+          footer = section.footer
+          fp = footer.paragraphs[0]
+          fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+          run = fp.add_run()
+          fldChar1 = OxmlElement('w:fldChar'); fldChar1.set(qn('w:fldCharType'), 'begin')
+          instrText = OxmlElement('w:instrText'); instrText.set(qn('xml:space'), 'preserve'); instrText.text = ' PAGE '
+          fldChar2 = OxmlElement('w:fldChar'); fldChar2.set(qn('w:fldCharType'), 'end')
+          run._r.extend([fldChar1, instrText, fldChar2])
+
+          props = doc.core_properties
+          props.title = 'В зоне видимости'
+          props.author = 'Ирэн Кипо'
+          props.subject = 'Книга 1 серии «Всё хорошо»'
+
+          out = Path('output/В_зоне_видимости_FINAL_2026-09-29.docx')
+          doc.save(out)
+
+          # Re-open and verify that every source block appears exactly and in order.
+          check = Document(out)
+          produced = [p.text for p in check.paragraphs if p.text != '']
+          try:
+              start = produced.index(source_sequence[0])
+          except ValueError:
+              raise SystemExit('First manuscript paragraph missing from DOCX')
+          manuscript = produced[start:]
+          if manuscript != source_sequence:
+              for i,(a,b) in enumerate(zip(manuscript,source_sequence)):
+                  if a != b:
+                      raise SystemExit(f'Text mismatch at manuscript block {i+1}: {a!r} != {b!r}')
+              raise SystemExit(f'Paragraph count mismatch: docx={len(manuscript)} source={len(source_sequence)}')
+
+          full = '\n'.join(source_sequence)
+          words = len(full.split())
+          print(f'VERIFIED_CHAPTERS=11')
+          print(f'VERIFIED_BLOCKS={len(source_sequence)}')
+          print(f'VERIFIED_WORDS_APPROX={words}')
+          print(f'OUTPUT={out}')
+          PY
+
+      - name: Upload final DOCX
+        uses: actions/upload-artifact@v4
+        with:
+          name: V_zone_vidimosti_FINAL_2026-09-29
+          path: output/В_зоне_видимости_FINAL_2026-09-29.docx
+          if-no-files-found: error
+          retention-days: 30
