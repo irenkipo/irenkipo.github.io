@@ -66,6 +66,43 @@ jobs:
               s = re.sub(r"\s*\n\s*", "\n", s)
               return s.strip()
 
+          def styled_segments(el):
+              raw = []
+              def walk(node, bold=False, italic=False):
+                  if isinstance(node, NavigableString):
+                      raw.append((str(node), bold, italic))
+                      return
+                  if not isinstance(node, Tag):
+                      return
+                  name = (node.name or "").lower()
+                  nb = bold or name in {"strong", "b"}
+                  ni = italic or name in {"em", "i"}
+                  if name == "br":
+                      raw.append((" ", nb, ni))
+                      return
+                  for child in node.children:
+                      walk(child, nb, ni)
+              walk(el)
+              segs = []
+              for txt, bold, italic in raw:
+                  txt = htmllib.unescape(txt).replace("\u00a0", " ")
+                  txt = re.sub(r"\s+", " ", txt)
+                  if not txt:
+                      continue
+                  if segs and segs[-1][0].endswith(" ") and txt.startswith(" "):
+                      txt = txt[1:]
+                  if not txt:
+                      continue
+                  if segs and segs[-1][1:] == (bold, italic):
+                      segs[-1] = (segs[-1][0] + txt, bold, italic)
+                  else:
+                      segs.append((txt, bold, italic))
+              if segs:
+                  segs[0] = (segs[0][0].lstrip(), segs[0][1], segs[0][2])
+                  segs[-1] = (segs[-1][0].rstrip(), segs[-1][1], segs[-1][2])
+                  segs = [s for s in segs if s[0]]
+              return segs
+
           def extract_blocks(html_text):
               soup = BeautifulSoup(html_text, "lxml")
               article = soup.select_one("article.chapter-text")
@@ -78,10 +115,14 @@ jobs:
                   text = re.sub(r"[ \t]+", " ", text).strip()
                   if not text:
                       continue
+                  segments = styled_segments(el)
+                  if "".join(x[0] for x in segments) != text:
+                      segments = [(text, False, False)]
                   blocks.append({
                       "tag": el.name,
                       "class": " ".join(el.get("class", [])),
                       "text": text,
+                      "segments": segments,
                   })
               return blocks
 
