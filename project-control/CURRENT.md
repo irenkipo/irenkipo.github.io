@@ -109,3 +109,5 @@
 - 2026-09-25 FINAL SITE CLOSEOUT: production commit `cc1574cb5d474f3bc02da456b4a616705ca4a22b` passed SITE CURRENT guard, Site quality, SEO health, Pages build/deployment, and the final user-journey QA. Rollback branch `site-rollback-final-2026-09-25` points exactly to this verified production commit. Future work must start from this baseline and must not restore obsolete placeholders, pre-audiobook assets/behavior, pre-counter analytics, or older subscription/runtime states.
 
 - 2026-09-26 Search Console status record: documentation-only update to `project-control/SEO_SEARCH_CURRENT.md` recording the verified Google state after sitemap resubmission and indexing requests for `/` and `/read/`. No public site, build, runtime, content, design, analytics, or deployment behavior changes.
+
+- 2026-09-29 Book 1 final editorial delta: apply exactly the approved 99-operation text delta from `В_зоне_видимости_FINAL_2026-09-29.docx` to the existing 11 reader chapter pages. Chapter boundaries, reader behavior, navigation, analytics, local progress, CSS, fonts, colors, images and all unrelated pages remain unchanged.
