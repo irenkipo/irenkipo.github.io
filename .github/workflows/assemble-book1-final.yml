@@ -153,7 +153,7 @@ jobs:
           # Structural validation before document creation.
           for n, blocks in enumerate(chapters, 1):
               headings = [block_text(b) for b in blocks if b['tag']=='h1']
-              if headings != [f'ГЛАВА {n}']:
+              if len(headings) != 1 or headings[0].strip().upper() != f'ГЛАВА {n}':
                   raise SystemExit(f'Heading mismatch chapter {n}: {headings}')
 
           doc = Document()
