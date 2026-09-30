@@ -117,3 +117,9 @@
 - 2026-09-29 Book 1 download checksum sync: align `ASSETS_MANIFEST.md` with the already published final PDF/EPUB hashes. No public files, HTML, design, audio or LitRes change.
 
 - 2026-09-29 Site automation protocol: added `project-control/SITE_AUTOMATION_PROTOCOL.md` as the mandatory operating rule for site work. Existing automation must be inspected and used first; workarounds, replacement workflows, and routine manual terminal chains require a verified failure of the approved route and explicit user approval.
+
+
+## 2026-09-29 — Audiobook V8 FINAL LOUD
+- Approved site publication: switch audiobook player sources from V2 to `audiobook-v-zone-vidimosti-v8-final`.
+- Audio: 11/11 public MP3 range checks PASS.
+- No visual redesign or other site changes.
