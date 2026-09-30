@@ -123,3 +123,5 @@
 - Approved site publication: switch audiobook player sources from V2 to `audiobook-v-zone-vidimosti-v8-final`.
 - Audio: 11/11 public MP3 range checks PASS.
 - No visual redesign or other site changes.
+
+- 2026-09-29 Book 1 audiobook ZIP delta: switch only the whole-audiobook download link from V2 ZIP to the verified V8 FINAL LOUD ZIP (666304441 bytes; SHA-256 cbdb67773bb9a82f087d60aa5515cf6b413ec9c749de762855a3eef3d6a40148). Player, 11 chapter MP3 assets, text, design and all unrelated site behavior remain unchanged.
