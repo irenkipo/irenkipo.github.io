@@ -125,3 +125,5 @@
 - No visual redesign or other site changes.
 
 - 2026-09-29 Book 1 audiobook ZIP delta: switch only the whole-audiobook download link from V2 ZIP to the verified V8 FINAL LOUD ZIP (666304441 bytes; SHA-256 cbdb67773bb9a82f087d60aa5515cf6b413ec9c749de762855a3eef3d6a40148). Player, 11 chapter MP3 assets, text, design and all unrelated site behavior remain unchanged.
+
+- 2026-09-30 Book 1 outro revoice: audio-only replacement of the final post-text phrase in CH11; visible text unchanged. Chapters 1–10 unchanged. Site switches only CH11 player source and audiobook ZIP to verified revoiced assets; old assets retained for rollback.
