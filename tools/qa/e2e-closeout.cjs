@@ -22,7 +22,7 @@ const mime = {
 };
 
 const GOOGLE_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg/formResponse";
-const AUDIO_ZIP = "https://github.com/irenkipo/irenkipo.github.io/releases/download/audiobook-v-zone-vidimosti-v8-final/Iren_Kipo_V_zone_vidimosti_Audiobook_V8_FINAL_REVOICE.zip";
+const AUDIO_ZIP = "https://github.com/irenkipo/irenkipo.github.io/releases/download/audiobook-v-zone-vidimosti-v10-final/Iren_Kipo_V_zone_vidimosti_Audiobook_V10_FINAL.zip";
 const LITRES = "https://www.litres.ru/74382683/";
 const READING_KEY = "iren_kipo_reading_progress_v1";
 const AUDIO_KEY = "iren_kipo_audio_progress_v1";
@@ -138,7 +138,7 @@ async function audioProgress(browser) {
   const page = await context.newPage();
   const wav = silentWav();
   await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
-  await page.route("https://github.com/irenkipo/irenkipo.github.io/releases/download/audiobook-v-zone-vidimosti-v2/CH03_WEB_V2.mp3", route => route.fulfill({
+  await page.route("https://github.com/irenkipo/irenkipo.github.io/releases/download/audiobook-v-zone-vidimosti-v10-final/CH03_WEB_V10_CANDIDATE.mp3", route => route.fulfill({
     status: 200,
     contentType: "audio/wav",
     headers: { "Accept-Ranges": "bytes" },
