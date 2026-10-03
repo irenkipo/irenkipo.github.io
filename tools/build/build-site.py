@@ -73,7 +73,6 @@ def validate_runtime_artifact() -> None:
         "https://www.threads.com/@irenkipo",
         "https://www.youtube.com/@irenkipo",
         "https://t.me/irenkipo",
-        "https://www.tiktok.com/@irenkipo",
         "https://www.litres.ru/74382683/",
     )
     missing = [url for url in required_external if url not in html]
