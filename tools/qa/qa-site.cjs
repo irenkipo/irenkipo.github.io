@@ -133,6 +133,12 @@ async function visualCompare(browser, viewport, name) {
     await Promise.all([...document.images].map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.addEventListener("load", resolve, { once: true }); image.addEventListener("error", resolve, { once: true }); })));
   });
   await Promise.all([settle(production), settle(candidate)]);
+  // User-approved delta: omit the retired TikTok social button from the LIVE baseline only.
+  // Every other DOM region and pixel remains subject to the existing strict visual comparison.
+  await production.evaluate(() => {
+    const retiredLink = document.querySelector('#contacts .social-links a[href="https://www.tiktok.com/@irenkipo"]');
+    if (retiredLink) retiredLink.remove();
+  });
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     const section = document.querySelector("#texts");
     if (section) {
@@ -257,6 +263,7 @@ async function testAnalyticsRuntime(browser) {
     const defaults = analyticsRuntime.consentEntries.find(item => item[0] === "default")?.[1] || {};
     if (defaults.analytics_storage !== "denied" || defaults.ad_storage !== "denied" || defaults.ad_user_data !== "denied" || defaults.ad_personalization !== "denied") failures.push("analytics denied-storage defaults");
     if (!indexHtml.includes('data-subscription-form') || !indexHtml.includes('Электронная почта') || !indexHtml.includes('action="https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg/formResponse"')) failures.push("Russian subscription form missing from dist homepage");
+    if (indexHtml.includes('https://www.tiktok.com/@irenkipo') || /<a[^>]*>TikTok<\/a>/i.test(indexHtml)) failures.push("retired TikTok profile link leaked into homepage");
     if (obsoleteSubscriptionConfig) failures.push("obsolete subscription config shipped in dist");
 
     const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsRuntime, attributionRuntime };
