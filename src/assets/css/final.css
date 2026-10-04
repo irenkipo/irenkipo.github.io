@@ -92,3 +92,7 @@ main{margin:0 auto;box-shadow:0 8px 45px rgba(44,39,31,.08)}
 .audio-player .track-list button span:last-child{color:var(--muted);font-size:.75rem}
 .audio-player .track-list button[aria-current="true"]{border-color:var(--teal);background:rgba(215,225,228,.22);color:var(--teal-dark)}
 @media(max-width:560px){.audio-card{max-height:92vh}.audio-player .track-list{grid-template-columns:1fr}}
+/* Explicitly approved reader-feedback section. */
+.feedback-section{display:flex;align-items:center;justify-content:space-between;gap:2rem}.feedback-copy{max-width:690px}.feedback-copy h2{font-size:clamp(2.3rem,5vw,4rem)}.feedback-copy>p:last-child{margin:0;color:var(--muted)}.feedback-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.75rem}
+@media(max-width:900px){.feedback-section{align-items:flex-start;flex-direction:column}.feedback-actions{justify-content:flex-start}}
+@media(max-width:650px){.feedback-actions{width:100%;display:grid}.feedback-actions .button{width:100%}}
