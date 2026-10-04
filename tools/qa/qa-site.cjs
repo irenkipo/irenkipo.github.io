@@ -13,6 +13,7 @@ fs.mkdirSync(reportDir, { recursive: true });
 const mime = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".xml": "application/xml", ".txt": "text/plain; charset=utf-8", ".epub": "application/epub+zip", ".pdf": "application/pdf", ".json": "application/json; charset=utf-8" };
 const chapters = Array.from({ length: 11 }, (_, index) => `/read/chapter-${String(index + 1).padStart(2, "0")}/`);
 const expectedUrls = ["https://irenkipo.github.io/", "https://irenkipo.github.io/read/", ...chapters.map(item => `https://irenkipo.github.io${item}`), "https://irenkipo.github.io/privacy.html", "https://irenkipo.github.io/terms.html"];
+const feedbackFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfdpwUQv9oRBvi20RpspLDir4D5FyNSbMpWNFtU2VtfLq9LoA/viewform";
 const lockedHashes = {
   "assets/approved/book-1-3d.png": "85325b6d2db76d15bcb4bf64ef2bb174007157de501d65ba24ba0bc305a4539f",
   "assets/approved/book-1-cover.png": "b8592c7d590f6a3142e8f92597238fbea78356fe7bef586d59ad090b94a39b03",
@@ -109,7 +110,8 @@ async function runViewport(browser, name, viewport) {
     target: form.getAttribute("target") || "",
     endpoint: form.getAttribute("action") || ""
   })) : null;
-  const oldGoogleFormLinks = await page.locator('a[href*="docs.google.com/forms"]').count();
+  const oldGoogleFormLinks = await page.locator('a[href*="1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg"]').count();
+  const feedbackLinks = await page.locator("#feedback a").evaluateAll(items => items.map(item => ({ text: item.textContent.trim(), href: item.href, target: item.target, rel: item.rel })));
 
   const checkedPages = [];
   for (const route of ["/read/", ...chapters, "/privacy.html", "/terms.html"]) {
@@ -118,7 +120,7 @@ async function runViewport(browser, name, viewport) {
     checkedPages.push({ route, status: response.status(), overflow: await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), meta: currentMeta });
   }
   await context.close();
-  return { name, viewport, main, meta, h1Ok, jsonLdTypes: jsonLd["@graph"].map(item => item["@type"]), modalOpen, closeFocused, focusTrapped, focusReturned, audioOpen, audioLabel, audioStatus, audioElementCount, audioChapterCount, audioPreload, audioInitialSrc, audioReleaseUrls, subscriptionFormCount, subscription, oldGoogleFormLinks, checkedPages, consoleErrors, pageErrors, badResponses };
+  return { name, viewport, main, meta, h1Ok, jsonLdTypes: jsonLd["@graph"].map(item => item["@type"]), modalOpen, closeFocused, focusTrapped, focusReturned, audioOpen, audioLabel, audioStatus, audioElementCount, audioChapterCount, audioPreload, audioInitialSrc, audioReleaseUrls, subscriptionFormCount, subscription, oldGoogleFormLinks, feedbackLinks, checkedPages, consoleErrors, pageErrors, badResponses };
 }
 async function visualCompare(browser, viewport, name) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
@@ -133,6 +135,7 @@ async function visualCompare(browser, viewport, name) {
     await Promise.all([...document.images].map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.addEventListener("load", resolve, { once: true }); image.addEventListener("error", resolve, { once: true }); })));
   });
   await Promise.all([settle(production), settle(candidate)]);
+  await candidate.evaluate(() => document.querySelector("#feedback")?.remove());
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     const section = document.querySelector("#texts");
     if (section) {
@@ -243,6 +246,7 @@ async function testAnalyticsRuntime(browser) {
       const audioUrlsOk = result.audioReleaseUrls.length === 11 && result.audioReleaseUrls.every((url, index) => url === `https://github.com/irenkipo/irenkipo.github.io/releases/download/audiobook-v-zone-vidimosti-v10-final/CH${String(index + 1).padStart(2, "0")}_WEB_V10_CANDIDATE.mp3`);
       if (!result.audioOpen || result.audioLabel !== "Слушать аудиокнигу" || result.audioStatus !== "Выберите главу" || result.audioElementCount !== 1 || result.audioChapterCount !== 11 || result.audioPreload !== "none" || result.audioInitialSrc !== "" || !audioUrlsOk) failures.push(`${result.name}: audiobook player`);
       if (result.subscriptionFormCount !== 1 || !result.subscription || !result.subscription.visible || result.subscription.emailLabel !== "Электронная почта" || !result.subscription.emailRequired || !result.subscription.consentRequired || !result.subscription.consentText.includes("получать новости") || result.subscription.buttonText !== "Подписаться" || result.subscription.statusLive !== "polite" || result.subscription.target !== "subscription-result" || result.oldGoogleFormLinks !== 0) failures.push(`${result.name}: Russian subscription form`);
+      if (result.feedbackLinks.length !== 2 || result.feedbackLinks.some(link => link.href !== feedbackFormUrl || link.target !== "_blank" || !link.rel.includes("noopener") || !link.rel.includes("noreferrer")) || result.feedbackLinks[0].text !== "Оставить отзыв / комментарий" || result.feedbackLinks[1].text !== "Написать автору") failures.push(`${result.name}: reader feedback links`);
       if (result.checkedPages.some(item => item.status !== 200 || item.overflow !== 0 || item.meta.brokenImages.length || item.meta.missingAnchors.length || item.meta.og.length || item.meta.twitter.length || !item.meta.canonical || !item.meta.description)) failures.push(`${result.name}: reader/legal pages`);
       if (result.consoleErrors.length || result.pageErrors.length || result.badResponses.length) failures.push(`${result.name}: browser errors`);
     }
