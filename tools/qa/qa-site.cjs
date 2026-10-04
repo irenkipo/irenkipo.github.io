@@ -135,12 +135,12 @@ async function visualCompare(browser, viewport, name) {
     await Promise.all([...document.images].map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.addEventListener("load", resolve, { once: true }); image.addEventListener("error", resolve, { once: true }); })));
   });
   await Promise.all([settle(production), settle(candidate)]);
-  // User-approved visible deltas: remove retired TikTok link from the LIVE baseline and omit the new feedback section from the candidate before strict comparison.
-  await production.evaluate(() => {
-    const retiredLink = document.querySelector('#contacts .social-links a[href="https://www.tiktok.com/@irenkipo"]');
-    if (retiredLink) retiredLink.remove();
-  });
-  await candidate.evaluate(() => document.querySelector("#feedback")?.remove());
+  // Normalize only the two explicitly approved visible deltas on BOTH sides.
+  // This keeps the same pixel lock valid before and after production deployment.
+  await Promise.all([production, candidate].map(page => page.evaluate(() => {
+    document.querySelector('#contacts .social-links a[href="https://www.tiktok.com/@irenkipo"]')?.remove();
+    document.querySelector("#feedback")?.remove();
+  })));
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     const section = document.querySelector("#texts");
     if (section) {
