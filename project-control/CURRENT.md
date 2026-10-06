@@ -135,3 +135,6 @@
 - 2026-10-04 combined approved site delta: owner explicitly requested completion now. In the same candidate as reader feedback, remove only the visible TikTok profile link and TikTok Person.sameAs entry; keep technical TikTok verification/callback files unchanged. Reader-feedback section and Privacy disclosure remain as already QA-scoped. This combined candidate is authorized for production by the owner's explicit 2026-10-04 instruction to complete the requested site changes, subject to the existing automated QA and exact-head production approval gate.
 
 - 2026-10-04 post-release QA repair: no public-site change. After approved feedback/TikTok release reached production, live production itself contains the two approved deltas; visual comparator now normalizes exactly those two deltas on both live and candidate sides before strict pixel comparison. This repairs false post-release `visual lock` failure while preserving all other production pixels under the existing lock.
+
+
+- 2026-10-06 Audiobook V11 publication approved. Publish the verified Book 1 V11 audio as a separate release, preserve V10 for rollback, and make no unrelated site changes.
