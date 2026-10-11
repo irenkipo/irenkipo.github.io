@@ -1,0 +1,59 @@
+name: Publish musical reader review audio
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-musical-review-audio.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64, promo]
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: 'reader-review-music-001'
+      ASSET: 'musical-review-v-zone-vidimosti.mp3'
+      EXPECTED_SIZE: '8697286'
+      EXPECTED_SHA256: 'A51CA249EFD1532AFB9656E3322ABC759B8C11BFB832C23F18B0524D69508299'
+    steps:
+      - name: Verify source and publish public review audio
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='D:\Common\II\Novel_Project\PROMO'
+          $uuid='b27130f9-e5cf-48b8-8f64-28da3fb0f9fd'
+          $files=@(Get-ChildItem -LiteralPath $root -File -Recurse -ErrorAction Stop | Where-Object { $_.Name -like ('*'+$uuid+'*.mp3') })
+          if($files.Count -ne 1){throw "MUSICAL_REVIEW_PUBLIC_SOURCE_COUNT=$($files.Count)"}
+          $file=$files[0]
+          if($file.Length -ne [int64]$env:EXPECTED_SIZE){throw "MUSICAL_REVIEW_PUBLIC_SIZE_MISMATCH=$($file.Length)"}
+          $sha=(Get-FileHash -Algorithm SHA256 -LiteralPath $file.FullName).Hash.ToUpperInvariant()
+          if($sha -ne $env:EXPECTED_SHA256){throw "MUSICAL_REVIEW_PUBLIC_SHA_MISMATCH=$sha"}
+          Write-Host "MUSICAL_REVIEW_PUBLIC_SOURCE_VERIFIED=1"
+          gh release view $env:TAG *> $null
+          if($LASTEXITCODE -ne 0){
+            gh release create $env:TAG --title "Musical reader review - V zone vidimosti" --notes "Musical reader review audio for the public author site." --latest=false
+            if($LASTEXITCODE -ne 0){throw "MUSICAL_REVIEW_PUBLIC_RELEASE_CREATE_FAILED"}
+          }
+          $dest=Join-Path $env:RUNNER_TEMP $env:ASSET
+          Copy-Item -LiteralPath $file.FullName -Destination $dest -Force
+          gh release upload $env:TAG $dest --clobber
+          if($LASTEXITCODE -ne 0){throw "MUSICAL_REVIEW_PUBLIC_UPLOAD_FAILED"}
+          $json=gh release view $env:TAG --json assets,url | ConvertFrom-Json
+          $asset=@($json.assets | Where-Object { $_.name -eq $env:ASSET })
+          if($asset.Count -ne 1){throw "MUSICAL_REVIEW_PUBLIC_ASSET_COUNT=$($asset.Count)"}
+          if([int64]$asset[0].size -ne [int64]$env:EXPECTED_SIZE){throw "MUSICAL_REVIEW_PUBLIC_ASSET_SIZE_MISMATCH=$($asset[0].size)"}
+          $publicUrl='https://github.com/irenkipo/irenkipo.github.io/releases/download/'+$env:TAG+'/'+$env:ASSET
+          Start-Sleep -Seconds 2
+          $head=Join-Path $env:RUNNER_TEMP 'musical-review-public-head.txt'
+          $effective=& curl.exe -sS -L -I -o $head -w '%{url_effective}' $publicUrl
+          $txt=Get-Content -Raw -LiteralPath $head
+          $ct=[regex]::Matches($txt,'(?im)^content-type:\s*([^\r\n]+)') | Select-Object -Last 1
+          $cl=[regex]::Matches($txt,'(?im)^content-length:\s*([^\r\n]+)') | Select-Object -Last 1
+          if(-not $ct -or $ct.Groups[1].Value.Trim() -notlike 'audio/*'){throw "MUSICAL_REVIEW_PUBLIC_CONTENT_TYPE="+($ct.Groups[1].Value.Trim())}
+          Write-Host ('MUSICAL_REVIEW_PUBLIC_URL='+$publicUrl)
+          Write-Host ('MUSICAL_REVIEW_PUBLIC_EFFECTIVE_URL='+$effective)
+          Write-Host ('MUSICAL_REVIEW_PUBLIC_CONTENT_TYPE='+$ct.Groups[1].Value.Trim())
+          if($cl){Write-Host ('MUSICAL_REVIEW_PUBLIC_CONTENT_LENGTH='+$cl.Groups[1].Value.Trim())}
+          Write-Host 'MUSICAL_REVIEW_PUBLIC_PUBLISH=PASS'
