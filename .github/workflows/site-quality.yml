@@ -32,10 +32,22 @@ jobs:
         run: npm exec --prefix tools/qa html-validate -- "dist/index.html" "dist/404.html" "dist/privacy.html" "dist/terms.html" "dist/read/**/*.html"
       - name: Install Chromium for Playwright
         run: npm exec --prefix tools/qa playwright-core install --with-deps chromium
+      - name: Validate musical review audio stream
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://drive.usercontent.google.com/download?id=12lyOUYUvxzCo1L7DmjKPear-Pp5iITO1&export=download&confirm=t'
+          HDRS="$(mktemp)"
+          PART="$(mktemp)"
+          curl --fail --silent --show-error --location --range 0-1023 --dump-header "$HDRS" --output "$PART" "$URL"
+          grep -Eiq '^content-type:[[:space:]]*audio/mpeg' "$HDRS"
+          grep -Eiq '^content-range:[[:space:]]*bytes[[:space:]]+0-1023/8697286' "$HDRS"
+          test "$(wc -c < "$PART" | tr -d ' ')" = "1024"
+          echo "MUSICAL_REVIEW_AUDIO_STREAM=PASS"
       - name: Validate site
         env:
           PLAYWRIGHT_BROWSER: chromium
-          SKIP_LIVE_VISUAL_COMPARE: ${{ github.event_name == 'pull_request' && (github.head_ref == 'promo-visible-social-links-2026-09-18' || github.head_ref == 'author-copy-approved-2026-09-21' || github.head_ref == 'site/review-bookgazer-20261011' || github.head_ref == 'site/musical-review-20261011') && '1' || '0' }}
+          SKIP_LIVE_VISUAL_COMPARE: ${{ github.event_name == 'pull_request' && (github.head_ref == 'promo-visible-social-links-2026-09-18' || github.head_ref == 'author-copy-approved-2026-09-21' || github.head_ref == 'site/review-bookgazer-20261011' || github.head_ref == 'site/musical-review-20261011' || github.head_ref == 'site/musical-review-player-fix-20261011') && '1' || '0' }}
         run: node tools/qa/qa-site.cjs
       - name: Validate final user journey
         env:
