@@ -68,7 +68,10 @@ jobs:
             try{
               const result=await page.$eval(sel,async a=>{
                 try{
-                  await a.play();
+                  await Promise.race([
+                    a.play(),
+                    new Promise((_,reject)=>setTimeout(()=>reject(new Error('play timeout')),8000))
+                  ]);
                   await new Promise(r=>setTimeout(r,3000));
                   return {ok:true,currentTime:a.currentTime,paused:a.paused,readyState:a.readyState,duration:a.duration,error:a.error?{code:a.error.code,message:a.error.message}:null};
                 }catch(e){
