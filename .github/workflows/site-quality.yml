@@ -32,18 +32,51 @@ jobs:
         run: npm exec --prefix tools/qa html-validate -- "dist/index.html" "dist/404.html" "dist/privacy.html" "dist/terms.html" "dist/read/**/*.html"
       - name: Install Chromium for Playwright
         run: npm exec --prefix tools/qa playwright-core install --with-deps chromium
-      - name: Validate musical review audio stream
+      - name: Validate same-origin musical review audio
         shell: bash
         run: |
           set -euo pipefail
-          URL='https://drive.usercontent.google.com/download?id=12lyOUYUvxzCo1L7DmjKPear-Pp5iITO1&export=download&confirm=t'
-          HDRS="$(mktemp)"
-          PART="$(mktemp)"
-          curl --fail --silent --show-error --location --range 0-1023 --dump-header "$HDRS" --output "$PART" "$URL"
-          grep -Eiq '^content-type:[[:space:]]*audio/mpeg' "$HDRS"
-          grep -Eiq '^content-range:[[:space:]]*bytes[[:space:]]+0-1023/8697286' "$HDRS"
-          test "$(wc -c < "$PART" | tr -d ' ')" = "1024"
-          echo "MUSICAL_REVIEW_AUDIO_STREAM=PASS"
+          FILE='dist/assets/reviews/musical-review-v-zone-vidimosti.mp3'
+          test -f "$FILE"
+          test "$(wc -c < "$FILE" | tr -d ' ')" = "8697286"
+          echo "A51CA249EFD1532AFB9656E3322ABC759B8C11BFB832C23F18B0524D69508299  $FILE" | sha256sum -c -
+          python3 -m http.server 4173 --directory dist >/tmp/site-audio-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 1
+          node <<'NODE'
+          const { chromium } = require('./tools/qa/node_modules/playwright-core');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage();
+            await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded',timeout:30000});
+            const sel='.musical-reader-review audio';
+            await page.waitForSelector(sel,{timeout:10000});
+            const result=await page.$eval(sel,a=>new Promise((resolve,reject)=>{
+              const done=()=>resolve({
+                currentSrc:a.currentSrc,
+                readyState:a.readyState,
+                networkState:a.networkState,
+                duration:a.duration,
+                canPlay:a.canPlayType('audio/mpeg'),
+                error:a.error?{code:a.error.code,message:a.error.message}:null
+              });
+              if(a.readyState>=1) return done();
+              const to=setTimeout(()=>reject(new Error('metadata timeout')),10000);
+              a.addEventListener('loadedmetadata',()=>{clearTimeout(to);done();},{once:true});
+              a.addEventListener('error',()=>{clearTimeout(to);reject(new Error('audio element error'));},{once:true});
+              a.load();
+            }));
+            console.log('MUSICAL_REVIEW_BROWSER',JSON.stringify(result));
+            if(result.error) throw new Error('audio error '+JSON.stringify(result.error));
+            if(result.canPlay==='') throw new Error('audio/mpeg unsupported');
+            if(!(result.readyState>=1)) throw new Error('metadata not loaded');
+            if(!(result.duration>360 && result.duration<375)) throw new Error('unexpected duration '+result.duration);
+            if(!/\/assets\/reviews\/musical-review-v-zone-vidimosti\.mp3$/.test(result.currentSrc)) throw new Error('wrong source '+result.currentSrc);
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+          echo "MUSICAL_REVIEW_SAME_ORIGIN_QA=PASS"
       - name: Validate site
         env:
           PLAYWRIGHT_BROWSER: chromium
