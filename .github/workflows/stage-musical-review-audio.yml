@@ -1,0 +1,42 @@
+name: Stage musical review audio into site
+on:
+  push:
+    branches: ['site/local-musical-review-audio-20261011']
+    paths:
+      - '.github/workflows/stage-musical-review-audio.yml'
+permissions:
+  contents: write
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: site/local-musical-review-audio-20261011
+          fetch-depth: 0
+      - name: Download and verify musical review audio
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://drive.usercontent.google.com/download?id=12lyOUYUvxzCo1L7DmjKPear-Pp5iITO1&export=download&confirm=t'
+          DEST='assets/reviews/musical-review-v-zone-vidimosti.mp3'
+          SRC_DEST='src/assets/reviews/musical-review-v-zone-vidimosti.mp3'
+          mkdir -p "$(dirname "$DEST")" "$(dirname "$SRC_DEST")"
+          curl --fail --silent --show-error --location "$URL" --output "$DEST.tmp"
+          test "$(wc -c < "$DEST.tmp" | tr -d ' ')" = "8697286"
+          echo "A51CA249EFD1532AFB9656E3322ABC759B8C11BFB832C23F18B0524D69508299  $DEST.tmp" | sha256sum -c -
+          cp "$DEST.tmp" "$DEST"
+          mv "$DEST.tmp" "$SRC_DEST"
+          echo "A51CA249EFD1532AFB9656E3322ABC759B8C11BFB832C23F18B0524D69508299  $DEST" | sha256sum -c -
+          echo "A51CA249EFD1532AFB9656E3322ABC759B8C11BFB832C23F18B0524D69508299  $SRC_DEST" | sha256sum -c -
+          git config user.name "irenkipo-site-bot"
+          git config user.email "i2026k@yahoo.com"
+          git add "$DEST" "$SRC_DEST"
+          if git diff --cached --quiet; then
+            echo "SITE_AUDIO_ASSET=ALREADY_PRESENT"
+            exit 0
+          fi
+          git commit -m "Add same-origin musical reader review audio"
+          git push origin HEAD:site/local-musical-review-audio-20261011
+          echo "SITE_AUDIO_ASSET=STAGED"
