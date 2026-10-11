@@ -34,7 +34,7 @@ jobs:
               }
             });
             page.on('console', m=>console.log('BROWSER_CONSOLE',m.type(),m.text()));
-            await page.goto('https://irenkipo.github.io/?diag_audio=1',{waitUntil:'networkidle',timeout:60000});
+            await page.goto('https://irenkipo.github.io/?diag_audio=2',{waitUntil:'domcontentloaded',timeout:30000});
             const sel='.musical-reader-review audio';
             await page.waitForSelector(sel,{timeout:30000});
             const before=await page.$eval(sel,a=>({
