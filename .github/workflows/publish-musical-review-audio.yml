@@ -44,5 +44,16 @@ jobs:
           $asset=@($json.assets | Where-Object { $_.name -eq $env:ASSET })
           if($asset.Count -ne 1){throw "MUSICAL_REVIEW_PUBLIC_ASSET_COUNT=$($asset.Count)"}
           if([int64]$asset[0].size -ne [int64]$env:EXPECTED_SIZE){throw "MUSICAL_REVIEW_PUBLIC_ASSET_SIZE_MISMATCH=$($asset[0].size)"}
-          Write-Host ('MUSICAL_REVIEW_PUBLIC_URL='+[string]$asset[0].url)
+          $publicUrl='https://github.com/irenkipo/irenkipo.github.io/releases/download/'+$env:TAG+'/'+$env:ASSET
+          Start-Sleep -Seconds 2
+          $head=Join-Path $env:RUNNER_TEMP 'musical-review-public-head.txt'
+          $effective=& curl.exe -sS -L -I -o $head -w '%{url_effective}' $publicUrl
+          $txt=Get-Content -Raw -LiteralPath $head
+          $ct=[regex]::Matches($txt,'(?im)^content-type:\s*([^\r\n]+)') | Select-Object -Last 1
+          $cl=[regex]::Matches($txt,'(?im)^content-length:\s*([^\r\n]+)') | Select-Object -Last 1
+          if(-not $ct -or $ct.Groups[1].Value.Trim() -notlike 'audio/*'){throw "MUSICAL_REVIEW_PUBLIC_CONTENT_TYPE="+($ct.Groups[1].Value.Trim())}
+          Write-Host ('MUSICAL_REVIEW_PUBLIC_URL='+$publicUrl)
+          Write-Host ('MUSICAL_REVIEW_PUBLIC_EFFECTIVE_URL='+$effective)
+          Write-Host ('MUSICAL_REVIEW_PUBLIC_CONTENT_TYPE='+$ct.Groups[1].Value.Trim())
+          if($cl){Write-Host ('MUSICAL_REVIEW_PUBLIC_CONTENT_LENGTH='+$cl.Groups[1].Value.Trim())}
           Write-Host 'MUSICAL_REVIEW_PUBLIC_PUBLISH=PASS'
