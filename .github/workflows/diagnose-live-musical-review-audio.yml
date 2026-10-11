@@ -34,6 +34,8 @@ jobs:
               }
             });
             page.on('console', m=>console.log('BROWSER_CONSOLE',m.type(),m.text()));
+            page.on('requestfailed', r=>console.log('REQUEST_FAILED',r.url(),JSON.stringify(r.failure())));
+            page.on('pageerror', e=>console.log('PAGE_ERROR',e.message));
             await page.goto('https://irenkipo.github.io/?diag_audio=2',{waitUntil:'domcontentloaded',timeout:30000});
             const sel='.musical-reader-review audio';
             await page.waitForSelector(sel,{timeout:30000});
@@ -44,7 +46,10 @@ jobs:
               networkState:a.networkState,
               duration:Number.isFinite(a.duration)?a.duration:String(a.duration),
               paused:a.paused,
-              error:a.error?{code:a.error.code,message:a.error.message}:null
+              error:a.error?{code:a.error.code,message:a.error.message}:null,
+              canPlayMp3:a.canPlayType('audio/mpeg'),
+              sourceSrc:a.querySelector('source')?.src||null,
+              sourceType:a.querySelector('source')?.type||null
             }));
             console.log('AUDIO_BEFORE',JSON.stringify(before));
             try{
