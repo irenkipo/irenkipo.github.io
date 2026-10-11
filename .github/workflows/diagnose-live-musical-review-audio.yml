@@ -1,0 +1,84 @@
+name: Diagnose live musical review audio
+on:
+  push:
+    branches: ['diag/live-musical-review-audio-20261011']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tools/qa/package-lock.json
+      - run: npm ci --prefix tools/qa
+      - run: npm exec --prefix tools/qa playwright-core install --with-deps chromium
+      - name: Diagnose live audio element
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const { chromium } = require('./tools/qa/node_modules/playwright-core');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage();
+            const audioResponses=[];
+            page.on('response', r=>{
+              const u=r.url();
+              if(/drive\.usercontent\.google\.com|musical-review/i.test(u)){
+                audioResponses.push({url:u,status:r.status(),headers:r.headers()});
+              }
+            });
+            page.on('console', m=>console.log('BROWSER_CONSOLE',m.type(),m.text()));
+            await page.goto('https://irenkipo.github.io/?diag_audio=1',{waitUntil:'networkidle',timeout:60000});
+            const sel='.musical-reader-review audio';
+            await page.waitForSelector(sel,{timeout:30000});
+            const before=await page.$eval(sel,a=>({
+              src:a.getAttribute('src'),
+              currentSrc:a.currentSrc,
+              readyState:a.readyState,
+              networkState:a.networkState,
+              duration:Number.isFinite(a.duration)?a.duration:String(a.duration),
+              paused:a.paused,
+              error:a.error?{code:a.error.code,message:a.error.message}:null
+            }));
+            console.log('AUDIO_BEFORE',JSON.stringify(before));
+            try{
+              await page.$eval(sel,a=>new Promise((resolve,reject)=>{
+                if(a.readyState>=1) return resolve();
+                const to=setTimeout(()=>reject(new Error('loadedmetadata timeout')),15000);
+                a.addEventListener('loadedmetadata',()=>{clearTimeout(to);resolve();},{once:true});
+                a.addEventListener('error',()=>{clearTimeout(to);reject(new Error('audio error'));},{once:true});
+                a.load();
+              }));
+            }catch(e){console.log('METADATA_WAIT_ERROR',e.message);}
+            const meta=await page.$eval(sel,a=>({
+              currentSrc:a.currentSrc,
+              readyState:a.readyState,
+              networkState:a.networkState,
+              duration:Number.isFinite(a.duration)?a.duration:String(a.duration),
+              paused:a.paused,
+              error:a.error?{code:a.error.code,message:a.error.message}:null
+            }));
+            console.log('AUDIO_AFTER_METADATA',JSON.stringify(meta));
+            try{
+              const result=await page.$eval(sel,async a=>{
+                try{
+                  await a.play();
+                  await new Promise(r=>setTimeout(r,3000));
+                  return {ok:true,currentTime:a.currentTime,paused:a.paused,readyState:a.readyState,duration:a.duration,error:a.error?{code:a.error.code,message:a.error.message}:null};
+                }catch(e){
+                  return {ok:false,name:e.name,message:e.message,currentTime:a.currentTime,paused:a.paused,readyState:a.readyState,duration:a.duration,error:a.error?{code:a.error.code,message:a.error.message}:null};
+                }
+              });
+              console.log('AUDIO_PLAY_RESULT',JSON.stringify(result));
+            }catch(e){console.log('PLAY_EVAL_ERROR',e.message);}
+            console.log('AUDIO_RESPONSES',JSON.stringify(audioResponses));
+            await page.screenshot({path:'live-audio-diagnostic.png',fullPage:false});
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
