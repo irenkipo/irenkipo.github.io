@@ -140,3 +140,5 @@
 - 2026-10-06 Audiobook V11 publication approved. Publish the verified Book 1 V11 audio as a separate release, preserve V10 for rollback, and make no unrelated site changes.
 
 - 2026-10-06 Audiobook V11 site switch: approved V11 release `audiobook-v-zone-vidimosti-v11-final` verified with 11 chapter MP3 assets plus `Iren_Kipo_V_zone_vidimosti_Audiobook_V11_FINAL.zip`; switch only existing audiobook player and ZIP links from V10 to V11. V10 remains available for rollback; no unrelated visible site changes.
+
+- 2026-10-11 reader-review delta: user explicitly approved publication of the permissioned BookGazer review. Add one visible homepage section «Отзывы читателей» containing only the approved review text and public pseudonym BookGazer; do not expose email, form metadata, response identifiers, or any other private data. Mirror source/root HTML and CSS. No book text, audiobook, subscription transport, legal pages, artwork, navigation, or unrelated site behavior changes.
