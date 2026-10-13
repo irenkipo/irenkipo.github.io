@@ -135,6 +135,9 @@ async function visualCompare(browser, viewport, name) {
     await Promise.all([...document.images].map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.addEventListener("load", resolve, { once: true }); image.addEventListener("error", resolve, { once: true }); })));
   });
   await Promise.all([settle(production), settle(candidate)]);
+  // Let both pages settle through two paint cycles before strict geometry/pixel capture.
+  // Do not inject CSS: the production CSP intentionally blocks inline styles.
+  await Promise.all([production, candidate].map(page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))));
   // Normalize only the two explicitly approved visible deltas on BOTH sides.
   // This keeps the same pixel lock valid before and after production deployment.
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
