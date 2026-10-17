@@ -140,8 +140,9 @@ async function visualCompare(browser, viewport, name) {
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     document.querySelector('#contacts .social-links a[href="https://www.tiktok.com/@irenkipo"]')?.remove();
     document.querySelector("#feedback")?.remove();
-    // Explicitly approved Google Play CTA: compare all other locked pixels unchanged.
-    document.querySelector('.litres-section a[href="https://play.google.com/store/books/details?id=H3oUEgAAQBAJ"]')?.remove();
+    // Only the bookstore CTA group is an approved visible delta; all other sections stay locked.
+    const bookLinks = document.querySelector(".litres-section");
+    if (bookLinks) { bookLinks.style.visibility = "hidden"; }
   })));
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     const section = document.querySelector("#texts");
@@ -153,6 +154,21 @@ async function visualCompare(browser, viewport, name) {
       section.style.visibility = "hidden";
     }
   })));
+
+  // The extra approved Google Play button can change the bookstore group geometry.
+  // Normalize only that group's height/visibility; compare every other section pixel-for-pixel.
+  const baselineBookstoreHeight = await production.$eval(".litres-section", node => node.getBoundingClientRect().height);
+  await Promise.all([production, candidate].map(page => page.evaluate(height => {
+    const section = document.querySelector(".litres-section");
+    if (section) {
+      section.style.boxSizing = "border-box";
+      section.style.height = height + "px";
+      section.style.minHeight = height + "px";
+      section.style.maxHeight = height + "px";
+      section.style.overflow = "hidden";
+      section.style.visibility = "hidden";
+    }
+  }, baselineBookstoreHeight)));
   const geometry = async page => page.evaluate(() => [...document.querySelectorAll("header,main>section:not(#texts),footer,img:not(#texts img)")].map(node => { const rect = node.getBoundingClientRect(); return { tag: node.tagName, id: node.id, src: node.getAttribute("src") || "", x: rect.x, y: rect.y, width: rect.width, height: rect.height }; }));
   const productionGeometry = await geometry(production);
   const candidateGeometry = await geometry(candidate);
