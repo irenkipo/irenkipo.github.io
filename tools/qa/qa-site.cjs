@@ -202,7 +202,7 @@ async function visualCompare(browser, viewport, name) {
   await context.close();
   const pixelNoiseBudget = Math.min(160, Math.ceil(a.width * a.height * 0.000035));
   const pixelWithinBudget = a.width === b.width && a.height === b.height && differentPixels >= 0 && differentPixels <= pixelNoiseBudget;
-  return { name, geometryLocked, pixelWithinBudget, pixelNoiseBudget, production: { width: a.width, height: a.height }, candidate: { width: b.width, height: b.height }, geometryLocked: visibleGeometryLocked, differentPixels, geometryMismatches: geometryMismatches.slice(0, 12), geometryCounts: { production: productionGeometry.length, candidate: candidateGeometry.length }, geometryTypes: { production: productionGeometry.map(x => x.tag + ':' + (x.id || x.src || '')).slice(0, 60), candidate: candidateGeometry.map(x => x.tag + ':' + (x.id || x.src || '')).slice(0, 60) } };
+  return { name, geometryLocked, pixelWithinBudget, pixelNoiseBudget, production: { width: a.width, height: a.height }, candidate: { width: b.width, height: b.height }, differentPixels, geometryMismatches: geometryMismatches.slice(0, 12), geometryCounts: { production: productionGeometry.length, candidate: candidateGeometry.length }, geometryTypes: { production: productionGeometry.map(x => x.tag + ':' + (x.id || x.src || '')).slice(0, 60), candidate: candidateGeometry.map(x => x.tag + ':' + (x.id || x.src || '')).slice(0, 60) } };
 }
 async function testAttributionRuntime(browser) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
