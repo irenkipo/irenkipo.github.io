@@ -172,7 +172,14 @@ async function visualCompare(browser, viewport, name) {
   const geometry = async page => page.evaluate(() => [...document.querySelectorAll("header,main>section:not(#texts),footer,img:not(#texts img)")].map(node => { const rect = node.getBoundingClientRect(); return { tag: node.tagName, id: node.id, src: node.getAttribute("src") || "", x: rect.x, y: rect.y, width: rect.width, height: rect.height }; }));
   const productionGeometry = await geometry(production);
   const candidateGeometry = await geometry(candidate);
-  const geometryLocked = productionGeometry.length === candidateGeometry.length && productionGeometry.every((item, index) => { const other = candidateGeometry[index]; return item.tag === other.tag && item.id === other.id && item.src === other.src && ["x", "y", "width", "height"].every(key => Math.abs(item[key] - other[key]) < 0.5); });
+  const geometryMismatches = productionGeometry.map((item, index) => {
+    const other = candidateGeometry[index];
+    if (!other) return { index, item, other: null };
+    const deltas = Object.fromEntries(["x", "y", "width", "height"].map(key => [key, Number((item[key] - other[key]).toFixed(3))]));
+    if (item.tag === other.tag && item.id === other.id && item.src === other.src && Object.values(deltas).every(delta => Math.abs(delta) < 0.5)) return null;
+    return { index, tag: item.tag, id: item.id, src: item.src, deltas };
+  }).filter(Boolean);
+  const geometryLocked = productionGeometry.length === candidateGeometry.length && geometryMismatches.length === 0;
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     document.querySelectorAll('img[src*="ik-logo.jpg"]').forEach(image => { image.style.visibility = "hidden"; });
     document.querySelectorAll('[data-open="audio"]').forEach(button => {
@@ -193,7 +200,7 @@ async function visualCompare(browser, viewport, name) {
     fs.writeFileSync(path.join(reportDir, `locked-diff-${name}.png`), PNG.sync.write(diff));
   }
   await context.close();
-  const visibleGeometryLocked = a.width === b.width && a.height === b.height && differentPixels === 0; return { name, production: { width: a.width, height: a.height }, candidate: { width: b.width, height: b.height }, geometryLocked: visibleGeometryLocked, differentPixels };
+  const visibleGeometryLocked = a.width === b.width && a.height === b.height && differentPixels === 0; return { name, production: { width: a.width, height: a.height }, candidate: { width: b.width, height: b.height }, geometryLocked: visibleGeometryLocked, differentPixels, geometryMismatches: geometryMismatches.slice(0, 12) };
 }
 async function testAttributionRuntime(browser) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
