@@ -180,6 +180,11 @@
       nativeEvent("litres", "out");
       return;
     }
+    if (url.hostname === "play.google.com" && url.pathname === "/store/books/details" && url.searchParams.get("id") === "H3oUEgAAQBAJ") {
+      sendEvent("google_play_click", { ...params, book_id: "H3oUEgAAQBAJ" });
+      nativeEvent("googleplay", "out");
+      return;
+    }
     if (url.hostname === "docs.google.com") {
       sendEvent("subscribe_click", params);
       return;
