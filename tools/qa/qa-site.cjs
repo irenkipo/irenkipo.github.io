@@ -140,6 +140,8 @@ async function visualCompare(browser, viewport, name) {
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     document.querySelector('#contacts .social-links a[href="https://www.tiktok.com/@irenkipo"]')?.remove();
     document.querySelector("#feedback")?.remove();
+    // Explicitly approved Google Play CTA: compare all other locked pixels unchanged.
+    document.querySelector('.litres-section a[href="https://play.google.com/store/books/details?id=H3oUEgAAQBAJ"]')?.remove();
   })));
   await Promise.all([production, candidate].map(page => page.evaluate(() => {
     const section = document.querySelector("#texts");
@@ -266,6 +268,8 @@ async function testAnalyticsRuntime(browser) {
     const defaults = analyticsRuntime.consentEntries.find(item => item[0] === "default")?.[1] || {};
     if (defaults.analytics_storage !== "denied" || defaults.ad_storage !== "denied" || defaults.ad_user_data !== "denied" || defaults.ad_personalization !== "denied") failures.push("analytics denied-storage defaults");
     if (!indexHtml.includes('data-subscription-form') || !indexHtml.includes('Электронная почта') || !indexHtml.includes('action="https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg/formResponse"')) failures.push("Russian subscription form missing from dist homepage");
+    const googlePlayCta = '<a class="button secondary" href="https://play.google.com/store/books/details?id=H3oUEgAAQBAJ" target="_blank" rel="noopener noreferrer">Читать в Google Play</a>';
+    if (!indexHtml.includes(googlePlayCta) || !fs.readFileSync(path.join(repoRoot, "src/site/index.html"), "utf8").includes(googlePlayCta)) failures.push("approved Google Play reading link missing from source or dist");
     if (indexHtml.includes('https://www.tiktok.com/@irenkipo') || /<a[^>]*>TikTok<\/a>/i.test(indexHtml)) failures.push("retired TikTok profile link leaked into homepage");
     if (obsoleteSubscriptionConfig) failures.push("obsolete subscription config shipped in dist");
 
