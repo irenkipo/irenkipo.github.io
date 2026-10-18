@@ -3,15 +3,22 @@
   const form = document.querySelector("[data-subscription-form]");
   if (!form) return;
 
+  const config = window.IREN_KIPO_SUBSCRIPTION || {};
   const submit = form.querySelector("[data-subscription-submit]");
   const status = form.querySelector("[data-subscription-status]");
   const frame = form.querySelector('iframe[name="subscription-result"]');
+  const emailField = form.querySelector('[data-subscription-field="email"]');
+  const consentField = form.querySelector('[data-subscription-field="consent"]');
   let submitted = false;
 
   const setStatus = (message, kind = "") => {
     status.textContent = message;
     status.dataset.state = kind;
   };
+
+  if (config.action) form.action = config.action;
+  if (emailField && config.fields && config.fields.email) emailField.name = config.fields.email;
+  if (consentField && config.fields && config.fields.consent) consentField.name = config.fields.consent;
 
   const params = new URLSearchParams(location.search);
   const values = {
@@ -28,9 +35,8 @@
     if (control) control.value = value;
   }
 
-  const emailField = form.querySelector('[data-subscription-field="email"]');
-  const consentField = form.querySelector('[data-subscription-field="consent"]');
-  const ready = Boolean(form.action) && Boolean(emailField) && Boolean(consentField);
+  const ready = Boolean(config.action) && Boolean(emailField) && Boolean(consentField);
+  const allowedOrigins = Array.isArray(config.messageOrigins) ? config.messageOrigins : [];
 
   form.addEventListener("submit", event => {
     setStatus("");
@@ -40,7 +46,7 @@
     }
     if (!ready) {
       event.preventDefault();
-      setStatus("Не удалось подключиться к форме подписки. Попробуйте позже.", "error");
+      setStatus("Не удалось подключиться к подписке. Попробуйте позже.", "error");
       return;
     }
 
@@ -50,21 +56,42 @@
     setStatus("Отправляем…", "pending");
   });
 
-  frame.addEventListener("load", () => {
+  window.addEventListener("message", event => {
     if (!submitted) return;
+    if (!allowedOrigins.includes(event.origin)) return;
+    const data = event.data || {};
+    if (data.type !== "iren-kipo-subscription-result") return;
+
     submitted = false;
     submit.disabled = false;
     submit.textContent = "Подписаться";
-    document.dispatchEvent(new CustomEvent("subscription:submitted", {
-      detail: {
-        utm_source: values.utm_source,
-        utm_medium: values.utm_medium,
-        utm_campaign: values.utm_campaign,
-        utm_content: values.utm_content
-      }
-    }));
-    if (emailField) emailField.value = "";
-    if (consentField) consentField.checked = false;
-    setStatus("Спасибо! Заявка отправлена.", "sent");
+
+    const message = data.message || (data.status === "SUBSCRIBED" ? "Спасибо! Вы получите письмо." : data.status === "ALREADY_SUBSCRIBED" ? "Вы уже подписаны." : "Не удалось оформить подписку. Попробуйте позже.");
+    const kind = data.status === "SUBSCRIBED" || data.status === "ALREADY_SUBSCRIBED" ? "sent" : "error";
+    setStatus(message, kind);
+
+    if (data.status === "SUBSCRIBED") {
+      document.dispatchEvent(new CustomEvent("subscription:submitted", {
+        detail: {
+          utm_source: values.utm_source,
+          utm_medium: values.utm_medium,
+          utm_campaign: values.utm_campaign,
+          utm_content: values.utm_content
+        }
+      }));
+      emailField.value = "";
+      consentField.checked = false;
+    }
+  });
+
+  frame.addEventListener("load", () => {
+    if (!submitted) return;
+    window.setTimeout(() => {
+      if (!submitted) return;
+      submitted = false;
+      submit.disabled = false;
+      submit.textContent = "Подписаться";
+      setStatus("Не удалось получить подтверждение подписки. Попробуйте позже.", "error");
+    }, 5000);
   });
 })();
