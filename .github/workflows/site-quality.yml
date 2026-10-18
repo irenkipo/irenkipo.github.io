@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          FILE='dist/assets/reviews/musical-review-v-zone-vidimosti.mp3'
+          FILE='dist/assets/reviews/musical-review-v-zone-vidimosti.mp3?v=20261011-1814'
           test -f "$FILE"
           test "$(wc -c < "$FILE" | tr -d ' ')" = "8697286"
           echo "A51CA249EFD1532AFB9656E3322ABC759B8C11BFB832C23F18B0524D69508299  $FILE" | sha256sum -c -
@@ -72,7 +72,7 @@ jobs:
             if(result.canPlay==='') throw new Error('audio/mpeg unsupported');
             if(!(result.readyState>=1)) throw new Error('metadata not loaded');
             if(!(result.duration>360 && result.duration<375)) throw new Error('unexpected duration '+result.duration);
-            if(!/\/assets\/reviews\/musical-review-v-zone-vidimosti\.mp3$/.test(result.currentSrc)) throw new Error('wrong source '+result.currentSrc);
+            if(!/\/assets\/reviews\/musical-review-v-zone-vidimosti\.mp3(?:\?[^#]*)?$/.test(result.currentSrc)) throw new Error('wrong source '+result.currentSrc);
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
