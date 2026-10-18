@@ -3,6 +3,8 @@ import re
 import shutil
 import subprocess
 
+from notes import build_notes
+
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
 DIST = ROOT / "dist"
@@ -114,6 +116,7 @@ def build() -> None:
         (f"{BASE_URL}/privacy.html", SRC / "legal" / "privacy.html"),
         (f"{BASE_URL}/terms.html", SRC / "legal" / "terms.html"),
     ))
+    sitemap_sources.extend(build_notes(SRC, DIST, BASE_URL))
     sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     sitemap += "".join(
         f"  <url><loc>{url}</loc><lastmod>{git_lastmod(source)}</lastmod></url>\n"
@@ -166,7 +169,7 @@ def build() -> None:
         if path.is_file() and (path.suffix.lower() in forbidden_suffixes or path.name.startswith(".env")):
             raise RuntimeError(f"Forbidden deploy file: {relative}")
 
-    required = [DIST / "index.html", DIST / "assets" / "approved" / "series-banner.png", DIST / "assets" / "approved" / "social-share.png", DIST / "assets" / "books" / "book1.epub", DIST / "assets" / "books" / "book1.pdf"]
+    required = [DIST / "index.html", DIST / "notes" / "index.html", DIST / "notes" / "feed.xml", DIST / "assets" / "approved" / "series-banner.png", DIST / "assets" / "approved" / "social-share.png", DIST / "assets" / "books" / "book1.epub", DIST / "assets" / "books" / "book1.pdf"]
     required.extend(DIST / "read" / chapter / "index.html" for chapter in chapters)
     missing = [str(path.relative_to(DIST)) for path in required if not path.is_file()]
     if missing:
