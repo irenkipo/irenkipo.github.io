@@ -12,6 +12,12 @@ const FACEBOOK_URL = "https://www.facebook.com/irenkipo/";
 const CHAPTER_PATHS = Array.from({ length: 11 }, (_, index) => `/read/chapter-${String(index + 1).padStart(2, "0")}/`);
 const EXPECTED_PATHS = ["/", "/read/", ...CHAPTER_PATHS, "/privacy.html", "/terms.html"];
 const EXPECTED_CANONICALS = EXPECTED_PATHS.map(pathname => `${CANONICAL_ORIGIN}${pathname}`);
+const isAllowedNoteCanonical = url => {
+  const prefix = "https://irenkipo.github.io/notes/";
+  if (!url.startsWith(prefix)) return false;
+  const rest = url.slice(prefix.length);
+  return rest === "" || (/^[a-z0-9-]+\/$/).test(rest);
+};
 const failures = [];
 const timings = [];
 
@@ -91,7 +97,8 @@ function exactExternalLink(html, expectedUrl, options = {}) {
   if (!/^<\?xml[\s\S]*<urlset\b[\s\S]*<\/urlset>\s*$/i.test(sitemap.trim())) failures.push("sitemap.xml: invalid XML envelope");
   const sitemapUrls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(match => match[1].trim());
   if (new Set(sitemapUrls).size !== sitemapUrls.length) failures.push("sitemap.xml: duplicate URLs");
-  if (sitemapUrls.length !== EXPECTED_CANONICALS.length || EXPECTED_CANONICALS.some(url => !sitemapUrls.includes(url))) failures.push("sitemap.xml: URL set differs from the 15 expected canonical URLs");
+  if (EXPECTED_CANONICALS.some(url => !sitemapUrls.includes(url))) failures.push("sitemap.xml: required canonical URLs missing");
+  if (sitemapUrls.some(url => !EXPECTED_CANONICALS.includes(url) && !isAllowedNoteCanonical(url))) failures.push("sitemap.xml: unexpected URL outside canonical site/notes set");
   const sitemapChapters = sitemapUrls.filter(url => /\/read\/chapter-\d{2}\/$/.test(url));
   if (sitemapChapters.length !== 11 || sitemapUrls.some(url => /chapter-12/i.test(url))) failures.push("sitemap.xml: expected exactly chapters 01–11 and no chapter-12");
   if (sitemapUrls.some(url => !url.startsWith("https://irenkipo.github.io/"))) failures.push("sitemap.xml: non-canonical or non-HTTPS URL");
@@ -101,8 +108,9 @@ function exactExternalLink(html, expectedUrl, options = {}) {
   if (!robots.includes("Sitemap: https://irenkipo.github.io/sitemap.xml")) failures.push("robots.txt: canonical Sitemap line missing");
   if (/^Disallow:\s*\/(?:\s*$|read(?:\/|$)|assets(?:\/|$))/mi.test(robots)) failures.push("robots.txt: public pages or required assets are blocked");
 
+  const sitemapPaths = sitemapUrls.map(url => new URL(url).pathname);
   const pages = new Map();
-  for (const pathname of EXPECTED_PATHS) {
+  for (const pathname of sitemapPaths) {
     const requestUrl = new URL(pathname.replace(/^\//, ""), BASE_URL).href;
     const result = await request(requestUrl, true);
     if (!result) continue;
@@ -155,7 +163,7 @@ function exactExternalLink(html, expectedUrl, options = {}) {
       if (resolved.origin === BASE_URL.origin) internalLinks.add(resolved.href);
     }
   }
-  const sitemapRequestUrls = new Set(EXPECTED_PATHS.map(pathname => new URL(pathname.replace(/^\//, ""), BASE_URL).href));
+  const sitemapRequestUrls = new Set(sitemapPaths.map(pathname => new URL(pathname.replace(/^\//, ""), BASE_URL).href));
   for (const url of internalLinks) if (!sitemapRequestUrls.has(url)) await request(url, false);
 
   const faviconTag = tags(homepage, "link").find(tag => attribute(tag, "rel").toLowerCase().split(/\s+/).includes("icon"));
@@ -168,6 +176,7 @@ function exactExternalLink(html, expectedUrl, options = {}) {
     production: BASE_URL.href,
     checkedIndexedPages: pages.size,
     sitemapUrls: sitemapUrls.length,
+    notePages: sitemapUrls.filter(isAllowedNoteCanonical).length,
     chapters: sitemapChapters.length,
     internalLinksChecked: internalLinks.size,
     structuredTypes: [...structuredTypes].sort(),

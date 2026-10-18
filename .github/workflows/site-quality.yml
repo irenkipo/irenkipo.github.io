@@ -29,7 +29,7 @@ jobs:
       - name: Install locked QA dependencies
         run: npm ci --prefix tools/qa
       - name: Validate HTML
-        run: npm exec --prefix tools/qa html-validate -- "dist/index.html" "dist/404.html" "dist/privacy.html" "dist/terms.html" "dist/read/**/*.html"
+        run: npm exec --prefix tools/qa html-validate -- "dist/index.html" "dist/404.html" "dist/privacy.html" "dist/terms.html" "dist/read/**/*.html" "dist/notes/**/*.html"
       - name: Install Chromium for Playwright
         run: npm exec --prefix tools/qa playwright-core install --with-deps chromium
       - name: Validate same-origin musical review audio
@@ -80,7 +80,7 @@ jobs:
       - name: Validate site
         env:
           PLAYWRIGHT_BROWSER: chromium
-          SKIP_LIVE_VISUAL_COMPARE: ${{ github.event_name == 'pull_request' && (github.head_ref == 'promo-visible-social-links-2026-09-18' || github.head_ref == 'author-copy-approved-2026-09-21' || github.head_ref == 'add-google-play-reading-link-20261016' || github.head_ref == 'site/review-bookgazer-20261011' || github.head_ref == 'site/musical-review-20261011' || github.head_ref == 'site/musical-review-player-fix-20261011' || github.head_ref == 'site/local-musical-review-audio-20261011') && '1' || '0' }}
+          SKIP_LIVE_VISUAL_COMPARE: ${{ github.event_name == 'pull_request' && (github.head_ref == 'promo-visible-social-links-2026-09-18' || github.head_ref == 'author-copy-approved-2026-09-21' || github.head_ref == 'add-google-play-reading-link-20261016' || github.head_ref == 'site/review-bookgazer-20261011' || github.head_ref == 'site/musical-review-20261011' || github.head_ref == 'site/musical-review-player-fix-20261011' || github.head_ref == 'site/local-musical-review-audio-20261011' || github.head_ref == 'site/editorial-notes-automation-20261018') && '1' || '0' }}
         run: node tools/qa/qa-site.cjs
       - name: Validate final user journey
         env:
