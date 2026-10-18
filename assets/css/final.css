@@ -96,3 +96,15 @@ main{margin:0 auto;box-shadow:0 8px 45px rgba(44,39,31,.08)}
 .feedback-section{display:flex;align-items:center;justify-content:space-between;gap:2rem}.feedback-copy{max-width:690px}.feedback-copy h2{font-size:clamp(2.3rem,5vw,4rem)}.feedback-copy>p:last-child{margin:0;color:var(--muted)}.feedback-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.75rem}
 @media(max-width:900px){.feedback-section{align-items:flex-start;flex-direction:column}.feedback-actions{justify-content:flex-start}}
 @media(max-width:650px){.feedback-actions{width:100%;display:grid}.feedback-actions .button{width:100%}}
+/* Compact expandable notes and reviews. */
+.collapsible-item{padding:0!important;overflow:hidden}
+.collapsible-item>summary{min-height:56px;padding:1rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;cursor:pointer;list-style:none;font-family:var(--heading);font-size:1.02rem;font-weight:700}
+.collapsible-item>summary::-webkit-details-marker{display:none}
+.collapsible-item>summary::after{content:"＋";flex:0 0 auto;color:var(--teal-dark);font-family:inherit;font-size:1.2rem;font-weight:400}
+.collapsible-item[open]>summary::after{content:"−"}
+.collapsible-item .expand-label{margin-left:auto;color:var(--teal-dark);font-family:inherit;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.collapsible-content{padding:0 1.1rem 1.1rem;border-top:1px solid var(--line)}
+.collapsible-content>:first-child{margin-top:1rem}
+.collapsible-content>:last-child{margin-bottom:0}
+@media(max-width:560px){.collapsible-item>summary{align-items:flex-start;flex-wrap:wrap}.collapsible-item .expand-label{margin-left:0}}
+
