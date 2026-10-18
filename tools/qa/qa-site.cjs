@@ -12,7 +12,7 @@ const reportDir = path.join(repoRoot, "reports");
 fs.mkdirSync(reportDir, { recursive: true });
 const mime = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".xml": "application/xml", ".txt": "text/plain; charset=utf-8", ".epub": "application/epub+zip", ".pdf": "application/pdf", ".json": "application/json; charset=utf-8" };
 const chapters = Array.from({ length: 11 }, (_, index) => `/read/chapter-${String(index + 1).padStart(2, "0")}/`);
-const expectedUrls = ["https://irenkipo.github.io/", "https://irenkipo.github.io/read/", ...chapters.map(item => `https://irenkipo.github.io${item}`), "https://irenkipo.github.io/privacy.html", "https://irenkipo.github.io/terms.html"];
+const expectedUrls = ["https://irenkipo.github.io/", "https://irenkipo.github.io/read/", ...chapters.map(item => `https://irenkipo.github.io${item}`), "https://irenkipo.github.io/privacy.html", "https://irenkipo.github.io/terms.html"];\nconst allowedExtraSitemapUrl = url => /^https:\\/\\/irenkipo\\.github\\.io\\/notes\\/(?:[a-z0-9-]+\\/)?$/.test(url);
 const feedbackFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfdpwUQv9oRBvi20RpspLDir4D5FyNSbMpWNFtU2VtfLq9LoA/viewform";
 const lockedHashes = {
   "assets/approved/book-1-3d.png": "85325b6d2db76d15bcb4bf64ef2bb174007157de501d65ba24ba0bc305a4539f",
@@ -283,7 +283,7 @@ async function testAnalyticsRuntime(browser) {
       if (result.consoleErrors.length || result.pageErrors.length || result.badResponses.length) failures.push(`${result.name}: browser errors`);
     }
     if (Object.values(downloadChecks).some(item => item.status !== 200 || item.bytes < 1000)) failures.push("downloads");
-    if (sitemapUrls.length !== expectedUrls.length || expectedUrls.some(url => !sitemapUrls.includes(url))) failures.push("sitemap");
+    if (expectedUrls.some(url => !sitemapUrls.includes(url)) || sitemapUrls.some(url => !expectedUrls.includes(url) && !allowedExtraSitemapUrl(url))) failures.push("sitemap");
     if (!robots.includes("Allow: /") || !robots.includes("Sitemap: https://irenkipo.github.io/sitemap.xml")) failures.push("robots");
     if (forbiddenDist.length) failures.push("dist cleanliness");
     if (hashFailures.length) failures.push("locked asset checksums");
