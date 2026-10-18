@@ -12,7 +12,12 @@ const FACEBOOK_URL = "https://www.facebook.com/irenkipo/";
 const CHAPTER_PATHS = Array.from({ length: 11 }, (_, index) => `/read/chapter-${String(index + 1).padStart(2, "0")}/`);
 const EXPECTED_PATHS = ["/", "/read/", ...CHAPTER_PATHS, "/privacy.html", "/terms.html"];
 const EXPECTED_CANONICALS = EXPECTED_PATHS.map(pathname => `${CANONICAL_ORIGIN}${pathname}`);
-const isAllowedNoteCanonical = url => /^https:\/\/irenkipo\.github\.io\/notes\/(?:[a-z0-9-]+\/)?$/.test(url);
+const isAllowedNoteCanonical = url => {
+  const prefix = "https://irenkipo.github.io/notes/";
+  if (!url.startsWith(prefix)) return false;
+  const rest = url.slice(prefix.length);
+  return rest === "" || (/^[a-z0-9-]+\/$/).test(rest);
+};
 const failures = [];
 const timings = [];
 
