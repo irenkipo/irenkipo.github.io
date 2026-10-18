@@ -1,0 +1,36 @@
+name: Audiobook local final-pass inventory
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audiobook-local-final-pass-inventory.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: [self-hosted, Windows, X64, promo]
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -command ". '{0}'"
+    steps:
+      - name: Inspect audiobook local workspace
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='D:\Common\II\Novel_Project\NovelProjectV2\Audiobook_V_zone_vidimosti'
+          if(-not (Test-Path -LiteralPath $root)){ throw "MISSING_ROOT=$root" }
+          Write-Host "ROOT=$root"
+          Write-Host '=== RECENT AUDIO OUTPUTS ==='
+          Get-ChildItem -LiteralPath $root -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -in '.mp3','.wav','.zip' } |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 80 FullName,Length,LastWriteTime |
+            Format-Table -AutoSize | Out-String -Width 500 | Write-Host
+          Write-Host '=== PIPELINE SCRIPTS ==='
+          Get-ChildItem -LiteralPath $root -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -in '.ps1','.py','.cmd','.bat','.json','.yaml','.yml' -and ($_.Name -match 'audio|voice|render|build|qc|final|v10|pron|lex|patch|fix') } |
+            Sort-Object FullName |
+            Select-Object FullName,LastWriteTime |
+            Format-Table -AutoSize | Out-String -Width 500 | Write-Host
+          Write-Host 'INVENTORY=PASS'
