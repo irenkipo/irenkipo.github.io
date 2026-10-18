@@ -102,12 +102,17 @@ def build_notes(src: Path, dist: Path, base_url: str) -> list[tuple[str, Path]]:
         sitemap_sources.append((canonical, manifest_path))
 
         cards.append(
-            '<article class="reader-review">'
+            '<details class="reader-review collapsible-item">'
+            '<summary>'
+            f'<span>{escape(title)}</span>'
+            '<span class="expand-label">Развернуть</span>'
+            '</summary>'
+            '<div class="collapsible-content">'
             f'<p class="review-kind">{escape(published_on)}</p>'
-            f'<h3><a href="/notes/{escape(slug)}/">{escape(title)}</a></h3>'
             f'<p>{escape(description)}</p>'
-            f'<p><a href="/notes/{escape(slug)}/">Читать заметку</a></p>'
-            '</article>'
+            f'<p><a href="/notes/{escape(slug)}/">Читать полностью</a></p>'
+            '</div>'
+            '</details>'
         )
 
         dt = datetime.strptime(published_on, "%Y-%m-%d").replace(tzinfo=timezone.utc)
