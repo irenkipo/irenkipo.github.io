@@ -147,7 +147,7 @@ def build_notes(src: Path, dist: Path, base_url: str) -> list[tuple[str, Path]]:
     home_path = dist / "index.html"
     if home_path.exists():
         home = home_path.read_text(encoding="utf-8")
-        latest = "".join(cards[:1])
+        latest = next((card for card, note in zip(cards, items) if note.get("content_id") == "P19"), cards[0] if cards else "")
         block = (
             '<section class="section reviews-section" id="notes" aria-labelledby="notes-title">'
             '<header class="reviews-heading"><p class="eyebrow">О КНИГЕ И ВОКРУГ НЕЁ</p>'
