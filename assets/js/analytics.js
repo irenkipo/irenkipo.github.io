@@ -90,17 +90,27 @@
       sendEvent("book_download", { ...params, file_name: url.pathname.split("/").pop() });
       return;
     }
-    if (url.origin === location.origin && location.pathname === "/" && url.pathname === "/read/") {
-      sendEvent("read_start", params);
-      return;
-    }
     const chapter = url.pathname.match(/^\/read\/chapter-(\d{2})\/$/);
     if (url.origin === location.origin && chapter) {
       sendEvent("chapter_start", { ...params, chapter_number: Number(chapter[1]) });
     }
   }
 
+  // Count actual reader entry, including direct campaign links to /read/.
+  // Avoid counting a homepage click that never reaches the reader.
+  function recordReadStart() {
+    const key = "iren_kipo_read_started";
+    try {
+      if (sessionStorage.getItem(key) === "1") return;
+      sessionStorage.setItem(key, "1");
+    } catch {}
+    sendEvent("read_start", { reading_entry: location.pathname });
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
+    if (location.pathname === "/read/" || location.pathname === "/read/chapter-01/") {
+      recordReadStart();
+    }
     document.addEventListener("click", event => {
       const audioOpen = event.target.closest('[data-open="audio"]');
       if (audioOpen) sendEvent("audiobook_open");
