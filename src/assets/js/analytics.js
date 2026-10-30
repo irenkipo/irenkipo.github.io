@@ -207,21 +207,29 @@
       else if (downloadFormat === "audiobook_zip") nativeEvent("dl-audio", "book1");
       return;
     }
-    if (url.origin === location.origin && location.pathname === "/" && url.pathname === "/read/") {
-      sendEvent("read_start", params);
-      nativeEvent("read", "start");
-      return;
-    }
     const chapter = url.pathname.match(/^\/read\/chapter-(\d{2})\/$/);
     if (url.origin === location.origin && chapter) {
       sendEvent("chapter_start", { ...params, chapter_number: Number(chapter[1]) });
     }
   }
 
+  // A reader is counted only after /read/ (or chapter 1) has actually loaded.
+  // This includes direct campaign links; a homepage click alone is insufficient.
+  function recordReadStart() {
+    const key = "iren_kipo_read_started";
+    try {
+      if (sessionStorage.getItem(key) === "1") return;
+      sessionStorage.setItem(key, "1");
+    } catch {}
+    sendEvent("read_start", { reading_entry: location.pathname });
+    nativeEvent("read", "start");
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     const currentPage = pageCode();
     nativeEvent("page", currentPage);
     if (isExternalEntry()) nativeEvent("visit", currentPage);
+    if (currentPage === "read" || currentPage === "c01") recordReadStart();
 
     document.addEventListener("click", event => {
       const audioOpen = event.target.closest('[data-open="audio"]');
