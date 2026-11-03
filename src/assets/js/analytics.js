@@ -85,8 +85,15 @@
 
   function sourceToken() {
     const a = currentAttribution();
-    const source = compactToken(a.utm_source, "", 10);
-    const content = compactToken(a.utm_content, "", 6);
+    // Anonymous event source code: use complete November post ID, not a
+    // six-character fragment that collapses separate posts into one bucket.
+    const aliases = {
+      instagram: "ig", facebook: "fb", threads: "th", youtube: "yt",
+      telegram: "tg", telegram_channel: "tg", twitter: "x", x: "x"
+    };
+    const originalSource = compactToken(a.utm_source, "", 18);
+    const source = aliases[a.utm_source] || aliases[originalSource] || compactToken(a.utm_source, "", 5);
+    const content = compactToken(a.utm_content, "", 11);
     if (source && content) return compactToken(source + "-" + content, "utm", 18);
     if (source) return source;
 
