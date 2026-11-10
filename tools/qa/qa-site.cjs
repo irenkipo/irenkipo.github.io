@@ -230,6 +230,35 @@ async function testAttributionRuntime(browser) {
   return state;
 }
 
+async function testReadStartDirectEntry(browser) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  await page.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
+  const events = () => page.evaluate(() => ({
+    count: (window.dataLayer || []).filter(item => item && item[0] === "event" && item[1] === "read_start").length,
+    event: (window.dataLayer || []).find(item => item && item[0] === "event" && item[1] === "read_start")?.[2] || null,
+    stored: sessionStorage.getItem("iren_kipo_read_started")
+  }));
+  await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
+  const home = await events();
+  await page.goto("http://127.0.0.1:4173/read/?utm_source=threads&utm_medium=organic_social&utm_campaign=book_01_visibility&utm_content=readtest", { waitUntil: "domcontentloaded" });
+  const landing = await events();
+  await page.goto("http://127.0.0.1:4173/read/chapter-01/", { waitUntil: "domcontentloaded" });
+  const chapterSameSession = await events();
+  await context.close();
+
+  const direct = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const directPage = await direct.newPage();
+  await directPage.route("https://www.googletagmanager.com/**", route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }));
+  await directPage.goto("http://127.0.0.1:4173/read/chapter-01/?utm_source=youtube&utm_medium=organic_social&utm_campaign=book_01_visibility&utm_content=directchapter", { waitUntil: "domcontentloaded" });
+  const chapterDirect = await directPage.evaluate(() => ({
+    count: (window.dataLayer || []).filter(item => item && item[0] === "event" && item[1] === "read_start").length,
+    event: (window.dataLayer || []).find(item => item && item[0] === "event" && item[1] === "read_start")?.[2] || null
+  }));
+  await direct.close();
+  return { home, landing, chapterSameSession, chapterDirect };
+}
+
 async function testAnalyticsRuntime(browser) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
@@ -255,6 +284,7 @@ async function testAnalyticsRuntime(browser) {
     for (const [name, viewport] of Object.entries(viewports)) results.push(await runViewport(browser, name, viewport));
     const analyticsRuntime = await testAnalyticsRuntime(browser);
     const attributionRuntime = await testAttributionRuntime(browser);
+    const readStartRuntime = await testReadStartDirectEntry(browser);
 
     const downloadChecks = {};
     for (const file of ["assets/books/book1.epub", "assets/books/book1.pdf"]) {
@@ -296,6 +326,16 @@ async function testAnalyticsRuntime(browser) {
     if (visual.some(item => !item.geometryLocked || !item.pixelWithinBudget)) failures.push("visual lock");
     if (analyticsRuntime.tagCount !== 1 || analyticsRuntime.bannerCount !== 0) failures.push("analytics runtime");
     if (attributionRuntime.stored.utm_source !== "facebook" || attributionRuntime.stored.utm_medium !== "organic_social" || attributionRuntime.stored.utm_campaign !== "book_01_visibility" || attributionRuntime.stored.utm_content !== "p13" || !attributionRuntime.chapterOpen || attributionRuntime.chapterOpen.utm_source !== "facebook" || attributionRuntime.chapterOpen.utm_content !== "p13") failures.push("campaign attribution runtime");
+    if (readStartRuntime.home.count !== 0
+      || readStartRuntime.landing.count !== 1
+      || readStartRuntime.landing.event?.utm_source !== "threads"
+      || readStartRuntime.landing.event?.reading_entry !== "/read/"
+      || readStartRuntime.landing.stored !== "1"
+      || readStartRuntime.chapterSameSession.count !== 0
+      || readStartRuntime.chapterSameSession.stored !== "1"
+      || readStartRuntime.chapterDirect.count !== 1
+      || readStartRuntime.chapterDirect.event?.utm_source !== "youtube"
+      || readStartRuntime.chapterDirect.event?.reading_entry !== "/read/chapter-01/") failures.push("read_start direct landing, UTM and session dedup");
     const defaults = analyticsRuntime.consentEntries.find(item => item[0] === "default")?.[1] || {};
     if (defaults.analytics_storage !== "denied" || defaults.ad_storage !== "denied" || defaults.ad_user_data !== "denied" || defaults.ad_personalization !== "denied") failures.push("analytics denied-storage defaults");
     if (!indexHtml.includes('data-subscription-form') || !indexHtml.includes('Электронная почта') || !indexHtml.includes('action="https://docs.google.com/forms/d/e/1FAIpQLSf4CueonKqtg43EaRjTHyjK3V_PbcGvwwzNju_QM2_mjdCspg/formResponse"')) failures.push("Russian subscription form missing from dist homepage");
@@ -304,7 +344,7 @@ async function testAnalyticsRuntime(browser) {
     if (indexHtml.includes('https://www.tiktok.com/@irenkipo') || /<a[^>]*>TikTok<\/a>/i.test(indexHtml)) failures.push("retired TikTok profile link leaked into homepage");
     if (obsoleteSubscriptionConfig) failures.push("obsolete subscription config shipped in dist");
 
-    const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsRuntime, attributionRuntime };
+    const report = { pass: failures.length === 0, failures, results, downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual, analyticsRuntime, attributionRuntime, readStartRuntime };
     fs.writeFileSync(path.join(reportDir, "site-qa.json"), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({ pass: report.pass, failures, viewports: results.map(item => ({ name: item.name, overflow: item.main.overflow, brokenImages: item.meta.brokenImages.length, consoleErrors: item.consoleErrors.length, pageErrors: item.pageErrors.length, checkedPages: item.checkedPages.length })), downloadChecks, sitemapUrlCount: sitemapUrls.length, forbiddenDist, hashFailures, visual }, null, 2));
     if (failures.length) process.exitCode = 1;
