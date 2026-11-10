@@ -85,8 +85,15 @@
 
   function sourceToken() {
     const a = currentAttribution();
-    const source = compactToken(a.utm_source, "", 10);
-    const content = compactToken(a.utm_content, "", 6);
+    // Anonymous event source code: use complete November post ID, not a
+    // six-character fragment that collapses separate posts into one bucket.
+    const aliases = {
+      instagram: "ig", facebook: "fb", threads: "th", youtube: "yt",
+      telegram: "tg", telegram_channel: "tg", twitter: "x", x: "x"
+    };
+    const originalSource = compactToken(a.utm_source, "", 18);
+    const source = aliases[a.utm_source] || aliases[originalSource] || compactToken(a.utm_source, "", 5);
+    const content = compactToken(a.utm_content, "", 11);
     if (source && content) return compactToken(source + "-" + content, "utm", 18);
     if (source) return source;
 
@@ -207,21 +214,29 @@
       else if (downloadFormat === "audiobook_zip") nativeEvent("dl-audio", "book1");
       return;
     }
-    if (url.origin === location.origin && location.pathname === "/" && url.pathname === "/read/") {
-      sendEvent("read_start", params);
-      nativeEvent("read", "start");
-      return;
-    }
     const chapter = url.pathname.match(/^\/read\/chapter-(\d{2})\/$/);
     if (url.origin === location.origin && chapter) {
       sendEvent("chapter_start", { ...params, chapter_number: Number(chapter[1]) });
     }
   }
 
+  // Count actual reader entry, including direct campaign links.
+  // Session deduplication avoids repeated counts on chapter navigation.
+  function recordReadStart() {
+    const key = "iren_kipo_read_started";
+    try {
+      if (sessionStorage.getItem(key) === "1") return;
+      sessionStorage.setItem(key, "1");
+    } catch {}
+    sendEvent("read_start", { reading_entry: location.pathname });
+    nativeEvent("read", "start");
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     const currentPage = pageCode();
     nativeEvent("page", currentPage);
     if (isExternalEntry()) nativeEvent("visit", currentPage);
+    if (currentPage === "read" || currentPage === "c01") recordReadStart();
 
     document.addEventListener("click", event => {
       const audioOpen = event.target.closest('[data-open="audio"]');
