@@ -43,7 +43,7 @@ def fetch(url, *, timeout=25):
 
 def validate_audio_html(html: str, assets: list[dict]):
     sources = re.findall(r'data-audio-src="([^"]+)"', html)
-    chapters = re.findall(r'data-audio-chapter="(\\d+)"', html)
+    chapters = re.findall(r'data-audio-chapter="(\d+)"', html)
     if len(sources) != 11 or chapters != [str(i) for i in range(1, 12)]:
         raise RuntimeError(f"Homepage must list 11 sequential chapters: sources={len(sources)} chapters={chapters}")
     by_name = {item["name"]: item for item in assets}
